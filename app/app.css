@@ -52,38 +52,51 @@ body {
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  /* Softer radius (14px) for smoother cards */
+  --radius: 0.875rem;
+
+  /* Light surface with subtle foreground */
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(222 47% 11%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222 47% 11%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222 47% 11%);
+
+  /* Brand blue primary (close to website’s accent) */
+  --primary: hsl(221 83% 53%); /* ~#2563eb */
+  --primary-foreground: hsl(0 0% 100%);
+
+  /* Soft neutrals and blue-tinted accents */
+  --secondary: hsl(220 18% 98%);
+  --secondary-foreground: hsl(222 47% 15%);
+  --muted: hsl(220 18% 98%);
+  --muted-foreground: hsl(220 10% 46%);
+  --accent: hsl(221 100% 97%);
+  --accent-foreground: hsl(222 47% 20%);
+  --destructive: hsl(0 84% 60%);
+
+  /* Much lighter borders and inputs for a smoother look */
+  --border: hsl(220 14% 96%);
+  --input: hsl(220 14% 96%);
+  --ring: hsl(221 83% 53% / 0.35);
+
+  /* Colorful chart palette */
+  --chart-1: hsl(221 83% 53%); /* blue */
+  --chart-2: hsl(172 66% 44%); /* teal */
+  --chart-3: hsl(239 84% 67%); /* indigo */
+  --chart-4: hsl(38 92% 50%);  /* amber */
+  --chart-5: hsl(330 81% 60%); /* pink */
+
+  /* Sidebar tints */
   --sidebar: hsl(0 0% 98%);
   --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent: hsl(220 17% 97%);
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --sidebar-border: hsl(220 16% 94%);
+  --sidebar-ring: var(--ring);
 }
 
 .dark {
@@ -125,6 +138,9 @@ body {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+  @apply bg-background text-foreground;
+  /* Subtle hero-like radial glow to match the website’s soft blue aura */
+  background-image: radial-gradient(1200px 800px at 0% -10%, hsl(221 100% 97%), transparent 60%);
+  background-attachment: fixed;
   }
 }

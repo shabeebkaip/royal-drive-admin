@@ -1,19 +1,24 @@
 import * as React from "react"
 import {
   IconCamera,
+  IconCar,
   IconChartBar,
+  IconCreditCard,
   IconDashboard,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
+  IconFileText,
   IconFileWord,
   IconFolder,
   IconHelp,
   IconInnerShadowTop,
   IconListDetails,
+  IconMessage2,
   IconReport,
   IconSearch,
   IconSettings,
+  IconShieldLock,
   IconUsers,
 } from "@tabler/icons-react"
 
@@ -21,6 +26,7 @@ import { NavDocuments } from "~/components/nav-documents"
 import { NavMain } from "~/components/nav-main"
 import { NavSecondary } from "~/components/nav-secondary"
 import { NavUser } from "~/components/nav-user"
+import Logo from "~/components/shared/Logo"
 import {
   Sidebar,
   SidebarContent,
@@ -35,33 +41,53 @@ const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
-  avatar: "/favicon.ico",
+  avatar: "/favicon.svg",
   },
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
+      title: "Vehicles",
+      url: "/vehicles",
+      icon: IconCar,
     },
     {
-      title: "Analytics",
-      url: "#",
+      title: "Sales",
+      url: "/sales",
       icon: IconChartBar,
     },
     {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
+      title: "Quotation Enquiries",
+      url: "/enquiries/quotations",
+      icon: IconFileDescription,
     },
     {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
+      title: "Financing Enquiries",
+      url: "/enquiries/financing",
+      icon: IconCreditCard,
+    },
+    {
+      title: "Business Information",
+      url: "/settings/business",
+      icon: IconSettings,
+    },
+    {
+      title: "Testimonials",
+      url: "/testimonials",
+      icon: IconMessage2,
+    },
+    {
+      title: "Terms & Conditions",
+      url: "/legal/terms",
+      icon: IconFileText,
+    },
+    {
+      title: "Privacy Policy",
+      url: "/legal/privacy",
+      icon: IconShieldLock,
     },
   ],
   navClouds: [
@@ -158,9 +184,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+              <a href="#" aria-label="Royal Drive">
+                <Logo size="sm" variant="dark" className="select-none" />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

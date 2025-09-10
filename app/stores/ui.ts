@@ -18,6 +18,7 @@ export function titleFromPath(pathname: string): string {
   // Known mappings (modules)
   const map: Record<string, string> = {
     "/vehicles": "Vehicles",
+    "/makes": "Vehicle Makes",
     "/sales": "Sales",
     "/enquiries/quotations": "Quotation Enquiries",
     "/enquiries/financing": "Financing Enquiries",

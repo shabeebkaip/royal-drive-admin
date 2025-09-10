@@ -55,6 +55,11 @@ const data = {
       icon: IconCar,
     },
     {
+      title: "Vehicle Makes",
+      url: "/makes",
+      icon: IconDatabase,
+    },
+    {
       title: "Sales",
       url: "/sales",
       icon: IconChartBar,

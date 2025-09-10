@@ -1,4 +1,4 @@
-import type { VehicleRow } from "./columns"
+import type { VehicleRow } from "~/types/vehicle"
 
 export const vehiclesMock: VehicleRow[] = [
   {

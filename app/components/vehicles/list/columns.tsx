@@ -1,19 +1,16 @@
 import { type ColumnDef } from "@tanstack/react-table"
+import { Eye, Edit, Trash2, MoreHorizontal } from "lucide-react"
+import { Link } from "react-router"
 import { Badge } from "~/components/ui/badge"
-
-export type VehicleRow = {
-  id: string
-  year: number
-  make: string
-  model: string
-  trim?: string
-  bodyType: string
-  fuelType: string
-  drivetrain: string
-  odometer: number
-  price: number
-  status: string
-}
+import { Button } from "~/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu"
+import type { VehicleRow } from "~/types/vehicle"
 
 export const vehicleColumns: ColumnDef<VehicleRow>[] = [
   {
@@ -109,6 +106,75 @@ export const vehicleColumns: ColumnDef<VehicleRow>[] = [
         >
           {status}
         </Badge>
+      )
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    size: 80,
+    cell: ({ row }) => {
+      const vehicle = row.original
+      
+      return (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+            asChild
+          >
+            <Link to={`/vehicles/${vehicle.id}`}>
+              <Eye className="h-4 w-4" />
+              <span className="sr-only">View vehicle</span>
+            </Link>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-amber-50 hover:text-amber-600"
+            asChild
+          >
+            <Link to={`/vehicles/${vehicle.id}/edit`}>
+              <Edit className="h-4 w-4" />
+              <span className="sr-only">Edit vehicle</span>
+            </Link>
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-gray-50"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">More actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onClick={() => console.log("Duplicate vehicle:", vehicle.id)}
+              >
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => console.log("Mark as featured:", vehicle.id)}
+              >
+                Mark as Featured
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-600"
+                onClick={() => console.log("Delete vehicle:", vehicle.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     },
   },

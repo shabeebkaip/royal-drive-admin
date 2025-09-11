@@ -8,47 +8,50 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog"
-import type { MakeRow } from "~/types/make"
+import type { BaseEntity, CrudConfig } from "./types"
 
-type DeleteMakeDialogProps = {
+type CrudDeleteDialogProps<TEntity extends BaseEntity, TFormData> = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  make: MakeRow | null
-  onConfirm: () => void
+  entity: TEntity | null
+  onConfirm: () => void | Promise<void>
   isLoading?: boolean
+  config: CrudConfig<TEntity, TFormData>
 }
 
-export function DeleteMakeDialog({
+export function CrudDeleteDialog<TEntity extends BaseEntity, TFormData>({
   open,
   onOpenChange,
-  make,
+  entity,
   onConfirm,
   isLoading = false,
-}: DeleteMakeDialogProps) {
-  if (!make) return null
+  config,
+}: CrudDeleteDialogProps<TEntity, TFormData>) {
+  if (!entity) return null
 
-  const hasVehicles = make.vehicleCount > 0
+  const canDelete = config.canDelete ? config.canDelete(entity) : true
+  const deleteWarning = config.deleteWarning ? config.deleteWarning(entity) : null
+  const entityName = (entity as any).name || config.entityName.toLowerCase()
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Make</AlertDialogTitle>
+          <AlertDialogTitle>Delete {config.entityName}</AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
-            {hasVehicles ? (
+            {!canDelete && deleteWarning ? (
               <>
                 <p>
-                  Cannot delete <strong>{make.name}</strong> because it has{" "}
-                  <strong>{make.vehicleCount}</strong> vehicle{make.vehicleCount !== 1 ? "s" : ""} associated with it.
+                  Cannot delete <strong>{entityName}</strong>.
                 </p>
                 <p className="text-amber-600">
-                  Please reassign or remove all vehicles from this make before deleting.
+                  {deleteWarning}
                 </p>
               </>
             ) : (
               <>
                 <p>
-                  Are you sure you want to delete <strong>{make.name}</strong>?
+                  Are you sure you want to delete <strong>{entityName}</strong>?
                 </p>
                 <p className="text-red-600">
                   This action cannot be undone.
@@ -59,13 +62,13 @@ export function DeleteMakeDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-          {!hasVehicles && (
+          {canDelete && (
             <AlertDialogAction
               onClick={onConfirm}
               disabled={isLoading}
               className="bg-red-600 hover:bg-red-700"
             >
-              {isLoading ? "Deleting..." : "Delete Make"}
+              {isLoading ? "Deleting..." : `Delete ${config.entityName}`}
             </AlertDialogAction>
           )}
         </AlertDialogFooter>

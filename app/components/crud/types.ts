@@ -1,0 +1,67 @@
+import { z } from "zod"
+import type { ColumnDef } from "@tanstack/react-table"
+import type { ReactNode } from "react"
+
+// Base entity interface that all CRUD entities must implement
+export interface BaseEntity {
+  id: string
+  createdAt: string
+  updatedAt?: string
+}
+
+// Generic CRUD configuration
+export interface CrudConfig<TEntity extends BaseEntity, TFormData> {
+  // Entity configuration
+  entityName: string           // "Make", "Vehicle Type"
+  entityNamePlural: string     // "Makes", "Vehicle Types"
+  entityDescription: string    // Description for the page
+
+  // Schema and validation
+  schema: z.ZodSchema<TFormData>
+  defaultValues: TFormData
+
+  // Table configuration
+  columns: (actions: CrudActions<TEntity>) => ColumnDef<TEntity>[]
+  
+  // Form configuration
+  renderForm: (props: FormRenderProps<TFormData>) => ReactNode
+  
+  // API configuration (for future use)
+  apiEndpoint?: string
+  
+  // Optional customizations
+  searchFields?: (keyof TEntity)[]  // Fields to search in
+  deleteWarning?: (entity: TEntity) => string | null  // Custom delete warning
+  canDelete?: (entity: TEntity) => boolean  // Whether entity can be deleted
+}
+
+// Actions passed to columns and other components
+export interface CrudActions<TEntity extends BaseEntity> {
+  onEdit: (entity: TEntity) => void
+  onDelete: (entity: TEntity) => void
+  onView?: (entity: TEntity) => void
+}
+
+// Props for form rendering
+export interface FormRenderProps<TFormData> {
+  register: any  // react-hook-form register
+  errors: any    // form errors
+  watch: any     // watch values
+  setValue: any  // set form values
+  formData?: TFormData  // for edit mode
+}
+
+// Hook return type for CRUD operations
+export interface CrudState<TEntity extends BaseEntity> {
+  data: TEntity[]
+  isLoading: boolean
+  error: string | null
+}
+
+// CRUD operations interface
+export interface CrudOperations<TEntity extends BaseEntity, TFormData> {
+  create: (data: TFormData) => Promise<TEntity>
+  update: (id: string, data: TFormData) => Promise<TEntity>
+  delete: (id: string) => Promise<void>
+  getAll: () => Promise<TEntity[]>
+}

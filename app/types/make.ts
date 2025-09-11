@@ -1,5 +1,14 @@
 import { z } from "zod"
+import type { BaseEntity } from "~/components/crud"
 
+// Update Make interface to extend BaseEntity
+export interface Make extends BaseEntity {
+  name: string
+  logo?: string
+  vehicleCount: number // Remove optional to fix TypeScript errors
+}
+
+// Form data for Make
 export const makeFormSchema = z.object({
   name: z
     .string()
@@ -20,3 +29,6 @@ export const defaultMakeValues: MakeFormData = {
   name: "",
   logo: "",
 }
+
+// For backwards compatibility
+export type MakeRow = Make

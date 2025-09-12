@@ -1,9 +1,10 @@
-import { Car } from "lucide-react"
 import { Label } from "~/components/ui/label"
 import { Input } from "~/components/ui/input"
+import { Textarea } from "~/components/ui/textarea"
+import { ImageUploadDropzone } from "~/components/shared/image-upload-dropzone"
 import type { CrudConfig, FormRenderProps } from "~/components/crud"
-import type { Make, MakeFormData } from "~/types/make"
-import { makeFormSchema, defaultMakeValues } from "~/types/make"
+import type { Make } from "~/types/make"
+import { makeFormSchema, defaultMakeValues, type MakeFormData } from "~/lib/schemas/make"
 import { createMakeColumns } from "~/components/makes/columns"
 
 export const makeCrudConfig: CrudConfig<Make, MakeFormData> = {
@@ -16,68 +17,73 @@ export const makeCrudConfig: CrudConfig<Make, MakeFormData> = {
   
   columns: createMakeColumns,
   
-  renderForm: ({ register, errors, watch }: FormRenderProps<MakeFormData>) => {
+  renderForm: ({ register, errors, watch, setValue }: FormRenderProps<MakeFormData>) => {
     const logoUrl = watch("logo")
     
     return (
-      <>
-        {/* Make Name */}
-        <div className="space-y-2">
-          <Label htmlFor="name">Make Name *</Label>
-          <Input
-            id="name"
-            {...register("name")}
-            placeholder="e.g., Toyota, Honda, BMW..."
-            autoFocus
-          />
-          {errors.name && (
-            <p className="text-sm text-red-600">{errors.name.message}</p>
-          )}
-        </div>
-
-        {/* Logo URL */}
-        <div className="space-y-2">
-          <Label htmlFor="logo">Logo URL (Optional)</Label>
-          <Input
-            id="logo"
-            {...register("logo")}
-            placeholder="https://example.com/logo.png"
-            type="url"
-          />
-          {errors.logo && (
-            <p className="text-sm text-red-600">{errors.logo.message}</p>
-          )}
-          <p className="text-xs text-gray-500">
-            Paste a URL to the make's logo image
-          </p>
-        </div>
-
-        {/* Logo Preview */}
-        {logoUrl && (
-          <div className="space-y-2">
-            <Label>Logo Preview</Label>
-            <div className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50">
-              <img
-                src={logoUrl}
-                alt="Logo preview"
-                className="h-12 w-12 object-contain bg-white p-2 rounded border"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.style.display = 'none'
-                }}
-              />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Logo Preview</p>
-                <p className="text-xs text-gray-500 truncate">{logoUrl}</p>
-              </div>
-            </div>
+      <div className="max-h-[70vh] overflow-y-auto space-y-6 pr-2">
+        {/* Basic Information Section */}
+        <div className="space-y-4">
+          <div className="border-b pb-2">
+            <h3 className="text-base font-semibold text-gray-900">Basic Information</h3>
+            <p className="text-sm text-gray-500">Enter the basic details for this vehicle make.</p>
           </div>
-        )}
-      </>
+          
+          {/* Make Name */}
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-sm font-medium">Make Name *</Label>
+            <Input
+              id="name"
+              {...register("name")}
+              placeholder="e.g., Toyota, Honda, BMW..."
+              autoFocus
+            />
+            {errors.name && (
+              <p className="text-sm text-red-600">{errors.name.message}</p>
+            )}
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+            <Textarea
+              id="description"
+              {...register("description")}
+              placeholder="Brief description of the vehicle make..."
+              rows={2}
+            />
+            {errors.description && (
+              <p className="text-sm text-red-600">{errors.description.message}</p>
+            )}
+            <p className="text-xs text-gray-500">
+              Optional description about the vehicle manufacturer (max 500 characters)
+            </p>
+          </div>
+        </div>
+
+        {/* Logo Upload Section */}
+        <div className="space-y-4">
+          <div className="border-b pb-2">
+            <h3 className="text-base font-semibold text-gray-900">Logo Image</h3>
+            <p className="text-sm text-gray-500">Upload a logo image for this vehicle make.</p>
+          </div>
+
+          <div className="space-y-2">
+            <ImageUploadDropzone
+              onUploadSuccess={(url: string) => setValue("logo", url)}
+              currentImageUrl={logoUrl}
+              className="h-32"
+            />
+            {errors.logo && (
+              <p className="text-sm text-red-600">{errors.logo.message}</p>
+            )}
+          </div>
+        </div>
+      </div>
     )
   },
   
-  searchFields: ["name"],
+  searchFields: ["name", "description"],
   
   canDelete: (make) => (make.vehicleCount || 0) === 0,
   

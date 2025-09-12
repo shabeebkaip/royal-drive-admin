@@ -13,11 +13,6 @@ export const makeFormSchema = z.object({
     .url("Please enter a valid URL")
     .optional()
     .or(z.literal("")),
-  description: z
-    .string()
-    .max(500, "Description cannot exceed 500 characters")
-    .optional()
-    .or(z.literal("")),
 })
 
 // Infer the type from schema
@@ -27,5 +22,4 @@ export type MakeFormData = z.infer<typeof makeFormSchema>
 export const defaultMakeValues: MakeFormData = {
   name: "",
   logo: "",
-  description: "",
 }

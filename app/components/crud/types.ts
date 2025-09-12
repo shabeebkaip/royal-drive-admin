@@ -33,6 +33,11 @@ export interface CrudConfig<TEntity extends BaseEntity, TFormData> {
   searchFields?: (keyof TEntity)[]  // Fields to search in
   deleteWarning?: (entity: TEntity) => string | null  // Custom delete warning
   canDelete?: (entity: TEntity) => boolean  // Whether entity can be deleted
+  
+  // Enhanced features
+  supportsStatusFilter?: boolean    // Whether entity supports active/inactive filtering
+  supportsAdvancedSearch?: boolean  // Whether to show advanced search options
+  supportsBulkActions?: boolean     // Whether to show bulk action controls
 }
 
 // Actions passed to columns and other components
@@ -40,6 +45,8 @@ export interface CrudActions<TEntity extends BaseEntity> {
   onEdit: (entity: TEntity) => void
   onDelete: (entity: TEntity) => void
   onView?: (entity: TEntity) => void
+  onStatusToggle?: (entity: TEntity, newStatus: boolean) => Promise<void>
+  onBulkAction?: (entities: TEntity[], action: string) => Promise<void>
 }
 
 // Props for form rendering

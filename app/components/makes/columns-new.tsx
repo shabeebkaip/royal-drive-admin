@@ -37,7 +37,14 @@ export function createMakeColumns(actions: ExtendedCrudActions<Make>): ColumnDef
                 }}
               />
             )}
-            <span className="font-medium">{make.name}</span>
+            <div className="flex flex-col">
+              <span className="font-medium">{make.name}</span>
+              {make.description && (
+                <span className="text-xs text-gray-500 truncate max-w-[200px]">
+                  {make.description}
+                </span>
+              )}
+            </div>
           </div>
         )
       },

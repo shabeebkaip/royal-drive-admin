@@ -132,23 +132,23 @@ export function ImageUploadDropzone({
           <input {...getInputProps()} />
           
           {isUploading ? (
-            <div className="py-8">
-              <Loader2 className="h-8 w-8 text-blue-500 animate-spin mx-auto mb-3" />
+            <div className="py-6">
+              <Loader2 className="h-6 w-6 text-blue-500 animate-spin mx-auto mb-2" />
               <p className="text-sm font-medium text-gray-900">Uploading...</p>
             </div>
           ) : (
-            <div className="py-8">
+            <div className="py-6">
               {isDragActive ? (
-                <Upload className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+                <Upload className="h-10 w-10 text-blue-500 mx-auto mb-3" />
               ) : (
-                <ImageIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <ImageIcon className="h-10 w-10 text-gray-400 mx-auto mb-3" />
               )}
               
-              <h3 className="text-base font-medium text-gray-900 mb-2">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">
                 {isDragActive ? 'Drop your image here' : 'Upload an image'}
               </h3>
               
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-xs text-gray-500 mb-3">
                 Drag and drop or click to browse
               </p>
               

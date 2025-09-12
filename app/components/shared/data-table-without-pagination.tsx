@@ -3,39 +3,24 @@ import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table"
 import { Card, CardContent } from "~/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
-import { DataPagination, type PaginationState } from "~/components/shared/pagination"
 
-// Export both pagination and non-pagination versions
-export { DataTableWithoutPagination } from "./data-table-without-pagination"
-export { ServerPagination } from "./server-pagination"
-
-export function DataTableGeneric<TData>({
+export function DataTableWithoutPagination<TData>({
   columns,
   data,
-  pageSize = 10,
   className,
 }: {
   columns: ColumnDef<TData, any>[]
   data: TData[]
-  pageSize?: number
   className?: string
 }) {
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize })
-
   const table = useReactTable({
     data,
     columns,
-    state: { pagination },
-    onPaginationChange: (updater) => {
-      setPagination((prev) => (typeof updater === "function" ? updater(prev) : updater))
-    },
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   })
 
   return (
@@ -81,11 +66,6 @@ export function DataTableGeneric<TData>({
             </TableBody>
           </Table>
         </div>
-        <DataPagination
-          pageCount={table.getPageCount()}
-          state={table.getState().pagination}
-          onChange={(next) => table.setPagination(next)}
-        />
       </CardContent>
     </Card>
   )

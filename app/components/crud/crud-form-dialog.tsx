@@ -1,5 +1,6 @@
 import { useForm, type FieldValues } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useEffect } from "react"
 import { Button } from "~/components/ui/button"
 import {
   Dialog,
@@ -38,10 +39,25 @@ export function CrudFormDialog<TEntity extends BaseEntity, TFormData extends Fie
     formState: { errors },
   } = useForm<TFormData>({
     resolver: zodResolver(config.schema),
-    defaultValues: mode === "edit" && initialData 
-      ? (initialData as any)
-      : config.defaultValues,
+    defaultValues: config.defaultValues,
   })
+
+  // Reset form with entity data when editing
+  useEffect(() => {
+    if (mode === "edit" && initialData && open) {
+      // Extract only the form fields from the entity
+      const formData = Object.keys(config.defaultValues).reduce((acc, key) => {
+        if (key in (initialData as any)) {
+          acc[key as keyof TFormData] = (initialData as any)[key]
+        }
+        return acc
+      }, {} as Partial<TFormData>)
+      
+      reset(formData as TFormData)
+    } else if (mode === "add" && open) {
+      reset(config.defaultValues)
+    }
+  }, [mode, initialData, open, reset, config.defaultValues])
 
   const handleFormSubmit = async (data: TFormData) => {
     await onSubmit(data)

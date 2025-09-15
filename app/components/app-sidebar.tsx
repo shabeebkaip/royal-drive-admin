@@ -2,6 +2,7 @@ import * as React from "react"
 import {
   IconCamera,
   IconCar,
+  IconCategory,
   IconChartBar,
   IconCreditCard,
   IconDashboard,
@@ -58,6 +59,11 @@ const data = {
       title: "Vehicle Makes",
       url: "/makes",
       icon: IconDatabase,
+    },
+    {
+      title: "Vehicle Types",
+      url: "/vehicle-types",
+      icon: IconCategory,
     },
     {
       title: "Sales",

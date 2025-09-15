@@ -15,81 +15,83 @@ import { DataTableWithoutPagination, ServerPagination } from "~/components/share
 import { ShimmerTableLoader } from "~/components/shared/shimmer-table-loader"
 import { CrudFormDialog } from "~/components/crud/crud-form-dialog"
 import { CrudDeleteDialog } from "~/components/crud/crud-delete-dialog"
-import { makeCrudConfig } from "~/components/makes/make-crud-config"
-import { useMakes } from "~/components/makes/use-makes"
-import type { Make } from "~/types/make"
-import type { MakeFormData } from "~/lib/schemas/make"
+import { vehicleTypeCrudConfig } from "~/components/vehicle-types/vehicle-type-crud-config"
+import { useVehicleTypes } from "~/components/vehicle-types/use-vehicle-types"
+import type { VehicleType } from "~/types/vehicle-type"
+import type { VehicleTypeFormData } from "~/lib/schemas/vehicle-type"
 
-export default function MakesPage() {
-  const makesHook = useMakes()
+export default function VehicleTypesPage() {
+  const vehicleTypesHook = useVehicleTypes()
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedMake, setSelectedMake] = useState<Make | null>(null)
+  const [selectedVehicleType, setSelectedVehicleType] = useState<VehicleType | null>(null)
   const [localSearchQuery, setLocalSearchQuery] = useState("")
 
   // Use server-side filtering and pagination - no local filtering needed
-  const displayedData = makesHook.data
+  const displayedData = vehicleTypesHook.data
 
-  const handleAdd = async (formData: MakeFormData) => {
+  const handleAdd = async (formData: VehicleTypeFormData) => {
     try {
-      await makesHook.create(formData)
+      await vehicleTypesHook.create(formData)
       setIsAddDialogOpen(false)
     } catch (error) {
-      console.error('Error adding make:', error)
+      console.error('Error adding vehicle type:', error)
     }
   }
 
-  const handleEdit = async (id: string, formData: MakeFormData) => {
+  const handleEdit = async (id: string, formData: VehicleTypeFormData) => {
     try {
-      await makesHook.update(id, formData)
+      await vehicleTypesHook.update(id, formData)
       setIsEditDialogOpen(false)
-      setSelectedMake(null)
+      setSelectedVehicleType(null)
     } catch (error) {
-      console.error('Error updating make:', error)
+      console.error('Error updating vehicle type:', error)
     }
   }
 
-  const handleDelete = async (make: Make) => {
+  const handleDelete = async () => {
+    if (!selectedVehicleType) return
+    
     try {
-      await makesHook.delete(make.id)
+      await vehicleTypesHook.deleteMake(selectedVehicleType.id)
       setIsDeleteDialogOpen(false)
-      setSelectedMake(null)
+      setSelectedVehicleType(null)
     } catch (error) {
-      console.error('Error deleting make:', error)
+      console.error('Error deleting vehicle type:', error)
     }
   }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    makesHook.search(localSearchQuery)
+    vehicleTypesHook.search(localSearchQuery)
   }
 
   const handleStatusFilter = (value: string) => {
     const status = value === 'all' ? undefined : value === 'active'
-    makesHook.setStatusFilter(status)
+    vehicleTypesHook.setStatusFilter(status)
   }
 
   const crudActions = {
-    onEdit: (make: Make) => {
-      setSelectedMake(make)
+    onEdit: (vehicleType: VehicleType) => {
+      setSelectedVehicleType(vehicleType)
       setIsEditDialogOpen(true)
     },
-    onDelete: (make: Make) => {
-      setSelectedMake(make)
+    onDelete: (vehicleType: VehicleType) => {
+      setSelectedVehicleType(vehicleType)
       setIsDeleteDialogOpen(true)
     },
-    onStatusToggle: makesHook.toggleStatus,
+    onStatusToggle: vehicleTypesHook.toggleStatus,
   }
 
-  const columns = makeCrudConfig.columns(crudActions)
+  const columns = vehicleTypeCrudConfig.columns(crudActions)
 
   return (
     <div className="space-y-6 p-4">
       <PageTitle
-        title={makeCrudConfig.entityNamePlural}
-        description={makeCrudConfig.entityDescription}
+        title={vehicleTypeCrudConfig.entityNamePlural}
+        description={vehicleTypeCrudConfig.entityDescription}
       />
       
       {/* Controls Section */}
@@ -98,7 +100,7 @@ export default function MakesPage() {
         <div className="flex flex-col sm:flex-row gap-2 flex-1 max-w-md">
           <form onSubmit={handleSearchSubmit} className="flex gap-2 flex-1">
             <Input
-              placeholder={`Search ${makeCrudConfig.entityNamePlural.toLowerCase()}...`}
+              placeholder={`Search ${vehicleTypeCrudConfig.entityNamePlural.toLowerCase()}...`}
               value={localSearchQuery}
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className="flex-1"
@@ -110,16 +112,16 @@ export default function MakesPage() {
           
           <Select
             value={
-              makesHook.statusFilter === undefined 
+              vehicleTypesHook.statusFilter === undefined 
                 ? 'all' 
-                : makesHook.statusFilter 
+                : vehicleTypesHook.statusFilter 
                   ? 'active' 
                   : 'inactive'
             }
             onValueChange={handleStatusFilter}
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Filter" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
@@ -131,13 +133,10 @@ export default function MakesPage() {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setLocalSearchQuery("")
-              makesHook.refresh()
-            }}
-            disabled={makesHook.isLoading}
+          <Button 
+            variant="outline" 
+            onClick={vehicleTypesHook.refresh}
+            disabled={vehicleTypesHook.isLoading}
             title="Reset all filters and refresh data"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
@@ -145,40 +144,40 @@ export default function MakesPage() {
           </Button>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Add {makeCrudConfig.entityName}
+            Add {vehicleTypeCrudConfig.entityName}
           </Button>
         </div>
       </div>
 
       {/* Summary Stats */}
       <div className="flex gap-4">
-        <Badge variant="outline" className={`px-3 py-1 transition-all duration-200 ${makesHook.isStatsLoading ? 'animate-pulse bg-gray-100' : ''}`}>
-          Total: {makesHook.isStatsLoading ? (
+        <Badge variant="outline" className={`px-3 py-1 transition-all duration-200 ${vehicleTypesHook.isStatsLoading ? 'animate-pulse bg-gray-100' : ''}`}>
+          Total: {vehicleTypesHook.isStatsLoading ? (
             <span className="inline-block w-6 h-4 bg-gray-200 rounded animate-pulse"></span>
           ) : (
-            makesHook.stats.total
+            vehicleTypesHook.stats.total
           )}
         </Badge>
-        <Badge variant="default" className={`px-3 py-1 transition-all duration-200 ${makesHook.isStatsLoading ? 'animate-pulse bg-blue-100' : ''}`}>
-          Active: {makesHook.isStatsLoading ? (
+        <Badge variant="default" className={`px-3 py-1 transition-all duration-200 ${vehicleTypesHook.isStatsLoading ? 'animate-pulse bg-blue-100' : ''}`}>
+          Active: {vehicleTypesHook.isStatsLoading ? (
             <span className="inline-block w-6 h-4 bg-blue-200 rounded animate-pulse"></span>
           ) : (
-            makesHook.stats.active
+            vehicleTypesHook.stats.active
           )}
         </Badge>
-        <Badge variant="secondary" className={`px-3 py-1 transition-all duration-200 ${makesHook.isStatsLoading ? 'animate-pulse bg-gray-100' : ''}`}>
-          Inactive: {makesHook.isStatsLoading ? (
+        <Badge variant="secondary" className={`px-3 py-1 transition-all duration-200 ${vehicleTypesHook.isStatsLoading ? 'animate-pulse bg-gray-100' : ''}`}>
+          Inactive: {vehicleTypesHook.isStatsLoading ? (
             <span className="inline-block w-6 h-4 bg-gray-200 rounded animate-pulse"></span>
           ) : (
-            makesHook.stats.inactive
+            vehicleTypesHook.stats.inactive
           )}
         </Badge>
       </div>
 
       {/* Data Table */}
-      {makesHook.isLoading ? (
+      {vehicleTypesHook.isLoading ? (
         <ShimmerTableLoader 
-          rows={makesHook.pagination.limit || 10} 
+          rows={vehicleTypesHook.pagination.limit || 10} 
           columns={4}
         />
       ) : (
@@ -190,18 +189,18 @@ export default function MakesPage() {
 
       {/* Server-side Pagination */}
       <ServerPagination
-        currentPage={makesHook.pagination.page}
-        totalPages={makesHook.pagination.pages}
-        totalItems={makesHook.pagination.total}
-        itemsPerPage={makesHook.pagination.limit}
-        hasNext={makesHook.pagination.hasNext}
-        hasPrev={makesHook.pagination.hasPrev}
-        onPageChange={makesHook.goToPage}
-        onNext={makesHook.nextPage}
-        onPrevious={makesHook.prevPage}
-        onFirst={() => makesHook.goToPage(1)}
-        onLast={() => makesHook.goToPage(makesHook.pagination.pages)}
-        isLoading={makesHook.isLoading}
+        currentPage={vehicleTypesHook.pagination.page}
+        totalPages={vehicleTypesHook.pagination.pages}
+        totalItems={vehicleTypesHook.pagination.total}
+        itemsPerPage={vehicleTypesHook.pagination.limit}
+        hasNext={vehicleTypesHook.pagination.hasNext}
+        hasPrev={vehicleTypesHook.pagination.hasPrev}
+        onPageChange={vehicleTypesHook.goToPage}
+        onNext={vehicleTypesHook.nextPage}
+        onPrevious={vehicleTypesHook.prevPage}
+        onFirst={() => vehicleTypesHook.goToPage(1)}
+        onLast={() => vehicleTypesHook.goToPage(vehicleTypesHook.pagination.pages)}
+        isLoading={vehicleTypesHook.isLoading}
       />
 
       {/* Dialogs */}
@@ -209,7 +208,7 @@ export default function MakesPage() {
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSubmit={handleAdd}
-        config={makeCrudConfig}
+        config={vehicleTypeCrudConfig}
         mode="add"
       />
 
@@ -217,31 +216,27 @@ export default function MakesPage() {
         open={isEditDialogOpen}
         onOpenChange={(open) => {
           setIsEditDialogOpen(open)
-          if (!open) setSelectedMake(null)
+          if (!open) setSelectedVehicleType(null)
         }}
-        onSubmit={async (data) => {
-          if (selectedMake) {
-            await handleEdit(selectedMake.id, data as MakeFormData)
+        onSubmit={async (formData) => {
+          if (selectedVehicleType) {
+            return await handleEdit(selectedVehicleType.id, formData)
           }
         }}
-        config={makeCrudConfig}
+        config={vehicleTypeCrudConfig}
         mode="edit"
-        initialData={selectedMake || undefined}
+        initialData={selectedVehicleType || undefined}
       />
 
       <CrudDeleteDialog
         open={isDeleteDialogOpen}
         onOpenChange={(open) => {
           setIsDeleteDialogOpen(open)
-          if (!open) setSelectedMake(null)
+          if (!open) setSelectedVehicleType(null)
         }}
-        onConfirm={async () => {
-          if (selectedMake) {
-            await handleDelete(selectedMake)
-          }
-        }}
-        entity={selectedMake}
-        config={makeCrudConfig}
+        entity={selectedVehicleType}
+        onConfirm={handleDelete}
+        config={vehicleTypeCrudConfig}
       />
     </div>
   )

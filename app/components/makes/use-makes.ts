@@ -189,12 +189,10 @@ export function useMakes() {
     
     try {
       const updatedMake = await makesApiService.updateStatus(make.id, newStatus)
-      console.log('🔄 Status Toggle - Original make:', make)
-      console.log('🔄 Status Toggle - Updated make from API:', updatedMake)
       
       // Check if the API returned valid data
       if (!updatedMake || typeof updatedMake !== 'object' || !updatedMake.id) {
-        console.warn('🔄 Status Toggle - Invalid API response, forcing refresh')
+        console.warn('Status Toggle - Invalid API response, forcing refresh')
         // If API response is invalid, just refresh the data
         await loadMakes()
         loadStats()
@@ -211,8 +209,6 @@ export function useMakes() {
         active: newStatus,  // Ensure the status is definitely set
         updatedAt: updatedMake.updatedAt || new Date().toISOString(),
       }
-      
-      console.log('🔄 Status Toggle - Complete updated make:', completeUpdatedMake)
       
       // Update with the complete data from API
       setData(prev => prev.map(item => 

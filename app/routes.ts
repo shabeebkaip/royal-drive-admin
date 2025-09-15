@@ -8,5 +8,6 @@ export default [
 		route("vehicles/:id", "routes/vehicles.$id.tsx"),
 		route("vehicles/:id/edit", "routes/vehicles.$id.edit.tsx"),
 		route("makes", "routes/makes.tsx"),
+		route("vehicle-types", "routes/vehicle-types.tsx"),
 	]),
 ] satisfies RouteConfig;

@@ -4,8 +4,27 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: "Inter", ui-sans-serif, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Subtle hero-like radial glow to match the website's soft blue aura */
+    background-image: radial-gradient(1200px 800px at 0% -10%, hsl(221 100% 97%), transparent 60%);
+    background-attachment: fixed;
+  }
+}
+
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 html,

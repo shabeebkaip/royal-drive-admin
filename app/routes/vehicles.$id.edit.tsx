@@ -1,5 +1,6 @@
 import type { Route } from "./+types/vehicles.$id"
 import { useNavigate, useParams } from "react-router"
+import { toast } from "sonner"
 import { PageTitle } from "~/components/shared/page-title"
 import { VehicleForm } from "~/components/vehicles/addEdit/vehicle-form"
 import type { VehicleFormData } from "~/components/vehicles/addEdit/schema"
@@ -21,11 +22,17 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
+      toast.success("Vehicle updated successfully", {
+        description: "The vehicle details have been updated."
+      })
+      
       // Navigate back to vehicles list on success
       navigate("/vehicles")
     } catch (error) {
       console.error("Error updating vehicle:", error)
-      // TODO: Show error toast/notification
+      toast.error("Failed to update vehicle", {
+        description: "An error occurred while updating the vehicle. Please try again."
+      })
     }
   }
 

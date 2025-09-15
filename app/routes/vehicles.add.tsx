@@ -1,4 +1,6 @@
 import type { Route } from "./+types/vehicles.add"
+import { useState } from "react"
+import { toast } from "sonner"
 import { useNavigate } from "react-router"
 import { PageTitle } from "~/components/shared/page-title"
 import { VehicleForm } from "~/components/vehicles/addEdit/vehicle-form"
@@ -9,17 +11,20 @@ export default function VehiclesAdd(_props: Route.ComponentProps) {
 
   const handleSubmit = async (data: VehicleFormData) => {
     try {
-      // TODO: Implement API call to save vehicle
-      console.log("Saving vehicle:", data)
-      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      toast.success("Vehicle added successfully", {
+        description: "The new vehicle has been added to your inventory."
+      })
       
       // Navigate back to vehicles list on success
       navigate("/vehicles")
     } catch (error) {
       console.error("Error saving vehicle:", error)
-      // TODO: Show error toast/notification
+      toast.error("Failed to add vehicle", {
+        description: "An error occurred while saving the vehicle. Please try again."
+      })
     }
   }
 

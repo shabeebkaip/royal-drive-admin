@@ -88,6 +88,8 @@ export class MakesApiService extends ApiService<Make, MakeFormData> {
   // Update make status (active/inactive)
   async updateStatus(id: string, active: boolean): Promise<Make> {
     try {
+      console.log('🔧 API updateStatus - Request:', { id, active })
+      
       const response = await fetch(`${this.baseUrl}/${id}/status`, {
         method: 'PATCH',
         headers: {
@@ -101,8 +103,13 @@ export class MakesApiService extends ApiService<Make, MakeFormData> {
       }
       
       const result = await response.json()
+      console.log('🔧 API updateStatus - Raw response:', result)
+      
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const finalResult = result.data || result
+      console.log('🔧 API updateStatus - Final result:', finalResult)
+      
+      return finalResult
     } catch (error) {
       console.error('API Error (updateStatus):', error)
       throw error

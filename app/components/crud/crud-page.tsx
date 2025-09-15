@@ -43,10 +43,8 @@ export function CrudPage<TEntity extends BaseEntity, TFormData extends FieldValu
     try {
       await actions.create(formData)
       setIsAddDialogOpen(false)
-      // TODO: Show success toast
     } catch (error) {
       console.error(`Error adding ${config.entityName.toLowerCase()}:`, error)
-      // TODO: Show error toast
     }
   }
 
@@ -62,10 +60,8 @@ export function CrudPage<TEntity extends BaseEntity, TFormData extends FieldValu
       await actions.update(selectedEntity.id, formData)
       setIsEditDialogOpen(false)
       setSelectedEntity(null)
-      // TODO: Show success toast
     } catch (error) {
       console.error(`Error updating ${config.entityName.toLowerCase()}:`, error)
-      // TODO: Show error toast
     }
   }
 
@@ -81,10 +77,8 @@ export function CrudPage<TEntity extends BaseEntity, TFormData extends FieldValu
       await actions.delete(selectedEntity.id)
       setIsDeleteDialogOpen(false)
       setSelectedEntity(null)
-      // TODO: Show success toast
     } catch (error) {
       console.error(`Error deleting ${config.entityName.toLowerCase()}:`, error)
-      // TODO: Show error toast
     }
   }
 

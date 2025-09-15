@@ -2,6 +2,7 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import * as React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "~/components/ui/sonner";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -42,6 +43,7 @@ export default function App() {
   return (
     <QueryClientProvider client={client}>
       <Outlet />
+      <Toaster />
       <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
     </QueryClientProvider>
   );

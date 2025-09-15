@@ -12,6 +12,7 @@ import {
 } from "~/components/ui/select"
 import { PageTitle } from "~/components/shared/page-title"
 import { DataTableWithoutPagination, ServerPagination } from "~/components/shared/data-table"
+import { ShimmerTableLoader } from "~/components/shared/shimmer-table-loader"
 import { CrudFormDialog } from "~/components/crud/crud-form-dialog"
 import { CrudDeleteDialog } from "~/components/crud/crud-delete-dialog"
 import { makeCrudConfig } from "~/components/makes/make-crud-config"
@@ -84,6 +85,11 @@ export default function MakesPage() {
 
   const columns = makeCrudConfig.columns(crudActions)
 
+  // Debug logging for data passed to table
+  console.log('📊 Table Data Debug - Current data:', displayedData)
+  console.log('📊 Table Data Debug - Data length:', displayedData.length)
+  console.log('📊 Table Data Debug - First item structure:', displayedData[0])
+
   return (
     <div className="space-y-6 p-4">
       <PageTitle
@@ -132,8 +138,12 @@ export default function MakesPage() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            onClick={() => makesHook.refresh()}
+            onClick={() => {
+              setLocalSearchQuery("")
+              makesHook.refresh()
+            }}
             disabled={makesHook.isLoading}
+            title="Reset all filters and refresh data"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
             Refresh
@@ -147,22 +157,41 @@ export default function MakesPage() {
 
       {/* Summary Stats */}
       <div className="flex gap-4">
-        <Badge variant="outline" className="px-3 py-1">
-          Total: {makesHook.pagination.total}
+        <Badge variant="outline" className={`px-3 py-1 transition-all duration-200 ${makesHook.isStatsLoading ? 'animate-pulse bg-gray-100' : ''}`}>
+          Total: {makesHook.isStatsLoading ? (
+            <span className="inline-block w-6 h-4 bg-gray-200 rounded animate-pulse"></span>
+          ) : (
+            makesHook.stats.total
+          )}
         </Badge>
-        <Badge variant="default" className="px-3 py-1">
-          Active: {makesHook.data.filter(m => m.active).length}
+        <Badge variant="default" className={`px-3 py-1 transition-all duration-200 ${makesHook.isStatsLoading ? 'animate-pulse bg-blue-100' : ''}`}>
+          Active: {makesHook.isStatsLoading ? (
+            <span className="inline-block w-6 h-4 bg-blue-200 rounded animate-pulse"></span>
+          ) : (
+            makesHook.stats.active
+          )}
         </Badge>
-        <Badge variant="secondary" className="px-3 py-1">
-          Inactive: {makesHook.data.filter(m => !m.active).length}
+        <Badge variant="secondary" className={`px-3 py-1 transition-all duration-200 ${makesHook.isStatsLoading ? 'animate-pulse bg-gray-100' : ''}`}>
+          Inactive: {makesHook.isStatsLoading ? (
+            <span className="inline-block w-6 h-4 bg-gray-200 rounded animate-pulse"></span>
+          ) : (
+            makesHook.stats.inactive
+          )}
         </Badge>
       </div>
 
       {/* Data Table */}
-      <DataTableWithoutPagination
-        columns={columns}
-        data={displayedData}
-      />
+      {makesHook.isLoading ? (
+        <ShimmerTableLoader 
+          rows={makesHook.pagination.limit || 10} 
+          columns={4}
+        />
+      ) : (
+        <DataTableWithoutPagination
+          columns={columns}
+          data={displayedData}
+        />
+      )}
 
       {/* Server-side Pagination */}
       <ServerPagination

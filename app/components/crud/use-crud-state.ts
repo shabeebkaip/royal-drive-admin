@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { toast } from "sonner"
 import type { BaseEntity, CrudOperations } from "./types"
 
 export function useCrudState<TEntity extends BaseEntity, TFormData>(
@@ -17,6 +18,7 @@ export function useCrudState<TEntity extends BaseEntity, TFormData>(
       if (operations?.create) {
         const newEntity = await operations.create(formData)
         setData(prev => [newEntity, ...prev])
+        toast.success("Item created successfully")
         return newEntity
       } else {
         // Mock implementation for development
@@ -27,11 +29,15 @@ export function useCrudState<TEntity extends BaseEntity, TFormData>(
         } as unknown as TEntity
         
         setData(prev => [newEntity, ...prev])
+        toast.success("Item created successfully")
         return newEntity
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create'
       setError(errorMessage)
+      toast.error("Failed to create item", {
+        description: errorMessage
+      })
       throw err
     } finally {
       setIsLoading(false)
@@ -48,6 +54,7 @@ export function useCrudState<TEntity extends BaseEntity, TFormData>(
         setData(prev => prev.map(item => 
           item.id === id ? updatedEntity : item
         ))
+        toast.success("Item updated successfully")
         return updatedEntity
       } else {
         // Mock implementation for development
@@ -60,11 +67,15 @@ export function useCrudState<TEntity extends BaseEntity, TFormData>(
         setData(prev => prev.map(item => 
           item.id === id ? updatedEntity : item
         ))
+        toast.success("Item updated successfully")
         return updatedEntity
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update'
       setError(errorMessage)
+      toast.error("Failed to update item", {
+        description: errorMessage
+      })
       throw err
     } finally {
       setIsLoading(false)
@@ -81,9 +92,13 @@ export function useCrudState<TEntity extends BaseEntity, TFormData>(
       }
       
       setData(prev => prev.filter(item => item.id !== id))
+      toast.success("Item deleted successfully")
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete'
       setError(errorMessage)
+      toast.error("Failed to delete item", {
+        description: errorMessage
+      })
       throw err
     } finally {
       setIsLoading(false)

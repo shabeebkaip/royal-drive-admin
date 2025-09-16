@@ -43,10 +43,10 @@ export function createVehicleTypeColumns(actions: ExtendedCrudActions<VehicleTyp
       },
     },
     {
-      accessorKey: "isActive",
+      accessorKey: "active",
       header: "Status",
       cell: ({ row }) => {
-        const isActive = row.getValue("isActive") as boolean
+        const isActive = row.getValue("active") as boolean
         return (
           <Badge variant={isActive ? "default" : "secondary"}>
             {isActive ? "Active" : "Inactive"}
@@ -87,7 +87,7 @@ export function createVehicleTypeColumns(actions: ExtendedCrudActions<VehicleTyp
 
         const handleStatusToggle = async () => {
           if (actions.onStatusToggle) {
-            await actions.onStatusToggle(vehicleType, !vehicleType.isActive)
+            await actions.onStatusToggle(vehicleType, !vehicleType.active)
           }
         }
 
@@ -106,7 +106,7 @@ export function createVehicleTypeColumns(actions: ExtendedCrudActions<VehicleTyp
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleStatusToggle}>
-                {vehicleType.isActive ? (
+                {vehicleType.active ? (
                   <>
                     <ToggleLeft className="mr-2 h-4 w-4" />
                     Deactivate

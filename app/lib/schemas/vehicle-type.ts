@@ -14,13 +14,6 @@ export const vehicleTypeFormSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform(val => val || undefined),
-  description: z
-    .string()
-    .max(500, "Description must be less than 500 characters")
-    .optional()
-    .or(z.literal(""))
-    .transform(val => val || undefined),
-  isActive: z.boolean(),
 })
 
 export type VehicleTypeFormData = z.infer<typeof vehicleTypeFormSchema>
@@ -28,6 +21,4 @@ export type VehicleTypeFormData = z.infer<typeof vehicleTypeFormSchema>
 export const defaultVehicleTypeValues: VehicleTypeFormData = {
   name: "",
   icon: undefined,
-  description: undefined,
-  isActive: true,
 }

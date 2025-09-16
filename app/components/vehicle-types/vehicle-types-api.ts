@@ -87,6 +87,15 @@ export class VehicleTypesApiService extends ApiService<VehicleType, VehicleTypeF
     return this.getAll(params)
   }
 
+  // Override create to set active: true by default
+  async create(data: VehicleTypeFormData): Promise<VehicleType> {
+    const createData = {
+      ...data,
+      active: true, // Always set active to true for new vehicle types
+    }
+    return super.create(createData as any)
+  }
+
   // Additional methods specific to vehicle types that aren't in the base class
 
   // Update vehicle type status (active/inactive) 

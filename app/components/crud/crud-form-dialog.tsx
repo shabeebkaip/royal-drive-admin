@@ -1,4 +1,4 @@
-import { useForm, type FieldValues } from "react-hook-form"
+import { useForm, type FieldValues, type UseFormRegister, type FieldErrors, type UseFormWatch, type UseFormSetValue, type DefaultValues } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect } from "react"
 import { Button } from "~/components/ui/button"
@@ -39,7 +39,7 @@ export function CrudFormDialog<TEntity extends BaseEntity, TFormData extends Fie
     formState: { errors },
   } = useForm<TFormData>({
     resolver: zodResolver(config.schema),
-    defaultValues: config.defaultValues,
+    defaultValues: config.defaultValues as DefaultValues<TFormData>,
   })
 
   // Reset form with entity data when editing
@@ -88,7 +88,7 @@ export function CrudFormDialog<TEntity extends BaseEntity, TFormData extends Fie
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleFormSubmit as any)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           <div className="space-y-4">
             {config.renderForm({
               register,

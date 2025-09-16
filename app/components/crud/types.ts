@@ -1,6 +1,7 @@
 import { z } from "zod"
 import type { ColumnDef } from "@tanstack/react-table"
 import type { ReactNode } from "react"
+import type { FieldValues, UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from "react-hook-form"
 
 // Base entity interface that all CRUD entities must implement
 export interface BaseEntity {
@@ -10,7 +11,7 @@ export interface BaseEntity {
 }
 
 // Generic CRUD configuration
-export interface CrudConfig<TEntity extends BaseEntity, TFormData> {
+export interface CrudConfig<TEntity extends BaseEntity, TFormData extends FieldValues> {
   // Entity configuration
   entityName: string           // "Make", "Vehicle Type"
   entityNamePlural: string     // "Makes", "Vehicle Types"
@@ -50,11 +51,11 @@ export interface CrudActions<TEntity extends BaseEntity> {
 }
 
 // Props for form rendering
-export interface FormRenderProps<TFormData> {
-  register: any  // react-hook-form register
-  errors: any    // form errors
-  watch: any     // watch values
-  setValue: any  // set form values
+export interface FormRenderProps<TFormData extends FieldValues> {
+  register: UseFormRegister<TFormData>
+  errors: FieldErrors<TFormData>
+  watch: UseFormWatch<TFormData>
+  setValue: UseFormSetValue<TFormData>
   formData?: TFormData  // for edit mode
 }
 
@@ -66,7 +67,7 @@ export interface CrudState<TEntity extends BaseEntity> {
 }
 
 // CRUD operations interface
-export interface CrudOperations<TEntity extends BaseEntity, TFormData> {
+export interface CrudOperations<TEntity extends BaseEntity, TFormData extends FieldValues> {
   create: (data: TFormData) => Promise<TEntity>
   update: (id: string, data: TFormData) => Promise<TEntity>
   delete: (id: string) => Promise<void>

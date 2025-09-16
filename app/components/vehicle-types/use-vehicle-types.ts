@@ -176,7 +176,7 @@ export function useVehicleTypes() {
     
     // Optimistic update first
     setData(prev => prev.map(item => 
-      item.id === vehicleType.id ? { ...item, isActive: newStatus } : item
+      item.id === vehicleType.id ? { ...item, active: newStatus } : item
     ))
     
     try {
@@ -198,7 +198,7 @@ export function useVehicleTypes() {
       const completeUpdatedVehicleType: VehicleType = {
         ...vehicleType,  // Start with original vehicle type data
         ...updatedVehicleType,  // Override with API response
-        isActive: newStatus,  // Ensure the status is definitely set
+        active: newStatus,  // Ensure the status is definitely set
         updatedAt: updatedVehicleType.updatedAt || new Date().toISOString(),
       }
       

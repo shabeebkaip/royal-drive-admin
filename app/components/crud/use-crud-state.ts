@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { toast } from "sonner"
+import type { FieldValues } from "react-hook-form"
 import type { BaseEntity, CrudOperations } from "./types"
 
-export function useCrudState<TEntity extends BaseEntity, TFormData>(
+export function useCrudState<TEntity extends BaseEntity, TFormData extends FieldValues>(
   initialData: TEntity[],
   operations?: CrudOperations<TEntity, TFormData>
 ) {

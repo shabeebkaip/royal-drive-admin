@@ -8,7 +8,7 @@ import { vehiclesMock } from "~/components/vehicles/list/mock-data"
 
 export default function VehiclesIndex(_props: Route.ComponentProps) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 ">
       <PageTitle
         title="Vehicles"
         description="Manage your inventory. Add, edit, and track vehicles."

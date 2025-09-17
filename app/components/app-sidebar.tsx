@@ -25,6 +25,7 @@ import {
 
 import { NavDocuments } from "~/components/nav-documents"
 import { NavMain } from "~/components/nav-main"
+import { NavProcurement } from "~/components/nav-procurement"
 import { NavSecondary } from "~/components/nav-secondary"
 import { NavUser } from "~/components/nav-user"
 import Logo from "~/components/shared/Logo"
@@ -56,20 +57,12 @@ const data = {
       icon: IconCar,
     },
     {
-      title: "Vehicle Makes",
-      url: "/makes",
-      icon: IconDatabase,
-    },
-    {
-      title: "Vehicle Types",
-      url: "/vehicle-types",
-      icon: IconCategory,
-    },
-    {
       title: "Sales",
       url: "/sales",
       icon: IconChartBar,
     },
+  ],
+  navProcurement: [
     {
       title: "Quotation Enquiries",
       url: "/enquiries/quotations",
@@ -80,15 +73,12 @@ const data = {
       url: "/enquiries/financing",
       icon: IconCreditCard,
     },
+  ],
+  navSecondary: [
     {
-      title: "Business Information",
-      url: "/settings/business",
+      title: "Settings",
+      url: "#",
       icon: IconSettings,
-    },
-    {
-      title: "Testimonials",
-      url: "/testimonials",
-      icon: IconMessage2,
     },
     {
       title: "Terms & Conditions",
@@ -101,86 +91,21 @@ const data = {
       icon: IconShieldLock,
     },
   ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
   documents: [
     {
-      name: "Data Library",
-      url: "#",
+      name: "Brand",
+      url: "/makes",
       icon: IconDatabase,
     },
     {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
+      name: "Types", 
+      url: "/vehicle-types",
+      icon: IconCategory,
     },
     {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
+      name: "Models",
+      url: "/models",
+      icon: IconCar,
     },
   ],
 }
@@ -204,6 +129,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
+        <NavProcurement items={data.navProcurement} />
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "~/components/ui/button"
@@ -10,6 +10,12 @@ import { Checkbox } from "~/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Separator } from "~/components/ui/separator"
 import { vehicleFormSchema, defaultVehicleValues, type VehicleFormData } from "./schema"
+import { makesApiService } from "~/components/makes/makes-api"
+import { modelsApiService } from "~/components/models/models-api"
+import { vehicleTypesApiService } from "~/components/vehicle-types/vehicle-types-api"
+import type { Make } from "~/types/make"
+import type { Model } from "~/types/model"
+import type { VehicleType } from "~/types/vehicle-type"
 
 type VehicleFormProps = {
   initialData?: Partial<VehicleFormData>
@@ -21,6 +27,14 @@ type VehicleFormProps = {
 export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: VehicleFormProps) {
   const [customMake, setCustomMake] = useState("")
   const [customModel, setCustomModel] = useState("")
+  
+  // API Data State
+  const [makes, setMakes] = useState<Make[]>([])
+  const [models, setModels] = useState<Model[]>([])
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([])
+  const [loadingMakes, setLoadingMakes] = useState(true)
+  const [loadingModels, setLoadingModels] = useState(false)
+  const [loadingVehicleTypes, setLoadingVehicleTypes] = useState(true)
   
   const {
     register,
@@ -36,11 +50,93 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
     },
   })
 
-  const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: currentYear - 1990 + 3 }, (_, i) => currentYear + 2 - i)
+  // Watch the selected make to update available models
+  const selectedMake = watch("make")
+  const selectedModel = watch("model")
 
-  // Popular vehicle makes
-  const vehicleMakes = [
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: currentYear - 1990 + 1 }, (_, i) => currentYear - i)
+
+  // Fetch Makes
+  useEffect(() => {
+    const fetchMakes = async () => {
+      try {
+        setLoadingMakes(true)
+        const response = await makesApiService.getAllWithFilters({ 
+          active: true, 
+          sortBy: 'name', 
+          sortOrder: 'asc',
+          limit: 1000 
+        })
+        setMakes(response.data || [])
+      } catch (error) {
+        console.error('Error fetching makes:', error)
+      } finally {
+        setLoadingMakes(false)
+      }
+    }
+    
+    fetchMakes()
+  }, [])
+
+  // Fetch Vehicle Types
+  useEffect(() => {
+    const fetchVehicleTypes = async () => {
+      try {
+        setLoadingVehicleTypes(true)
+        const response = await vehicleTypesApiService.getAllWithFilters({ 
+          active: true, 
+          sortBy: 'name', 
+          sortOrder: 'asc',
+          limit: 1000 
+        })
+        setVehicleTypes(response.data || [])
+      } catch (error) {
+        console.error('Error fetching vehicle types:', error)
+      } finally {
+        setLoadingVehicleTypes(false)
+      }
+    }
+    
+    fetchVehicleTypes()
+  }, [])
+
+  // Fetch Models when make changes
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (!selectedMake || selectedMake === "Other") {
+        setModels([])
+        return
+      }
+
+      try {
+        setLoadingModels(true)
+        // Find the make ID
+        const selectedMakeObj = makes.find(make => make.name === selectedMake)
+        if (!selectedMakeObj) return
+
+        const response = await modelsApiService.getAllWithFilters({ 
+          make: selectedMakeObj.id,
+          active: true, 
+          sortBy: 'name', 
+          sortOrder: 'asc',
+          limit: 1000 
+        })
+        setModels(response.data || [])
+      } catch (error) {
+        console.error('Error fetching models:', error)
+      } finally {
+        setLoadingModels(false)
+      }
+    }
+    
+    if (makes.length > 0) {
+      fetchModels()
+    }
+  }, [selectedMake, makes])
+
+  // Popular Vehicle Makes Fallback (keep as fallback for when API fails)
+  const fallbackMakes = [
     "Acura", "Audi", "BMW", "Buick", "Cadillac", "Chevrolet", "Chrysler", "Dodge", 
     "Ford", "Genesis", "GMC", "Honda", "Hyundai", "Infiniti", "Jaguar", "Jeep", 
     "Kia", "Land Rover", "Lexus", "Lincoln", "Mazda", "Mercedes-Benz", "MINI", 
@@ -48,46 +144,8 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
     "Volkswagen", "Volvo", "Other"
   ]
 
-  // Watch the selected make to update available models
-  const selectedMake = watch("make")
-  const selectedModel = watch("model")
-
-  // Vehicle models by make - simplified list of popular models
-  const vehicleModels: Record<string, string[]> = {
-    "Toyota": ["Camry", "Corolla", "RAV4", "Highlander", "Prius", "Tacoma", "Tundra", "4Runner", "Sienna", "Avalon"],
-    "Honda": ["Civic", "Accord", "CR-V", "Pilot", "Odyssey", "Ridgeline", "HR-V", "Passport", "Insight"],
-    "Ford": ["F-150", "Escape", "Explorer", "Mustang", "Edge", "Expedition", "Fusion", "Focus", "Ranger"],
-    "Chevrolet": ["Silverado", "Equinox", "Malibu", "Traverse", "Tahoe", "Suburban", "Camaro", "Corvette", "Cruze"],
-    "Nissan": ["Altima", "Sentra", "Rogue", "Pathfinder", "Murano", "Armada", "Frontier", "Titan", "Leaf"],
-    "BMW": ["3 Series", "5 Series", "X3", "X5", "X1", "7 Series", "4 Series", "X7", "Z4"],
-    "Mercedes-Benz": ["C-Class", "E-Class", "S-Class", "GLC", "GLE", "GLS", "A-Class", "CLA", "G-Class"],
-    "Audi": ["A4", "A6", "Q5", "Q7", "A3", "Q3", "A8", "TT", "R8"],
-    "Hyundai": ["Elantra", "Sonata", "Tucson", "Santa Fe", "Palisade", "Kona", "Veloster", "Genesis"],
-    "Kia": ["Forte", "Optima", "Sorento", "Sportage", "Telluride", "Soul", "Stinger", "Rio"],
-    "Subaru": ["Outback", "Forester", "Impreza", "Legacy", "Crosstrek", "Ascent", "WRX", "BRZ"],
-    "Mazda": ["Mazda3", "Mazda6", "CX-5", "CX-9", "CX-3", "CX-30", "MX-5 Miata"],
-    "Volkswagen": ["Jetta", "Passat", "Tiguan", "Atlas", "Golf", "Beetle", "Arteon"],
-    "Jeep": ["Wrangler", "Grand Cherokee", "Cherokee", "Compass", "Renegade", "Gladiator"],
-    "Tesla": ["Model 3", "Model Y", "Model S", "Model X", "Cybertruck"],
-    "Lexus": ["ES", "RX", "NX", "GX", "LX", "IS", "LS", "LC"],
-    "Acura": ["TLX", "MDX", "RDX", "ILX", "NSX", "TLX Type S"],
-    "Infiniti": ["Q50", "QX60", "QX80", "Q60", "QX50", "Q70"],
-    "Cadillac": ["Escalade", "XT5", "XT6", "CT5", "CT4", "XTS"],
-    "Lincoln": ["Navigator", "Aviator", "Corsair", "Nautilus", "Continental"],
-    "Buick": ["Enclave", "Encore", "Envision", "Regal", "LaCrosse"],
-    "GMC": ["Sierra", "Acadia", "Terrain", "Yukon", "Canyon", "Savana"],
-    "Ram": ["1500", "2500", "3500", "ProMaster", "ProMaster City"],
-    "Dodge": ["Charger", "Challenger", "Durango", "Journey", "Grand Caravan"],
-    "Chrysler": ["Pacifica", "300", "Voyager"],
-    "Mitsubishi": ["Outlander", "Eclipse Cross", "Mirage", "Outlander Sport"],
-    "Volvo": ["XC90", "XC60", "XC40", "S60", "S90", "V60", "V90"],
-    "Porsche": ["911", "Cayenne", "Macan", "Panamera", "Taycan", "718"],
-    "Jaguar": ["F-PACE", "E-PACE", "I-PACE", "XE", "XF", "XJ", "F-TYPE"],
-    "Land Rover": ["Range Rover", "Range Rover Sport", "Discovery", "Defender", "Evoque"],
-    "MINI": ["Cooper", "Countryman", "Clubman", "Convertible"],
-    "Genesis": ["G90", "G80", "G70", "GV80", "GV70"],
-    "Other": ["Custom Model"]
-  }
+  // Get display data for dropdowns
+  const displayMakes = makes.length > 0 ? makes : fallbackMakes.map(name => ({ id: name, name, active: true }))
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -112,11 +170,18 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                   <SelectValue placeholder="Select make" />
                 </SelectTrigger>
                 <SelectContent>
-                  {vehicleMakes.map((make) => (
-                    <SelectItem key={make} value={make}>
-                      {make}
-                    </SelectItem>
-                  ))}
+                  {loadingMakes ? (
+                    <SelectItem value="loading" disabled>Loading makes...</SelectItem>
+                  ) : (
+                    <>
+                      {displayMakes.map((make) => (
+                        <SelectItem key={make.id || make.name} value={make.name}>
+                          {make.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="Other">Other / Custom Make</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
               {errors.make && <p className="text-sm text-red-600">{errors.make.message}</p>}
@@ -133,19 +198,19 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                   <SelectValue placeholder={selectedMake ? "Select model" : "Select make first"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {selectedMake && vehicleModels[selectedMake] ? (
+                  {loadingModels ? (
+                    <SelectItem value="loading" disabled>Loading models...</SelectItem>
+                  ) : selectedMake ? (
                     <>
-                      {vehicleModels[selectedMake].map((model) => (
-                        <SelectItem key={model} value={model}>
-                          {model}
+                      {models.map((model) => (
+                        <SelectItem key={model.id} value={model.name}>
+                          {model.name}
                         </SelectItem>
                       ))}
                       <SelectItem value="Other">Other / Custom Model</SelectItem>
                     </>
                   ) : (
-                    selectedMake && (
-                      <SelectItem value="Other">Other / Custom Model</SelectItem>
-                    )
+                    <SelectItem value="no-make" disabled>Select make first</SelectItem>
                   )}
                 </SelectContent>
               </Select>
@@ -219,16 +284,18 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                   <SelectValue placeholder="Select body type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="sedan">Sedan</SelectItem>
-                  <SelectItem value="suv">SUV</SelectItem>
-                  <SelectItem value="coupe">Coupe</SelectItem>
-                  <SelectItem value="hatchback">Hatchback</SelectItem>
-                  <SelectItem value="truck">Truck</SelectItem>
-                  <SelectItem value="van">Van</SelectItem>
-                  <SelectItem value="convertible">Convertible</SelectItem>
-                  <SelectItem value="wagon">Wagon</SelectItem>
-                  <SelectItem value="crossover">Crossover</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {loadingVehicleTypes ? (
+                    <SelectItem value="loading" disabled>Loading vehicle types...</SelectItem>
+                  ) : (
+                    <>
+                      {vehicleTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.name.toLowerCase()}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="other">Other</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
               {errors.bodyType && <p className="text-sm text-red-600">{errors.bodyType.message}</p>}

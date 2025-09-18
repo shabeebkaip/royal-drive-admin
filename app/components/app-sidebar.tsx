@@ -1,26 +1,15 @@
 import * as React from "react"
 import {
-  IconCamera,
   IconCar,
   IconCategory,
   IconChartBar,
   IconCreditCard,
   IconDashboard,
   IconDatabase,
-  IconFileAi,
   IconFileDescription,
   IconFileText,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
-  IconInnerShadowTop,
-  IconListDetails,
-  IconMessage2,
-  IconReport,
-  IconSearch,
   IconSettings,
   IconShieldLock,
-  IconUsers,
 } from "@tabler/icons-react"
 
 import { NavDocuments } from "~/components/nav-documents"
@@ -52,7 +41,7 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Vehicles",
+      title: "Inventory",
       url: "/vehicles",
       icon: IconCar,
     },

@@ -23,7 +23,7 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
   
   columns: createModelColumns,
   
-  renderForm: ({ register, errors, watch, setValue }: FormRenderProps<ModelFormData>) => {
+  renderForm: ({ register, errors, watch, setValue, formData }: FormRenderProps<ModelFormData>) => {
     const [makes, setMakes] = useState<Make[]>([])
     const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([])
     const [isLoadingMakes, setIsLoadingMakes] = useState(true)
@@ -31,6 +31,40 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
     
     const selectedMake = watch("make")
     const selectedVehicleType = watch("vehicleType")
+    
+    // Initialize form values from entity data when editing
+    useEffect(() => {
+      if (formData) {
+        // When editing, formData contains the full Model entity
+        // We need to extract the IDs for the dropdowns
+        const entityData = formData as any // The actual Model entity
+        
+        let makeId = ""
+        let vehicleTypeId = ""
+        
+        // Extract make ID
+        if (entityData.make) {
+          if (typeof entityData.make === 'string') {
+            makeId = entityData.make
+          } else if (entityData.make.id) {
+            makeId = entityData.make.id
+          }
+        }
+        
+        // Extract vehicle type ID
+        if (entityData.vehicleType) {
+          if (typeof entityData.vehicleType === 'string') {
+            vehicleTypeId = entityData.vehicleType
+          } else if (entityData.vehicleType.id) {
+            vehicleTypeId = entityData.vehicleType.id
+          }
+        }
+        
+        // Set the form values
+        if (makeId) setValue("make", makeId)
+        if (vehicleTypeId) setValue("vehicleType", vehicleTypeId)
+      }
+    }, [formData, setValue])
     
     // Load makes and vehicle types for dropdowns
     useEffect(() => {
@@ -96,7 +130,7 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
             onValueChange={(value) => setValue("make", value)}
             disabled={isLoadingMakes}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder={isLoadingMakes ? "Loading makes..." : "Select a make"} />
             </SelectTrigger>
             <SelectContent>
@@ -120,7 +154,7 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
             onValueChange={(value) => setValue("vehicleType", value)}
             disabled={isLoadingVehicleTypes}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder={isLoadingVehicleTypes ? "Loading vehicle types..." : "Select a vehicle type"} />
             </SelectTrigger>
             <SelectContent>

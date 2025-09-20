@@ -13,83 +13,83 @@ import {
 import { PageTitle } from "~/components/shared/page-title"
 import { DataTableWithoutPagination, ServerPagination } from "~/components/shared/data-table"
 import { ShimmerTableLoader } from "~/components/shared/shimmer-table-loader"
-import { fuelTypeCrudConfig } from "~/components/fuel-types/fuel-type-crud-config"
-import { useFuelTypes } from "~/components/fuel-types/use-fuel-types"
-import type { FuelType } from "~/types/fuel-type"
-import type { FuelTypeFormData } from "~/lib/schemas"
+import { transmissionCrudConfig } from "~/components/transmissions/transmission-crud-config"
+import { useTransmissions } from "~/components/transmissions/use-transmissions"
+import type { Transmission } from "~/types/transmission"
+import type { TransmissionFormData } from "~/lib/schemas"
 
-export default function FuelTypesPage() {
-  const fuelTypesHook = useFuelTypes()
+export default function TransmissionsPage() {
+  const transmissionsHook = useTransmissions()
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedFuelType, setSelectedFuelType] = useState<FuelType | null>(null)
+  const [selectedTransmission, setSelectedTransmission] = useState<Transmission | null>(null)
   const [localSearchQuery, setLocalSearchQuery] = useState("")
 
   // Use server-side filtering and pagination - no local filtering needed
-  const displayedData = fuelTypesHook.data
+  const displayedData = transmissionsHook.data
 
-  const handleAdd = async (formData: FuelTypeFormData) => {
+  const handleAdd = async (formData: TransmissionFormData) => {
     try {
-      await fuelTypesHook.create(formData)
+      await transmissionsHook.create(formData)
       setIsAddDialogOpen(false)
     } catch (error) {
-      console.error('Error adding fuel type:', error)
+      console.error('Error adding transmission:', error)
     }
   }
 
-  const handleEdit = async (id: string, formData: FuelTypeFormData) => {
+  const handleEdit = async (id: string, formData: TransmissionFormData) => {
     try {
-      await fuelTypesHook.update(id, formData)
+      await transmissionsHook.update(id, formData)
       setIsEditDialogOpen(false)
-      setSelectedFuelType(null)
+      setSelectedTransmission(null)
     } catch (error) {
-      console.error('Error updating fuel type:', error)
+      console.error('Error updating transmission:', error)
     }
   }
 
   const handleDelete = async () => {
-    if (!selectedFuelType) return
+    if (!selectedTransmission) return
     
     try {
-      await fuelTypesHook.remove(selectedFuelType._id)
+      await transmissionsHook.remove(selectedTransmission._id)
       setIsDeleteDialogOpen(false)
-      setSelectedFuelType(null)
+      setSelectedTransmission(null)
     } catch (error) {
-      console.error('Error deleting fuel type:', error)
+      console.error('Error deleting transmission:', error)
     }
   }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    fuelTypesHook.setSearchQuery(localSearchQuery)
+    transmissionsHook.setSearchQuery(localSearchQuery)
   }
 
   const handleStatusFilter = (value: string) => {
     const status = value === 'all' ? null : value === 'active'
-    fuelTypesHook.setStatusFilter(status)
+    transmissionsHook.setStatusFilter(status)
   }
 
   const crudActions = {
-    onEdit: (fuelType: FuelType) => {
-      setSelectedFuelType(fuelType)
+    onEdit: (transmission: Transmission) => {
+      setSelectedTransmission(transmission)
       setIsEditDialogOpen(true)
     },
-    onDelete: (fuelType: FuelType) => {
-      setSelectedFuelType(fuelType)
+    onDelete: (transmission: Transmission) => {
+      setSelectedTransmission(transmission)
       setIsDeleteDialogOpen(true)
     },
-    onStatusToggle: fuelTypesHook.toggleStatus,
+    onStatusToggle: transmissionsHook.toggleStatus,
   }
 
-  const columns = fuelTypeCrudConfig.columns(crudActions)
+  const columns = transmissionCrudConfig.columns(crudActions)
 
   return (
     <div className="space-y-6 p-4">
       <PageTitle
-        title={fuelTypeCrudConfig.entityNamePlural}
-        description={fuelTypeCrudConfig.entityDescription}
+        title={transmissionCrudConfig.entityNamePlural}
+        description={transmissionCrudConfig.entityDescription}
       />
       
       {/* Controls Section */}
@@ -98,7 +98,7 @@ export default function FuelTypesPage() {
         <div className="flex flex-col sm:flex-row gap-2 flex-1 max-w-md">
           <form onSubmit={handleSearchSubmit} className="flex gap-2 flex-1">
             <Input
-              placeholder={`Search ${fuelTypeCrudConfig.entityNamePlural.toLowerCase()}...`}
+              placeholder={`Search ${transmissionCrudConfig.entityNamePlural.toLowerCase()}...`}
               value={localSearchQuery}
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className="flex-1"
@@ -110,9 +110,9 @@ export default function FuelTypesPage() {
           
           <Select
             value={
-              fuelTypesHook.statusFilter === null 
+              transmissionsHook.statusFilter === null 
                 ? 'all' 
-                : fuelTypesHook.statusFilter 
+                : transmissionsHook.statusFilter 
                   ? 'active' 
                   : 'inactive'
             }
@@ -135,9 +135,9 @@ export default function FuelTypesPage() {
             variant="outline" 
             onClick={() => {
               setLocalSearchQuery("") // Clear local search input
-              fuelTypesHook.refresh() // Reset all filters and refresh
+              transmissionsHook.refresh() // Reset all filters and refresh
             }}
-            disabled={fuelTypesHook.loading}
+            disabled={transmissionsHook.loading}
             title="Reset all filters and refresh data"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
@@ -145,38 +145,38 @@ export default function FuelTypesPage() {
           </Button>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Add {fuelTypeCrudConfig.entityName}
+            Add {transmissionCrudConfig.entityName}
           </Button>
         </div>
       </div>
 
       {/* Summary Stats */}
       <div className="flex gap-4">
-        <Badge variant="outline" className={`px-3 py-1 transition-all duration-200 ${fuelTypesHook.loading ? 'animate-pulse bg-gray-100' : ''}`}>
-          Total: {fuelTypesHook.loading ? (
+        <Badge variant="outline" className={`px-3 py-1 transition-all duration-200 ${transmissionsHook.loading ? 'animate-pulse bg-gray-100' : ''}`}>
+          Total: {transmissionsHook.loading ? (
             <span className="inline-block w-6 h-4 bg-gray-200 rounded animate-pulse"></span>
           ) : (
-            fuelTypesHook.stats?.total || 0
+            transmissionsHook.stats?.total || 0
           )}
         </Badge>
-        <Badge variant="default" className={`px-3 py-1 transition-all duration-200 ${fuelTypesHook.loading ? 'animate-pulse bg-blue-100' : ''}`}>
-          Active: {fuelTypesHook.loading ? (
+        <Badge variant="default" className={`px-3 py-1 transition-all duration-200 ${transmissionsHook.loading ? 'animate-pulse bg-blue-100' : ''}`}>
+          Active: {transmissionsHook.loading ? (
             <span className="inline-block w-6 h-4 bg-blue-200 rounded animate-pulse"></span>
           ) : (
-            fuelTypesHook.stats?.active || 0
+            transmissionsHook.stats?.active || 0
           )}
         </Badge>
-        <Badge variant="secondary" className={`px-3 py-1 transition-all duration-200 ${fuelTypesHook.loading ? 'animate-pulse bg-gray-100' : ''}`}>
-          Inactive: {fuelTypesHook.loading ? (
+        <Badge variant="secondary" className={`px-3 py-1 transition-all duration-200 ${transmissionsHook.loading ? 'animate-pulse bg-gray-100' : ''}`}>
+          Inactive: {transmissionsHook.loading ? (
             <span className="inline-block w-6 h-4 bg-gray-200 rounded animate-pulse"></span>
           ) : (
-            fuelTypesHook.stats?.inactive || 0
+            transmissionsHook.stats?.inactive || 0
           )}
         </Badge>
       </div>
 
       {/* Data Table */}
-      {fuelTypesHook.loading ? (
+      {transmissionsHook.loading ? (
         <ShimmerTableLoader 
           rows={10} 
           columns={4}
@@ -189,20 +189,20 @@ export default function FuelTypesPage() {
       )}
 
       {/* Server-side Pagination */}
-      {fuelTypesHook.pagination && (
+      {transmissionsHook.pagination && (
         <ServerPagination
-          currentPage={fuelTypesHook.pagination.currentPage}
-          totalPages={fuelTypesHook.pagination.totalPages}
-          totalItems={fuelTypesHook.pagination.total}
+          currentPage={transmissionsHook.pagination.currentPage}
+          totalPages={transmissionsHook.pagination.totalPages}
+          totalItems={transmissionsHook.pagination.total}
           itemsPerPage={10}
-          hasNext={fuelTypesHook.pagination.hasNext}
-          hasPrev={fuelTypesHook.pagination.hasPrev}
-          onPageChange={fuelTypesHook.setCurrentPage}
-          onNext={() => fuelTypesHook.setCurrentPage(fuelTypesHook.pagination!.currentPage + 1)}
-          onPrevious={() => fuelTypesHook.setCurrentPage(fuelTypesHook.pagination!.currentPage - 1)}
-          onFirst={() => fuelTypesHook.setCurrentPage(1)}
-          onLast={() => fuelTypesHook.setCurrentPage(fuelTypesHook.pagination!.totalPages)}
-          isLoading={fuelTypesHook.loading}
+          hasNext={transmissionsHook.pagination.hasNext}
+          hasPrev={transmissionsHook.pagination.hasPrev}
+          onPageChange={transmissionsHook.setCurrentPage}
+          onNext={() => transmissionsHook.setCurrentPage(transmissionsHook.pagination!.currentPage + 1)}
+          onPrevious={() => transmissionsHook.setCurrentPage(transmissionsHook.pagination!.currentPage - 1)}
+          onFirst={() => transmissionsHook.setCurrentPage(1)}
+          onLast={() => transmissionsHook.setCurrentPage(transmissionsHook.pagination!.totalPages)}
+          isLoading={transmissionsHook.loading}
         />
       )}
 
@@ -210,7 +210,7 @@ export default function FuelTypesPage() {
       {isAddDialogOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Add {fuelTypeCrudConfig.entityName}</h2>
+            <h2 className="text-lg font-semibold mb-4">Add {transmissionCrudConfig.entityName}</h2>
             <form
               onSubmit={async (e) => {
                 e.preventDefault()
@@ -221,10 +221,10 @@ export default function FuelTypesPage() {
                 }
                 
                 try {
-                  await fuelTypesHook.create(data)
+                  await transmissionsHook.create(data)
                   setIsAddDialogOpen(false)
                 } catch (error) {
-                  console.error('Error adding fuel type:', error)
+                  console.error('Error adding transmission:', error)
                 }
               }}
               className="space-y-4"
@@ -238,7 +238,7 @@ export default function FuelTypesPage() {
                   name="name"
                   type="text"
                   required
-                  placeholder="Enter fuel type name"
+                  placeholder="Enter transmission name (e.g., Manual, Automatic, CVT)"
                   className="w-full"
                 />
               </div>
@@ -251,8 +251,8 @@ export default function FuelTypesPage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={fuelTypesHook.loading}>
-                  {fuelTypesHook.loading ? 'Adding...' : 'Add Fuel Type'}
+                <Button type="submit" disabled={transmissionsHook.loading}>
+                  {transmissionsHook.loading ? 'Adding...' : 'Add Transmission'}
                 </Button>
               </div>
             </form>
@@ -261,10 +261,10 @@ export default function FuelTypesPage() {
       )}
       
       {/* Edit Form Dialog */}
-      {isEditDialogOpen && selectedFuelType && (
+      {isEditDialogOpen && selectedTransmission && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Edit {fuelTypeCrudConfig.entityName}</h2>
+            <h2 className="text-lg font-semibold mb-4">Edit {transmissionCrudConfig.entityName}</h2>
             <form
               onSubmit={async (e) => {
                 e.preventDefault()
@@ -275,11 +275,11 @@ export default function FuelTypesPage() {
                 }
                 
                 try {
-                  await fuelTypesHook.update(selectedFuelType._id, data)
+                  await transmissionsHook.update(selectedTransmission._id, data)
                   setIsEditDialogOpen(false)
-                  setSelectedFuelType(null)
+                  setSelectedTransmission(null)
                 } catch (error) {
-                  console.error('Error updating fuel type:', error)
+                  console.error('Error updating transmission:', error)
                 }
               }}
               className="space-y-4"
@@ -293,8 +293,8 @@ export default function FuelTypesPage() {
                   name="name"
                   type="text"
                   required
-                  defaultValue={selectedFuelType.name}
-                  placeholder="Enter fuel type name"
+                  defaultValue={selectedTransmission.name}
+                  placeholder="Enter transmission name"
                   className="w-full"
                 />
               </div>
@@ -303,7 +303,7 @@ export default function FuelTypesPage() {
                 <label htmlFor="edit-active" className="block text-sm font-medium text-gray-700 mb-1">
                   Status
                 </label>
-                <Select name="active" defaultValue={selectedFuelType.active.toString()}>
+                <Select name="active" defaultValue={selectedTransmission.active.toString()}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -320,13 +320,13 @@ export default function FuelTypesPage() {
                   variant="outline"
                   onClick={() => {
                     setIsEditDialogOpen(false)
-                    setSelectedFuelType(null)
+                    setSelectedTransmission(null)
                   }}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={fuelTypesHook.loading}>
-                  {fuelTypesHook.loading ? 'Updating...' : 'Update Fuel Type'}
+                <Button type="submit" disabled={transmissionsHook.loading}>
+                  {transmissionsHook.loading ? 'Updating...' : 'Update Transmission'}
                 </Button>
               </div>
             </form>
@@ -335,20 +335,19 @@ export default function FuelTypesPage() {
       )}
 
       {/* Delete Confirmation Dialog */}
-      {/* TODO: Implement proper CRUD delete dialog once generic type issues are resolved */}
-      {isDeleteDialogOpen && selectedFuelType && (
+      {isDeleteDialogOpen && selectedTransmission && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-2">Delete Fuel Type</h2>
+            <h2 className="text-lg font-semibold mb-2">Delete Transmission</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Are you sure you want to delete "{selectedFuelType.name}"? This action cannot be undone.
+              Are you sure you want to delete "{selectedTransmission.name}"? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <Button 
                 variant="outline" 
                 onClick={() => {
                   setIsDeleteDialogOpen(false)
-                  setSelectedFuelType(null)
+                  setSelectedTransmission(null)
                 }}
               >
                 Cancel

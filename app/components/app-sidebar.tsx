@@ -102,6 +102,11 @@ const data = {
       url: "/fuel-types",
       icon: IconGasStation,
     },
+    {
+      name: "Transmissions",
+      url: "/transmissions",
+      icon: IconSettings,
+    },
   ],
 }
 

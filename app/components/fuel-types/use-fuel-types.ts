@@ -169,8 +169,11 @@ export function useFuelTypes() {
     
     // Refresh
     refresh: () => {
-      fetchFuelTypes()
-      fetchStats()
+      // Reset all filters
+      setCurrentPage(1)
+      setSearchQuery("")
+      setStatusFilter(null)
+      // This will trigger fetchFuelTypes via useEffect due to dependencies
     }
   }
 }

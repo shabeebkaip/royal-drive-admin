@@ -8,6 +8,7 @@ import {
   IconDatabase,
   IconFileDescription,
   IconFileText,
+  IconGasStation,
   IconSettings,
   IconShieldLock,
 } from "@tabler/icons-react"
@@ -95,6 +96,11 @@ const data = {
       name: "Models",
       url: "/models",
       icon: IconCar,
+    },
+    {
+      name: "Fuel Types",
+      url: "/fuel-types",
+      icon: IconGasStation,
     },
   ],
 }

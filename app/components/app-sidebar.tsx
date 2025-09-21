@@ -107,6 +107,11 @@ const data = {
       url: "/transmissions",
       icon: IconSettings,
     },
+    {
+      name: "Drive Types",
+      url: "/drive-types",
+      icon: IconSettings,
+    },
   ],
 }
 

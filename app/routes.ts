@@ -13,5 +13,6 @@ export default [
 		route("fuel-types", "routes/fuel-types.tsx"),
 		route("transmissions", "routes/transmissions.tsx"),
 		route("drive-types", "routes/drive-types.tsx"),
+		route("status", "routes/statuses.tsx"),
 	]),
 ] satisfies RouteConfig;

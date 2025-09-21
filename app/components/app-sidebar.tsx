@@ -112,6 +112,11 @@ const data = {
       url: "/drive-types",
       icon: IconSettings,
     },
+    {
+      name: "Status",
+      url: "/status",
+      icon: IconSettings,
+    },
   ],
 }
 

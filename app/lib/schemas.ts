@@ -61,4 +61,36 @@ export const defaultDriveTypeValues: DriveTypeFormData = {
   active: true,
 }
 
+// Status validation schema
+export const statusSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Status name is required")
+    .max(50, "Status name cannot exceed 50 characters")
+    .trim(),
+  code: z
+    .string()
+    .min(1, "Status code is required")
+    .max(30, "Status code cannot exceed 30 characters")
+    .regex(/^[a-z0-9\-]+$/, "Code must contain only lowercase letters, numbers, and hyphens")
+    .trim()
+    .optional(),
+  color: z
+    .string()
+    .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Color must be a valid hex color code (e.g., #28a745)")
+    .optional(),
+  isDefault: z.boolean().optional(),
+  active: z.boolean(),
+})
+
+export type StatusFormData = z.infer<typeof statusSchema>
+
+export const defaultStatusValues: StatusFormData = {
+  name: "",
+  code: "",
+  color: "",
+  isDefault: false,
+  active: true,
+}
+
 export {};

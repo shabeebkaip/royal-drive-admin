@@ -10,7 +10,7 @@ type PageTitleProps = {
 
 export function PageTitle({ title, description, className, actions }: PageTitleProps) {
   return (
-    <div className={cn("flex items-start justify-between gap-3 px-4 lg:px-6", className)}>
+    <div className={cn("flex items-start justify-between gap-3 px-4", className)}>
       <div className="space-y-0.5">
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
         {description ? (

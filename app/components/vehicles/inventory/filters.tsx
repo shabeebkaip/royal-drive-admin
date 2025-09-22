@@ -20,60 +20,7 @@ import { Label } from "~/components/ui/label"
 import { Checkbox } from "~/components/ui/checkbox"
 import { Separator } from "~/components/ui/separator"
 import type { VehicleFilters } from "~/services/vehicleInventoryService"
-
-// Mock data for dropdowns - these would normally come from API hooks
-const makes = [
-  { id: "1", name: "Toyota" },
-  { id: "2", name: "Honda" },
-  { id: "3", name: "Ford" },
-  { id: "4", name: "Chevrolet" },
-  { id: "5", name: "BMW" },
-  { id: "6", name: "Mercedes-Benz" },
-  { id: "7", name: "Audi" },
-  { id: "8", name: "Volkswagen" },
-]
-
-const fuelTypes = [
-  { id: "1", name: "Gasoline" },
-  { id: "2", name: "Diesel" },
-  { id: "3", name: "Hybrid" },
-  { id: "4", name: "Electric" },
-  { id: "5", name: "Plug-in Hybrid" },
-]
-
-const transmissions = [
-  { id: "1", name: "Manual" },
-  { id: "2", name: "Automatic" },
-  { id: "3", name: "CVT" },
-  { id: "4", name: "Semi-Automatic" },
-]
-
-const drivetrains = [
-  { id: "1", name: "Front Wheel Drive" },
-  { id: "2", name: "Rear Wheel Drive" },
-  { id: "3", name: "All Wheel Drive" },
-  { id: "4", name: "Four Wheel Drive" },
-]
-
-const statuses = [
-  { id: "1", name: "Available", color: "#10b981" },
-  { id: "2", name: "Sold", color: "#6b7280" },
-  { id: "3", name: "Pending", color: "#f59e0b" },
-  { id: "4", name: "Reserved", color: "#3b82f6" },
-  { id: "5", name: "On Hold", color: "#ef4444" },
-]
-
-const vehicleTypes = [
-  { id: "1", name: "Sedan", slug: "sedan" },
-  { id: "2", name: "SUV", slug: "suv" },
-  { id: "3", name: "Coupe", slug: "coupe" },
-  { id: "4", name: "Hatchback", slug: "hatchback" },
-  { id: "5", name: "Truck", slug: "truck" },
-  { id: "6", name: "Van", slug: "van" },
-  { id: "7", name: "Convertible", slug: "convertible" },
-  { id: "8", name: "Wagon", slug: "wagon" },
-  { id: "9", name: "Crossover", slug: "crossover" },
-]
+import { useFilterOptions } from "~/hooks/useFilterOptions"
 
 const conditions = [
   { value: "new", label: "New" },
@@ -108,6 +55,7 @@ export function VehicleInventoryFilters({
 }: VehicleInventoryFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [searchQuery, setSearchQuery] = useState(filters.search || "")
+  const { filterOptions, loading: optionsLoading, error: optionsError } = useFilterOptions()
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value)
@@ -280,8 +228,8 @@ export function VehicleInventoryFilters({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Makes</SelectItem>
-                        {makes.map((make) => (
-                          <SelectItem key={make.id} value={make.id}>
+                        {filterOptions.makes.map((make) => (
+                          <SelectItem key={make.id} value={make.name}>
                             {make.name}
                           </SelectItem>
                         ))}
@@ -297,8 +245,8 @@ export function VehicleInventoryFilters({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Types</SelectItem>
-                        {vehicleTypes.map((type) => (
-                          <SelectItem key={type.id} value={type.id}>
+                        {filterOptions.vehicleTypes.map((type) => (
+                          <SelectItem key={type.id} value={type.slug}>
                             {type.name}
                           </SelectItem>
                         ))}
@@ -331,8 +279,8 @@ export function VehicleInventoryFilters({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Statuses</SelectItem>
-                        {statuses.map((status) => (
-                          <SelectItem key={status.id} value={status.id}>
+                        {filterOptions.statuses.map((status) => (
+                          <SelectItem key={status.id} value={status.name}>
                             <div className="flex items-center gap-2">
                               <div 
                                 className="w-3 h-3 rounded-full" 
@@ -434,9 +382,9 @@ export function VehicleInventoryFilters({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Fuel Types</SelectItem>
-                        {fuelTypes.map((fuelType) => (
-                          <SelectItem key={fuelType.id} value={fuelType.id}>
-                            {fuelType.name}
+                        {filterOptions.fuelTypes.map((fuel) => (
+                          <SelectItem key={fuel.id} value={fuel.name}>
+                            {fuel.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -451,9 +399,9 @@ export function VehicleInventoryFilters({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Transmissions</SelectItem>
-                        {transmissions.map((transmission) => (
-                          <SelectItem key={transmission.id} value={transmission.id}>
-                            {transmission.name}
+                        {filterOptions.transmissions.map((trans) => (
+                          <SelectItem key={trans.id} value={trans.name}>
+                            {trans.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -468,9 +416,9 @@ export function VehicleInventoryFilters({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Drivetrains</SelectItem>
-                        {drivetrains.map((drivetrain) => (
-                          <SelectItem key={drivetrain.id} value={drivetrain.id}>
-                            {drivetrain.name}
+                        {filterOptions.drivetrains.map((drive) => (
+                          <SelectItem key={drive.id} value={drive.name}>
+                            {drive.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

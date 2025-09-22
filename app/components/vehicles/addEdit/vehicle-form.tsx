@@ -10,12 +10,21 @@ import { Checkbox } from "~/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Separator } from "~/components/ui/separator"
 import { vehicleFormSchema, defaultVehicleValues, type VehicleFormData } from "./schema"
+import { ImageUpload } from "./image-upload"
 import { makesApiService } from "~/components/makes/makes-api"
 import { modelsApiService } from "~/components/models/models-api"
 import { vehicleTypesApiService } from "~/components/vehicle-types/vehicle-types-api"
+import { fuelTypesApiService } from "~/components/fuel-types/fuel-types-api"
+import { transmissionsApiService } from "~/components/transmissions/transmissions-api"
+import { driveTypesApiService } from "~/services/driveTypesService"
+import { statusesApiService } from "~/services/statusesService"
 import type { Make } from "~/types/make"
 import type { Model } from "~/types/model"
 import type { VehicleType } from "~/types/vehicle-type"
+import type { FuelType } from "~/types/fuel-type"
+import type { Transmission } from "~/types/transmission"
+import type { DriveType } from "~/types/drive-type"
+import type { StatusDropdownItem } from "~/types/status"
 
 type VehicleFormProps = {
   initialData?: Partial<VehicleFormData>
@@ -27,15 +36,23 @@ type VehicleFormProps = {
 export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: VehicleFormProps) {
   const [customMake, setCustomMake] = useState("")
   const [customModel, setCustomModel] = useState("")
-  
+
   // API Data State
   const [makes, setMakes] = useState<Make[]>([])
   const [models, setModels] = useState<Model[]>([])
   const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([])
+  const [fuelTypes, setFuelTypes] = useState<any[]>([]) // Using any[] for dropdown items
+  const [transmissions, setTransmissions] = useState<any[]>([]) // Using any[] for dropdown items
+  const [driveTypes, setDriveTypes] = useState<any[]>([]) // Using any[] for dropdown items
+  const [statuses, setStatuses] = useState<StatusDropdownItem[]>([])
   const [loadingMakes, setLoadingMakes] = useState(true)
   const [loadingModels, setLoadingModels] = useState(false)
   const [loadingVehicleTypes, setLoadingVehicleTypes] = useState(true)
-  
+  const [loadingFuelTypes, setLoadingFuelTypes] = useState(true)
+  const [loadingTransmissions, setLoadingTransmissions] = useState(true)
+  const [loadingDriveTypes, setLoadingDriveTypes] = useState(true)
+  const [loadingStatuses, setLoadingStatuses] = useState(true)
+
   const {
     register,
     handleSubmit,
@@ -53,6 +70,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
   // Watch the selected make to update available models
   const selectedMake = watch("make")
   const selectedModel = watch("model")
+  const images = watch("images") || []
 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: currentYear - 1990 + 1 }, (_, i) => currentYear - i)
@@ -62,11 +80,11 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
     const fetchMakes = async () => {
       try {
         setLoadingMakes(true)
-        const response = await makesApiService.getAllWithFilters({ 
-          active: true, 
-          sortBy: 'name', 
+        const response = await makesApiService.getAllWithFilters({
+          active: true,
+          sortBy: 'name',
           sortOrder: 'asc',
-          limit: 1000 
+          limit: 1000
         })
         setMakes(response.data || [])
       } catch (error) {
@@ -75,7 +93,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
         setLoadingMakes(false)
       }
     }
-    
+
     fetchMakes()
   }, [])
 
@@ -84,11 +102,11 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
     const fetchVehicleTypes = async () => {
       try {
         setLoadingVehicleTypes(true)
-        const response = await vehicleTypesApiService.getAllWithFilters({ 
-          active: true, 
-          sortBy: 'name', 
+        const response = await vehicleTypesApiService.getAllWithFilters({
+          active: true,
+          sortBy: 'name',
           sortOrder: 'asc',
-          limit: 1000 
+          limit: 1000
         })
         setVehicleTypes(response.data || [])
       } catch (error) {
@@ -97,8 +115,76 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
         setLoadingVehicleTypes(false)
       }
     }
-    
+
     fetchVehicleTypes()
+  }, [])
+
+  // Fetch Fuel Types using dropdown endpoint
+  useEffect(() => {
+    const fetchFuelTypes = async () => {
+      try {
+        setLoadingFuelTypes(true)
+        const response = await fuelTypesApiService.getForDropdown()
+        setFuelTypes(response.data || [])
+      } catch (error) {
+        console.error('Error fetching fuel types:', error)
+      } finally {
+        setLoadingFuelTypes(false)
+      }
+    }
+
+    fetchFuelTypes()
+  }, [])
+
+  // Fetch Transmissions using dropdown endpoint
+  useEffect(() => {
+    const fetchTransmissions = async () => {
+      try {
+        setLoadingTransmissions(true)
+        const response = await transmissionsApiService.getDropdownItems()
+        setTransmissions(response.data || [])
+      } catch (error) {
+        console.error('Error fetching transmissions:', error)
+      } finally {
+        setLoadingTransmissions(false)
+      }
+    }
+
+    fetchTransmissions()
+  }, [])
+
+  // Fetch Drive Types using dropdown endpoint
+  useEffect(() => {
+    const fetchDriveTypes = async () => {
+      try {
+        setLoadingDriveTypes(true)
+        const response = await driveTypesApiService.getActiveForDropdown()
+        setDriveTypes(response.data || [])
+      } catch (error) {
+        console.error('Error fetching drive types:', error)
+      } finally {
+        setLoadingDriveTypes(false)
+      }
+    }
+
+    fetchDriveTypes()
+  }, [])
+
+  // Fetch Statuses using dropdown endpoint
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      try {
+        setLoadingStatuses(true)
+        const response = await statusesApiService.getActiveForDropdown()
+        setStatuses(response.data || [])
+      } catch (error) {
+        console.error('Error fetching statuses:', error)
+      } finally {
+        setLoadingStatuses(false)
+      }
+    }
+
+    fetchStatuses()
   }, [])
 
   // Fetch Models when make changes
@@ -111,41 +197,68 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
 
       try {
         setLoadingModels(true)
-        // Find the make ID
-        const selectedMakeObj = makes.find(make => make.name === selectedMake)
-        if (!selectedMakeObj) return
+        console.log('Fetching models for make:', selectedMake)
+        console.log('Available makes:', makes)
 
-        const response = await modelsApiService.getAllWithFilters({ 
-          make: selectedMakeObj.id,
-          active: true, 
-          sortBy: 'name', 
+        // Find the make ID - check both id and _id fields
+        // Also handle case where selectedMake is already an ObjectId (edit mode)
+        let selectedMakeObj
+        
+        // First check if selectedMake is already an ObjectId
+        if (selectedMake && selectedMake.length === 24) {
+          // Likely an ObjectId, find by ID
+          selectedMakeObj = makes.find(make =>
+            (make as any)._id === selectedMake || make.id === selectedMake
+          )
+        } else {
+          // Assume it's a name, find by name
+          selectedMakeObj = makes.find(make =>
+            make.name === selectedMake ||
+            make.name?.toLowerCase() === selectedMake.toLowerCase()
+          )
+        }
+
+        console.log('Selected make object:', selectedMakeObj)
+
+        if (!selectedMakeObj) {
+          console.warn('Make not found in API data, skipping model fetch')
+          setModels([])
+          return
+        }
+
+        // Use _id if available, fallback to id
+        const makeId = (selectedMakeObj as any)._id || selectedMakeObj.id
+
+        console.log('Using make ID:', makeId)
+
+        const response = await modelsApiService.getAllWithFilters({
+          make: makeId,
+          active: true,
+          sortBy: 'name',
           sortOrder: 'asc',
-          limit: 1000 
+          limit: 1000
         })
+
+        console.log('Models API response:', response)
         setModels(response.data || [])
       } catch (error) {
         console.error('Error fetching models:', error)
+        setModels([])
       } finally {
         setLoadingModels(false)
       }
     }
-    
-    if (makes.length > 0) {
+
+    // Only fetch models if we have makes data and a selected make
+    if (makes.length > 0 && selectedMake && selectedMake !== "Other") {
       fetchModels()
+    } else if (!selectedMake || selectedMake === "Other") {
+      setModels([])
     }
   }, [selectedMake, makes])
 
-  // Popular Vehicle Makes Fallback (keep as fallback for when API fails)
-  const fallbackMakes = [
-    "Acura", "Audi", "BMW", "Buick", "Cadillac", "Chevrolet", "Chrysler", "Dodge", 
-    "Ford", "Genesis", "GMC", "Honda", "Hyundai", "Infiniti", "Jaguar", "Jeep", 
-    "Kia", "Land Rover", "Lexus", "Lincoln", "Mazda", "Mercedes-Benz", "MINI", 
-    "Mitsubishi", "Nissan", "Porsche", "Ram", "Subaru", "Tesla", "Toyota", 
-    "Volkswagen", "Volvo", "Other"
-  ]
-
-  // Get display data for dropdowns
-  const displayMakes = makes.length > 0 ? makes : fallbackMakes.map(name => ({ id: name, name, active: true }))
+  // Get display data for dropdowns - only use real API data
+  const displayMakes = makes
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -159,12 +272,12 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="make">Make *</Label>
-              <Select 
+              <Select
                 onValueChange={(value) => {
-                setValue("make", value)
-                setValue("model", "") // Reset model when make changes
-              }}
-                defaultValue={initialData?.make}
+                  setValue("make", value)
+                  setValue("model", "") // Reset model when make changes
+                }}
+                defaultValue={initialData?.make || undefined}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select make" />
@@ -175,7 +288,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                   ) : (
                     <>
                       {displayMakes.map((make) => (
-                        <SelectItem key={make.id || make.name} value={make.name}>
+                        <SelectItem key={make.id || make.name} value={(make as any)._id || make.id}>
                           {make.name}
                         </SelectItem>
                       ))}
@@ -186,13 +299,13 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
               </Select>
               {errors.make && <p className="text-sm text-red-600">{errors.make.message}</p>}
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="model">Model *</Label>
-              <Select 
+              <Select
                 onValueChange={(value) => setValue("model", value)}
                 disabled={!selectedMake}
-                defaultValue={initialData?.model}
+                defaultValue={initialData?.model || undefined}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder={selectedMake ? "Select model" : "Select make first"} />
@@ -203,7 +316,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                   ) : selectedMake ? (
                     <>
                       {models.map((model) => (
-                        <SelectItem key={model.id} value={model.name}>
+                        <SelectItem key={model.id} value={(model as any)._id || model.id}>
                           {model.name}
                         </SelectItem>
                       ))}
@@ -251,7 +364,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
 
             <div className="space-y-2">
               <Label htmlFor="year">Year *</Label>
-              <Select onValueChange={(value) => setValue("year", parseInt(value))}>
+              <Select onValueChange={(value) => setValue("year", parseInt(value))} defaultValue={initialData?.year?.toString() || undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select year" />
                 </SelectTrigger>
@@ -279,7 +392,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
 
             <div className="space-y-2">
               <Label htmlFor="bodyType">Body Type *</Label>
-              <Select onValueChange={(value) => setValue("bodyType", value as any)}>
+              <Select onValueChange={(value) => setValue("bodyType", value as any)} defaultValue={initialData?.bodyType || undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select body type" />
                 </SelectTrigger>
@@ -289,7 +402,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                   ) : (
                     <>
                       {vehicleTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.name.toLowerCase()}>
+                        <SelectItem key={type.id} value={(type as any)._id || type.id}>
                           {type.name}
                         </SelectItem>
                       ))}
@@ -348,16 +461,22 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
 
             <div className="space-y-2">
               <Label htmlFor="fuelType">Fuel Type *</Label>
-              <Select onValueChange={(value) => setValue("fuelType", value as any)}>
+              <Select onValueChange={(value) => setValue("fuelType", value as any)} defaultValue={initialData?.fuelType || undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select fuel type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="gasoline">Gasoline</SelectItem>
-                  <SelectItem value="diesel">Diesel</SelectItem>
-                  <SelectItem value="hybrid">Hybrid</SelectItem>
-                  <SelectItem value="electric">Electric</SelectItem>
-                  <SelectItem value="plug-in-hybrid">Plug-in Hybrid</SelectItem>
+                  {loadingFuelTypes ? (
+                    <SelectItem value="loading" disabled>Loading fuel types...</SelectItem>
+                  ) : (
+                    <>
+                      {fuelTypes.map((fuel) => (
+                        <SelectItem key={fuel.id} value={(fuel as any)._id || fuel.id}>
+                          {fuel.name}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
               {errors.fuelType && <p className="text-sm text-red-600">{errors.fuelType.message}</p>}
@@ -367,14 +486,22 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="transmissionType">Transmission *</Label>
-              <Select onValueChange={(value) => setValue("transmissionType", value as any)}>
+              <Select onValueChange={(value) => setValue("transmissionType", value as any)} defaultValue={initialData?.transmissionType || undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select transmission" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="automatic">Automatic</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
-                  <SelectItem value="cvt">CVT</SelectItem>
+                  {loadingTransmissions ? (
+                    <SelectItem value="loading" disabled>Loading transmissions...</SelectItem>
+                  ) : (
+                    <>
+                      {transmissions.map((transmission) => (
+                        <SelectItem key={transmission.id} value={(transmission as any)._id || transmission.id}>
+                          {transmission.name}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
               {errors.transmissionType && <p className="text-sm text-red-600">{errors.transmissionType.message}</p>}
@@ -382,15 +509,22 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
 
             <div className="space-y-2">
               <Label htmlFor="drivetrain">Drivetrain *</Label>
-              <Select onValueChange={(value) => setValue("drivetrain", value as any)}>
+              <Select onValueChange={(value) => setValue("drivetrain", value as any)} defaultValue={initialData?.drivetrain || undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select drivetrain" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="fwd">Front-Wheel Drive (FWD)</SelectItem>
-                  <SelectItem value="rwd">Rear-Wheel Drive (RWD)</SelectItem>
-                  <SelectItem value="awd">All-Wheel Drive (AWD)</SelectItem>
-                  <SelectItem value="4wd">4-Wheel Drive (4WD)</SelectItem>
+                  {loadingDriveTypes ? (
+                    <SelectItem value="loading" disabled>Loading drive types...</SelectItem>
+                  ) : (
+                    <>
+                      {driveTypes.map((drive) => (
+                        <SelectItem key={drive.id} value={(drive as any)._id || drive.id}>
+                          {drive.name}
+                        </SelectItem>
+                      ))}
+                    </>
+                  )}
                 </SelectContent>
               </Select>
               {errors.drivetrain && <p className="text-sm text-red-600">{errors.drivetrain.message}</p>}
@@ -419,7 +553,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="condition">Condition *</Label>
-              <Select onValueChange={(value) => setValue("condition", value as any)}>
+              <Select onValueChange={(value) => setValue("condition", value as any)} defaultValue={initialData?.condition || undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select condition" />
                 </SelectTrigger>
@@ -457,6 +591,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="flex items-center space-x-2">
             <Checkbox
               id="accidentHistory"
+              checked={watch("accidentHistory")}
               onCheckedChange={(checked) => setValue("accidentHistory", !!checked)}
             />
             <Label htmlFor="accidentHistory">Vehicle has accident history</Label>
@@ -653,10 +788,28 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="flex items-center space-x-2">
             <Checkbox
               id="featured"
+              checked={watch("featured")}
               onCheckedChange={(checked) => setValue("featured", !!checked)}
             />
             <Label htmlFor="featured">Feature this vehicle on the homepage</Label>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Vehicle Images */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Vehicle Images</CardTitle>
+          <CardDescription>Upload high-quality images of the vehicle</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ImageUpload
+            images={images}
+            onImagesChange={(newImages) => setValue("images", newImages)}
+            maxImages={15}
+            disabled={isLoading}
+          />
+          {errors.images && <p className="text-sm text-red-600">{errors.images.message}</p>}
         </CardContent>
       </Card>
 
@@ -670,16 +823,22 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
-              <Select onValueChange={(value) => setValue("status", value as any)}>
+              <Select onValueChange={(value) => setValue("status", value as any)} defaultValue={initialData?.status || undefined}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={loadingStatuses ? "Loading statuses..." : "Select status"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="available">Available</SelectItem>
-                  <SelectItem value="sold">Sold</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="reserved">Reserved</SelectItem>
-                  <SelectItem value="on-hold">On Hold</SelectItem>
+                  {loadingStatuses ? (
+                    <SelectItem value="loading" disabled>Loading statuses...</SelectItem>
+                  ) : statuses.length > 0 ? (
+                    statuses.map((status) => (
+                      <SelectItem key={status._id} value={status._id}>
+                        {status.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-statuses" disabled>No statuses available</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
               {errors.status && <p className="text-sm text-red-600">{errors.status.message}</p>}
@@ -688,6 +847,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="inStock"
+                checked={watch("inStock")}
                 onCheckedChange={(checked) => setValue("inStock", !!checked)}
               />
               <Label htmlFor="inStock">Currently in stock</Label>
@@ -702,6 +862,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="safetyStandardPassed"
+                  checked={watch("safetyStandardPassed")}
                   onCheckedChange={(checked) => setValue("safetyStandardPassed", !!checked)}
                 />
                 <Label htmlFor="safetyStandardPassed">Safety standard certification passed</Label>
@@ -710,6 +871,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="hasCleanHistory"
+                  checked={watch("hasCleanHistory")}
                   onCheckedChange={(checked) => setValue("hasCleanHistory", !!checked)}
                 />
                 <Label htmlFor="hasCleanHistory">Clean CarFax history</Label>

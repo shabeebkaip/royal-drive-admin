@@ -1,12 +1,5 @@
 import { ApiService } from '~/lib/api'
-import { 
-  mockMakes, 
-  mockVehicleTypes, 
-  mockFuelTypes, 
-  mockTransmissions, 
-  mockDrivetrains, 
-  mockStatuses 
-} from '~/lib/mockData'
+// All data should come from real APIs; no mock fallbacks. Mock imports removed.
 
 // Types for filter options
 export interface Make {
@@ -84,8 +77,8 @@ class MakeService extends ApiService<Make, Partial<Make>> {
       const response = await this.getAll({ active: true, limit: 100, sortBy: 'name', sortOrder: 'asc' })
       return response.data
     } catch (error) {
-      console.error('Error fetching makes, using mock data:', error)
-      return mockMakes
+  console.error('Error fetching makes:', error)
+  return []
     }
   }
 }
@@ -100,8 +93,8 @@ class VehicleTypeService extends ApiService<VehicleType, Partial<VehicleType>> {
       const response = await this.getAll({ active: true, limit: 100, sortBy: 'name', sortOrder: 'asc' })
       return response.data
     } catch (error) {
-      console.error('Error fetching vehicle types, using mock data:', error)
-      return mockVehicleTypes
+  console.error('Error fetching vehicle types:', error)
+  return []
     }
   }
 }
@@ -116,8 +109,8 @@ class FuelTypeService extends ApiService<FuelType, Partial<FuelType>> {
       const response = await this.getAll({ active: true, limit: 100, sortBy: 'name', sortOrder: 'asc' })
       return response.data
     } catch (error) {
-      console.error('Error fetching fuel types, using mock data:', error)
-      return mockFuelTypes
+  console.error('Error fetching fuel types:', error)
+  return []
     }
   }
 }
@@ -132,15 +125,15 @@ class TransmissionService extends ApiService<Transmission, Partial<Transmission>
       const response = await this.getAll({ active: true, limit: 100, sortBy: 'name', sortOrder: 'asc' })
       return response.data
     } catch (error) {
-      console.error('Error fetching transmissions, using mock data:', error)
-      return mockTransmissions
+  console.error('Error fetching transmissions:', error)
+  return []
     }
   }
 }
 
 class DrivetrainService extends ApiService<Drivetrain, Partial<Drivetrain>> {
   constructor() {
-    super('drivetrains')
+    super('drive-types')
   }
 
   async getActiveDrivetrains(): Promise<Drivetrain[]> {
@@ -148,8 +141,8 @@ class DrivetrainService extends ApiService<Drivetrain, Partial<Drivetrain>> {
       const response = await this.getAll({ active: true, limit: 100, sortBy: 'name', sortOrder: 'asc' })
       return response.data
     } catch (error) {
-      console.error('Error fetching drivetrains, using mock data:', error)
-      return mockDrivetrains
+  console.error('Error fetching drive types:', error)
+  return []
     }
   }
 }
@@ -164,8 +157,8 @@ class VehicleStatusService extends ApiService<VehicleStatus, Partial<VehicleStat
       const response = await this.getAll({ active: true, limit: 100, sortBy: 'name', sortOrder: 'asc' })
       return response.data
     } catch (error) {
-      console.error('Error fetching vehicle statuses, using mock data:', error)
-      return mockStatuses
+  console.error('Error fetching vehicle statuses:', error)
+  return []
     }
   }
 }

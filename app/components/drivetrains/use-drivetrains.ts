@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
-import { drivetrainsApiService } from "~/services/drivetrainsService"
-import type { Drivetrain, CreateDrivetrainRequest, UpdateDrivetrainRequest } from "~/types/drivetrain"
-import type { DrivetrainFormData } from "~/lib/schemas"
+import { driveTypesApiService } from "~/services/driveTypesService"
+import type { DriveType, CreateDriveTypeRequest, UpdateDriveTypeRequest } from "~/types/drive-type"
 
 interface DrivetrainStats {
   total: number
@@ -18,7 +17,7 @@ interface Pagination {
 }
 
 export function useDrivetrains() {
-  const [data, setData] = useState<Drivetrain[]>([])
+  const [data, setData] = useState<DriveType[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState<DrivetrainStats | null>(null)
@@ -34,7 +33,7 @@ export function useDrivetrains() {
       setLoading(true)
       setError(null)
       
-      const response = await drivetrainsApiService.getAllWithFilters({
+      const response = await driveTypesApiService.getAllWithFilters({
         page: currentPage,
         limit: 10,
         search: searchQuery || undefined,
@@ -44,7 +43,7 @@ export function useDrivetrains() {
       })
 
       if (response.success && response.data) {
-        setData(response.data.drivetrains)
+        setData(response.data.driveTypes)
         setPagination({
           currentPage: response.data.pagination.page,
           totalPages: response.data.pagination.pages,
@@ -65,7 +64,7 @@ export function useDrivetrains() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await drivetrainsApiService.getStats()
+      const response = await driveTypesApiService.getStats()
       if (response.success && response.data) {
         setStats(response.data)
       }
@@ -75,10 +74,10 @@ export function useDrivetrains() {
   }, [])
 
   // CRUD operations
-  const create = useCallback(async (data: DrivetrainFormData): Promise<void> => {
+  const create = useCallback(async (data: CreateDriveTypeRequest): Promise<void> => {
     try {
       setLoading(true)
-      const response = await drivetrainsApiService.create(data)
+      const response = await driveTypesApiService.create(data)
       
       if (response.success) {
         await fetchDrivetrains()
@@ -94,10 +93,10 @@ export function useDrivetrains() {
     }
   }, [fetchDrivetrains, fetchStats])
 
-  const update = useCallback(async (id: string, data: DrivetrainFormData): Promise<void> => {
+  const update = useCallback(async (id: string, data: UpdateDriveTypeRequest): Promise<void> => {
     try {
       setLoading(true)
-      const response = await drivetrainsApiService.update(id, data)
+      const response = await driveTypesApiService.update(id, data)
       
       if (response.success) {
         await fetchDrivetrains()
@@ -116,7 +115,7 @@ export function useDrivetrains() {
   const remove = useCallback(async (id: string): Promise<void> => {
     try {
       setLoading(true)
-      const response = await drivetrainsApiService.delete(id)
+      const response = await driveTypesApiService.delete(id)
       
       if (response.success) {
         await fetchDrivetrains()
@@ -132,9 +131,9 @@ export function useDrivetrains() {
     }
   }, [fetchDrivetrains, fetchStats])
 
-  const toggleStatus = useCallback(async (drivetrain: Drivetrain, newStatus: boolean): Promise<void> => {
+  const toggleStatus = useCallback(async (drivetrain: DriveType, newStatus: boolean): Promise<void> => {
     try {
-      const response = await drivetrainsApiService.updateStatus(drivetrain._id, {
+      const response = await driveTypesApiService.updateStatus(drivetrain._id, {
         active: newStatus
       })
       

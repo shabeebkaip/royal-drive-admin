@@ -54,3 +54,4 @@ export class GenericCrudService<T extends CrudEntity> {
     if (!response.ok) throw new Error('Failed to delete item');
   }
 }
+

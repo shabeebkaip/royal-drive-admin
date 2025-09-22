@@ -9,23 +9,12 @@ import type {
   ApiResponse,
   PaginatedResponse
 } from '~/types/vehicle'
-import { mockVehicleService } from './mockVehicleService'
+// Mock service removed; always use real API
 
 // Base URL for the API
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3001/api'
 
-// Check if we should use mock data (when API is not available)
-const shouldUseMockData = async (): Promise<boolean> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/health`, { 
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    })
-    return !response.ok
-  } catch {
-    return true // Use mock data if API is not reachable
-  }
-}
+// Always use real API endpoints; no mock fallback
 
 /**
  * Vehicle Service - Provides access to vehicle data with automatic fallback to mock data
@@ -35,9 +24,7 @@ export const vehicleService = {
    * Get all vehicles with pagination and filters
    */
   async getVehicles(params: VehicleSearchParams = {}): Promise<PaginatedResponse<Vehicle>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.getVehicles(params)
-    }
+  // Always call real API
 
     const searchParams = new URLSearchParams()
     
@@ -69,9 +56,7 @@ export const vehicleService = {
    * Get a single vehicle by ID
    */
   async getVehicle(id: string): Promise<ApiResponse<Vehicle>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.getVehicle(id)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/${id}`)
     
@@ -86,9 +71,7 @@ export const vehicleService = {
    * Create a new vehicle
    */
   async createVehicle(data: VehicleFormData): Promise<ApiResponse<Vehicle>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.createVehicle(data)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles`, {
       method: 'POST',
@@ -109,9 +92,7 @@ export const vehicleService = {
    * Update an existing vehicle
    */
   async updateVehicle(id: string, data: Partial<VehicleFormData>): Promise<ApiResponse<Vehicle>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.updateVehicle(id, data)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
       method: 'PUT',
@@ -132,9 +113,7 @@ export const vehicleService = {
    * Delete a vehicle
    */
   async deleteVehicle(id: string): Promise<ApiResponse<void>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.deleteVehicle(id)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
       method: 'DELETE',
@@ -151,9 +130,7 @@ export const vehicleService = {
    * Get vehicle statistics for dashboard
    */
   async getVehicleStats(): Promise<ApiResponse<VehicleStats>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.getVehicleStats()
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/stats`)
     
@@ -168,9 +145,7 @@ export const vehicleService = {
    * Search vehicles with advanced filters
    */
   async searchVehicles(filters: VehicleFilters): Promise<PaginatedResponse<Vehicle>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.searchVehicles(filters)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/search`, {
       method: 'POST',
@@ -191,9 +166,7 @@ export const vehicleService = {
    * Get dropdown data for forms
    */
   async getDropdownData(): Promise<ApiResponse<VehicleDropdowns>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.getDropdownData()
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/dropdown-data`)
     
@@ -208,9 +181,7 @@ export const vehicleService = {
    * Get models for a specific make
    */
   async getModelsByMake(makeId: string): Promise<ApiResponse<Array<{ id: string; name: string }>>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.getModelsByMake(makeId)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/makes/${makeId}/models`)
     
@@ -225,9 +196,7 @@ export const vehicleService = {
    * Upload vehicle images
    */
   async uploadImages(vehicleId: string, files: File[]): Promise<ApiResponse<string[]>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.uploadImages(vehicleId, files)
-    }
+  // Always call real API
 
     const formData = new FormData()
     files.forEach((file, index) => {
@@ -250,9 +219,7 @@ export const vehicleService = {
    * Delete vehicle image
    */
   async deleteImage(vehicleId: string, imageUrl: string): Promise<ApiResponse<void>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.deleteImage(vehicleId, imageUrl)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}/images`, {
       method: 'DELETE',
@@ -273,9 +240,7 @@ export const vehicleService = {
    * Perform bulk operations on vehicles
    */
   async bulkOperation(operation: VehicleBulkOperation): Promise<ApiResponse<{ processed: number; failed: number }>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.bulkOperation(operation)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/bulk`, {
       method: 'POST',
@@ -296,9 +261,7 @@ export const vehicleService = {
    * Duplicate a vehicle
    */
   async duplicateVehicle(id: string): Promise<ApiResponse<Vehicle>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.duplicateVehicle(id)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/${id}/duplicate`, {
       method: 'POST',
@@ -320,9 +283,7 @@ export const vehicleService = {
     source: string;
     lastUpdated: string;
   }>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.getValuation(vin)
-    }
+    // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/valuation/${vin}`)
     
@@ -337,9 +298,7 @@ export const vehicleService = {
    * Generate vehicle report
    */
   async generateReport(vehicleId: string, format: 'pdf' | 'excel'): Promise<Blob> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.generateReport(vehicleId, format)
-    }
+  // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}/report?format=${format}`)
     
@@ -360,9 +319,7 @@ export const vehicleService = {
     user: string;
     timestamp: string;
   }>>> {
-    if (await shouldUseMockData()) {
-      return mockVehicleService.getVehicleHistory(vehicleId)
-    }
+    // Always call real API
 
     const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}/history`)
     

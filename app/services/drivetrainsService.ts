@@ -5,7 +5,7 @@ import type {
   DrivetrainDropdownItem 
 } from "~/types/drivetrain"
 
-const BASE_URL = "http://localhost:3001/api/v1/drivetrains"
+const BASE_URL = "http://localhost:3001/api/v1/drive-types"
 
 // API Response interfaces
 interface ApiResponse<T> {
@@ -17,7 +17,7 @@ interface ApiResponse<T> {
 }
 
 interface PaginatedResponse<T> {
-  drivetrains: T[]
+  driveTypes: T[]
   pagination: {
     page: number
     limit: number

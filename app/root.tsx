@@ -26,7 +26,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
         <Links />
       </head>
       <body className="font-sans">
@@ -42,6 +41,7 @@ export default function App() {
   const [client] = React.useState(() => new QueryClient());
   return (
     <QueryClientProvider client={client}>
+      <Meta />
       <Outlet />
       <Toaster />
       <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />

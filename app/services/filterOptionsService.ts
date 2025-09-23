@@ -149,7 +149,7 @@ class DrivetrainService extends ApiService<Drivetrain, Partial<Drivetrain>> {
 
 class VehicleStatusService extends ApiService<VehicleStatus, Partial<VehicleStatus>> {
   constructor() {
-    super('vehicle-statuses')
+    super('statuses')
   }
 
   async getActiveStatuses(): Promise<VehicleStatus[]> {

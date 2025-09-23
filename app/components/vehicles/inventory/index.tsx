@@ -11,6 +11,7 @@ import { PageTitle } from "~/components/shared/page-title"
 import { useVehicleInventory } from "~/hooks/useVehicleInventory"
 import { VehicleFilterSidebar } from "./filter-sidebar"
 import { vehicleInventoryColumns, vehicleInventoryColumnsCompact } from "./columns"
+import { VehicleShimmerLoader } from "./shimmer-loader"
 import { useLocalStorage } from "~/hooks/use-local-storage"
 
 interface VehicleInventoryProps {
@@ -176,60 +177,43 @@ export function VehicleInventory({ defaultFilters = {} }: VehicleInventoryProps)
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="px-6 py-6 border-b">
-          <PageTitle
-            title="Vehicle Inventory"
-            description="Manage your vehicle inventory with advanced filtering and search capabilities."
-            actions={
-              <div className="flex items-center gap-2">
-                {/* Filters Drawer trigger (all screens) */}
-                <VehicleFilterSidebar
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  onClearFilters={clearFilters}
-                  resultCount={pagination?.total}
-                  loading={loading}
-                  open={mobileFiltersOpen}
-                  onOpenChange={setMobileFiltersOpen}
-                />
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">Vehicle Inventory</h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {loading ? (
+                  "Loading..."
+                ) : (
+                  `${pagination?.total || 0} vehicles`
+                )}
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <VehicleFilterSidebar
+                filters={filters}
+                onFiltersChange={setFilters}
+                onClearFilters={clearFilters}
+                resultCount={pagination?.total}
+                loading={loading}
+                open={mobileFiltersOpen}
+                onOpenChange={setMobileFiltersOpen}
+              />
+              
+              <Button size="sm" asChild>
+                <Link to="/vehicles/add" className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Vehicle
+                </Link>
+              </Button>
+            </div>
+          </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={refetch}
-                  disabled={loading}
-                  className="flex items-center gap-2"
-                >
-                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExport}
-                  className="flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Export
-                </Button>
-                
-                <Button size="sm" asChild>
-                  <Link to="/vehicles/add" className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Vehicle
-                  </Link>
-                </Button>
-              </div>
-            }
-          />
-        </div>
-
-        {/* Quick Search and Controls */}
-        <div className="px-6 py-4 border-b bg-muted/30">
-          <div className="flex items-center justify-between gap-4">
+          {/* Simple Search and View Toggle */}
+          <div className="flex items-center justify-between mt-6">
             <div className="flex-1 max-w-md">
               <Input
-                placeholder="Quick search vehicles..."
+                placeholder="Search vehicles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
@@ -241,63 +225,17 @@ export function VehicleInventory({ defaultFilters = {} }: VehicleInventoryProps)
                 variant={viewMode === 'table' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('table')}
-                className="flex items-center gap-2"
               >
                 <List className="h-4 w-4" />
-                Table
               </Button>
               
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className="flex items-center gap-2"
               >
                 <Grid className="h-4 w-4" />
-                Grid
               </Button>
-              
-              {viewMode === 'table' && (
-                <Button
-                  variant={showCompact ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setShowCompact(!showCompact)}
-                >
-                  Compact
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              {loading ? (
-                "Loading..."
-              ) : (
-                <>
-                  Showing {vehicles.length} of {pagination?.total || 0} vehicles
-                  {pagination && pagination.pages > 1 && (
-                    <> • Page {pagination.page} of {pagination.pages}</>
-                  )}
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Badge
-                variant={showOnlyInStock ? 'default' : 'outline'}
-                className="cursor-pointer"
-                onClick={() => setShowOnlyInStock(!showOnlyInStock)}
-              >
-                In Stock Only
-              </Badge>
-              <Badge
-                variant={showOnlyFeatured ? 'default' : 'outline'}
-                className="cursor-pointer"
-                onClick={() => setShowOnlyFeatured(!showOnlyFeatured)}
-              >
-                Featured Only
-              </Badge>
             </div>
           </div>
         </div>
@@ -325,31 +263,49 @@ export function VehicleInventory({ defaultFilters = {} }: VehicleInventoryProps)
           {/* Content */}
           {!error && (
             <div className="space-y-4">
-              {viewMode === 'grid' ? renderVehicleGrid() : renderVehicleTable()}
+              {/* Loading State */}
+              {loading && (
+                <VehicleShimmerLoader 
+                  viewMode={viewMode} 
+                  compact={showCompact}
+                  rows={12}
+                />
+              )}
               
-              {/* Empty State */}
+              {/* Show content only if we have vehicles and not loading */}
+              {!loading && vehicles.length > 0 && (
+                <>
+                  {viewMode === 'grid' ? renderVehicleGrid() : renderVehicleTable()}
+                </>
+              )}
+              
+              {/* Empty State - show only when not loading and no vehicles */}
               {!loading && vehicles.length === 0 && (
-                <Card className="p-12 text-center">
-                  <div className="space-y-4">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
-                      <AlertCircle className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">No vehicles found</h3>
-                      <p className="text-gray-600 mt-1">
-                        Try adjusting your filters or search criteria.
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2">
-                      <Button variant="outline" onClick={clearFilters}>
+                <div className="flex flex-col items-center justify-center min-h-[500px] space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
+                    <AlertCircle className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <div className="text-center space-y-1">
+                    <h3 className="text-lg font-medium text-gray-900">No vehicles found</h3>
+                    <p className="text-sm text-gray-500">
+                      {Object.keys(filters).length > 0 || searchQuery
+                        ? "Try adjusting your search or filters"
+                        : "Add your first vehicle to get started"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {(Object.keys(filters).length > 0 || searchQuery) && (
+                      <Button variant="outline" size="sm" onClick={clearFilters}>
                         Clear Filters
                       </Button>
-                      <Button asChild>
-                        <Link to="/vehicles/add">Add First Vehicle</Link>
-                      </Button>
-                    </div>
+                    )}
+                    <Button size="sm" asChild>
+                      <Link to="/vehicles/add">
+                        Add Vehicle
+                      </Link>
+                    </Button>
                   </div>
-                </Card>
+                </div>
               )}
             </div>
           )}

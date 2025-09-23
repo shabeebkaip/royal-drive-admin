@@ -44,12 +44,6 @@ export const driveTypeSchema = z.object({
     .max(100, "Drive type name must be less than 100 characters")
     .regex(/^[a-zA-Z0-9\s\-]+$/, "Drive type name can only contain letters, numbers, spaces, and hyphens")
     .trim(),
-  code: z
-    .string()
-    .min(2, "Drive type code must be at least 2 characters")
-    .max(10, "Drive type code must be less than 10 characters")
-    .regex(/^[A-Z0-9]+$/, "Drive type code can only contain uppercase letters and numbers")
-    .trim(),
   active: z.boolean(),
 })
 
@@ -57,7 +51,6 @@ export type DriveTypeFormData = z.infer<typeof driveTypeSchema>
 
 export const defaultDriveTypeValues: DriveTypeFormData = {
   name: "",
-  code: "",
   active: true,
 }
 

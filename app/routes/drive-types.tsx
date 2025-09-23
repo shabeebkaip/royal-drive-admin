@@ -184,7 +184,7 @@ export default function DriveTypesPage() {
       {driveTypesHook.loading ? (
         <ShimmerTableLoader 
           rows={10} 
-          columns={5}
+          columns={4}
         />
       ) : (
         <DataTableWithoutPagination
@@ -222,7 +222,6 @@ export default function DriveTypesPage() {
                 const formData = new FormData(e.currentTarget)
                 const data = {
                   name: formData.get('name') as string,
-                  code: formData.get('code') as string,
                   active: true // Always set to true by default
                 }
                 
@@ -246,24 +245,6 @@ export default function DriveTypesPage() {
                   required
                   placeholder="Enter drive type name (e.g., Front-Wheel Drive)"
                   className="w-full"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
-                  Code <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="code"
-                  name="code"
-                  type="text"
-                  required
-                  placeholder="Enter drive type code (e.g., FWD)"
-                  className="w-full"
-                  style={{ textTransform: 'uppercase' }}
-                  onChange={(e) => {
-                    e.target.value = e.target.value.toUpperCase()
-                  }}
                 />
               </div>
               
@@ -295,7 +276,6 @@ export default function DriveTypesPage() {
                 const formData = new FormData(e.currentTarget)
                 const data = {
                   name: formData.get('name') as string,
-                  code: formData.get('code') as string,
                   active: formData.get('active') === 'true'
                 }
                 
@@ -321,25 +301,6 @@ export default function DriveTypesPage() {
                   defaultValue={selectedDriveType.name}
                   placeholder="Enter drive type name"
                   className="w-full"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="edit-code" className="block text-sm font-medium text-gray-700 mb-1">
-                  Code <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="edit-code"
-                  name="code"
-                  type="text"
-                  required
-                  defaultValue={selectedDriveType.code}
-                  placeholder="Enter drive type code"
-                  className="w-full"
-                  style={{ textTransform: 'uppercase' }}
-                  onChange={(e) => {
-                    e.target.value = e.target.value.toUpperCase()
-                  }}
                 />
               </div>
               
@@ -384,7 +345,7 @@ export default function DriveTypesPage() {
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-2">Delete Drive Type</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Are you sure you want to delete "{selectedDriveType.name} ({selectedDriveType.code})"? 
+              Are you sure you want to delete "{selectedDriveType.name}"? 
               {selectedDriveType.vehicleCount && selectedDriveType.vehicleCount > 0 && (
                 <span className="text-red-600 font-medium">
                   {" "}This drive type is currently used by {selectedDriveType.vehicleCount} vehicle(s).

@@ -29,8 +29,8 @@ export const driveTypeCrudConfig = {
 
   // Form field configuration for different contexts
   fields: {
-    create: ["name", "code"],
-    edit: ["name", "code", "active"],
+    create: ["name"],
+    edit: ["name", "active"],
     filter: ["search", "active"],
   },
 
@@ -42,13 +42,6 @@ export const driveTypeCrudConfig = {
       maxLength: 100,
       pattern: /^[a-zA-Z0-9\s\-]+$/,
       message: "Drive type name can only contain letters, numbers, spaces, and hyphens"
-    },
-    code: {
-      required: true,
-      minLength: 2,
-      maxLength: 10,
-      pattern: /^[A-Z0-9]+$/,
-      message: "Drive type code can only contain uppercase letters and numbers"
     }
   },
 
@@ -80,9 +73,9 @@ export const driveTypeCrudConfig = {
 
   // Sample data for reference
   sampleData: [
-    { name: "Front-Wheel Drive", code: "FWD" },
-    { name: "Rear-Wheel Drive", code: "RWD" },
-    { name: "All-Wheel Drive", code: "AWD" },
-    { name: "4-Wheel Drive", code: "4WD" },
+    { name: "Front-Wheel Drive" },
+    { name: "Rear-Wheel Drive" },
+    { name: "All-Wheel Drive" },
+    { name: "4-Wheel Drive" },
   ]
 }

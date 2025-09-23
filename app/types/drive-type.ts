@@ -5,7 +5,6 @@ export interface DriveType extends BaseEntity {
   id: string  // Maps to _id from API
   _id: string
   name: string
-  code: string
   slug: string
   description?: string
   active: boolean
@@ -18,20 +17,17 @@ export interface DriveType extends BaseEntity {
 export interface DriveTypeDropdownItem {
   _id: string
   name: string
-  code: string
   slug: string
 }
 
 export interface CreateDriveTypeRequest {
   name: string
-  code: string
   description?: string
   active?: boolean
 }
 
 export interface UpdateDriveTypeRequest {
   name?: string
-  code?: string
   description?: string
   active?: boolean
 }

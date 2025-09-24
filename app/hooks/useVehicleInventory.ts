@@ -66,14 +66,18 @@ export function useVehicleInventory(initialFilters: Partial<VehicleFilters> = {}
       setLoading(true)
       setError(null)
       
+      console.log('🔍 Fetching vehicles with filters:', filters)
+      
       const response = await vehicleInventoryService.getVehicles(filters)
+      
+      console.log('✅ Vehicle response:', response)
       
       setVehicles(response.data.vehicles)
       setPagination(response.data.pagination)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch vehicles'
       setError(errorMessage)
-      console.error('Error fetching vehicles:', err)
+      console.error('❌ Error fetching vehicles:', err)
     } finally {
       setLoading(false)
     }

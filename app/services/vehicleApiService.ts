@@ -35,7 +35,7 @@ function transformFormDataToApiFormat(formData: VehicleFormData) {
     model: formData.model,
     year: formData.year,
     trim: formData.trim || undefined,
-    type: formData.bodyType,
+    type: formData.type,
 
     // Engine & Performance
     engine: {
@@ -55,8 +55,8 @@ function transformFormDataToApiFormat(formData: VehicleFormData) {
     // Mileage
     odometer: {
       value: formData.odometerValue,
-      unit: "km" as const,
-      isAccurate: true,
+      unit: formData.odometerUnit || "km",
+      isAccurate: formData.odometerIsAccurate !== undefined ? formData.odometerIsAccurate : true,
     },
 
     // Condition & History
@@ -73,9 +73,13 @@ function transformFormDataToApiFormat(formData: VehicleFormData) {
     // Pricing
     pricing: {
       listPrice: formData.listPrice,
-      msrp: formData.msrp || undefined,
-      dealerCost: formData.dealerCost || undefined,
-      currency: "CAD" as const,
+      currency: formData.currency || "CAD",
+      taxes: {
+        hst: formData.hstRate || 13, // Ontario HST default
+      },
+      financing: {
+        available: formData.financingAvailable !== undefined ? formData.financingAvailable : true,
+      },
     },
 
     // Physical Specifications
@@ -107,7 +111,6 @@ function transformFormDataToApiFormat(formData: VehicleFormData) {
 
     // Internal Tracking
     internal: {
-      stockNumber: formData.stockNumber,
       acquisitionDate: formData.acquisitionDate ? new Date(formData.acquisitionDate) : undefined,
       acquisitionCost: formData.acquisitionCost || undefined,
       assignedSalesperson: formData.assignedSalesperson || undefined,

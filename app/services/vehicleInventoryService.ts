@@ -272,6 +272,9 @@ class VehicleInventoryService {
   async getVehicles(filters: VehicleFilters = {}): Promise<VehicleInventoryResponse> {
     const queryParams = new URLSearchParams()
     
+    console.log('🌐 VehicleInventoryService - Base URL:', this.baseUrl)
+    console.log('🔧 VehicleInventoryService - Filters:', filters)
+    
     // Add pagination
     if (filters.page) queryParams.append('page', filters.page.toString())
     if (filters.limit) queryParams.append('limit', filters.limit.toString())
@@ -342,7 +345,12 @@ class VehicleInventoryService {
     if (filters.vin) queryParams.append('vin', filters.vin)
 
     try {
-      const response = await fetch(`${this.baseUrl}?${queryParams.toString()}`)
+      const url = `${this.baseUrl}?${queryParams.toString()}`
+      console.log('🚀 Making request to:', url)
+      
+      const response = await fetch(url)
+      
+      console.log('📡 Response status:', response.status)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -350,13 +358,15 @@ class VehicleInventoryService {
       
       const data: VehicleInventoryResponse = await response.json()
       
+      console.log('📦 Response data:', data)
+      
       if (!data.success) {
         throw new Error(data.message || 'Failed to fetch vehicles')
       }
       
       return data
     } catch (error) {
-      console.error('Error fetching vehicles:', error)
+      console.error('💥 Error fetching vehicles:', error)
       throw error
     }
   }

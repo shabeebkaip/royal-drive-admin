@@ -10,7 +10,7 @@ import { DataTableGeneric } from "~/components/shared/data-table"
 import { PageTitle } from "~/components/shared/page-title"
 import { useVehicleInventory } from "~/hooks/useVehicleInventory"
 import { VehicleFilterSidebar } from "./filter-sidebar"
-import { vehicleInventoryColumns, vehicleInventoryColumnsCompact } from "./columns"
+import { vehicleInventoryColumns } from "./columns"
 import { VehicleShimmerLoader } from "./shimmer-loader"
 import { useLocalStorage } from "~/hooks/use-local-storage"
 
@@ -19,8 +19,9 @@ interface VehicleInventoryProps {
 }
 
 export function VehicleInventory({ defaultFilters = {} }: VehicleInventoryProps) {
+  console.log('🚗 VehicleInventory component rendered with defaultFilters:', defaultFilters)
+  
   const [viewMode, setViewMode] = useLocalStorage<'table' | 'grid'>('vehicle-inventory-view', 'table')
-  const [showCompact, setShowCompact] = useState(false)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   
   const {
@@ -164,7 +165,7 @@ export function VehicleInventory({ defaultFilters = {} }: VehicleInventoryProps)
     <Card>
       <CardContent className="p-0">
         <DataTableGeneric
-          columns={showCompact ? vehicleInventoryColumnsCompact : vehicleInventoryColumns}
+          columns={vehicleInventoryColumns}
           data={vehicles}
           pageSize={pagination?.limit || 12}
         />
@@ -267,7 +268,7 @@ export function VehicleInventory({ defaultFilters = {} }: VehicleInventoryProps)
               {loading && (
                 <VehicleShimmerLoader 
                   viewMode={viewMode} 
-                  compact={showCompact}
+                  compact={false}
                   rows={12}
                 />
               )}

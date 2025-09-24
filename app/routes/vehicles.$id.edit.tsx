@@ -100,7 +100,7 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
     model: vehicle.model?._id || vehicle.model,
     year: vehicle.year,
     trim: vehicle.trim || "",
-    bodyType: vehicle.type?._id || vehicle.type,
+    type: vehicle.type?._id || vehicle.type, // Changed from bodyType to type
     
     // Engine
     engineSize: vehicle.engine?.size,
@@ -117,6 +117,7 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
     // Odometer
     odometerValue: vehicle.odometer?.value,
     odometerUnit: vehicle.odometer?.unit || "km",
+    odometerIsAccurate: vehicle.odometer?.isAccurate !== false,
     
     // Condition
     condition: vehicle.condition,
@@ -125,8 +126,6 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
     
     // Pricing
     listPrice: vehicle.pricing?.listPrice,
-    msrp: vehicle.pricing?.msrp,
-    dealerCost: vehicle.pricing?.dealerCost,
     
     // Specifications
     exteriorColor: vehicle.specifications?.exteriorColor,
@@ -139,7 +138,6 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
     inStock: vehicle.availability?.inStock !== false,
     
     // Internal
-    stockNumber: vehicle.internal?.stockNumber,
     acquisitionDate: vehicle.internal?.acquisitionDate 
       ? new Date(vehicle.internal.acquisitionDate).toISOString().split('T')[0] 
       : "",

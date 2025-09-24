@@ -391,8 +391,8 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bodyType">Body Type *</Label>
-              <Select onValueChange={(value) => setValue("bodyType", value as any)} defaultValue={initialData?.bodyType || undefined}>
+              <Label htmlFor="type">Vehicle Type *</Label>
+              <Select onValueChange={(value) => setValue("type", value as any)} defaultValue={initialData?.type || undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select body type" />
                 </SelectTrigger>
@@ -411,7 +411,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                   )}
                 </SelectContent>
               </Select>
-              {errors.bodyType && <p className="text-sm text-red-600">{errors.bodyType.message}</p>}
+              {errors.type && <p className="text-sm text-red-600">{errors.type.message}</p>}
             </div>
           </div>
 
@@ -596,101 +596,93 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
             />
             <Label htmlFor="accidentHistory">Vehicle has accident history</Label>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Pricing */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Pricing</CardTitle>
-          <CardDescription>Set pricing information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="listPrice">List Price (CAD) *</Label>
-              <Input
-                id="listPrice"
-                type="number"
-                {...register("listPrice", { valueAsNumber: true })}
-                placeholder="25000"
-              />
-              {errors.listPrice && <p className="text-sm text-red-600">{errors.listPrice.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="msrp">MSRP (CAD)</Label>
-              <Input
-                id="msrp"
-                type="number"
-                {...register("msrp", { valueAsNumber: true })}
-                placeholder="28000"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="dealerCost">Dealer Cost (CAD)</Label>
-              <Input
-                id="dealerCost"
-                type="number"
-                {...register("dealerCost", { valueAsNumber: true })}
-                placeholder="22000"
-              />
-            </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="odometerIsAccurate"
+              checked={watch("odometerIsAccurate")}
+              onCheckedChange={(checked) => setValue("odometerIsAccurate", !!checked)}
+            />
+            <Label htmlFor="odometerIsAccurate">Odometer reading is accurate</Label>
           </div>
         </CardContent>
       </Card>
 
-      {/* Physical Specifications */}
+      {/* Pricing & Physical Specifications */}
       <Card>
         <CardHeader>
-          <CardTitle>Physical Specifications</CardTitle>
-          <CardDescription>Colors and physical details</CardDescription>
+          <CardTitle>Pricing & Physical Details</CardTitle>
+          <CardDescription>Set customer pricing and vehicle specifications</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="exteriorColor">Exterior Color *</Label>
-              <Input
-                id="exteriorColor"
-                {...register("exteriorColor")}
-                placeholder="Black, White, Silver..."
-              />
-              {errors.exteriorColor && <p className="text-sm text-red-600">{errors.exteriorColor.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="interiorColor">Interior Color *</Label>
-              <Input
-                id="interiorColor"
-                {...register("interiorColor")}
-                placeholder="Black, Beige, Gray..."
-              />
-              {errors.interiorColor && <p className="text-sm text-red-600">{errors.interiorColor.message}</p>}
+        <CardContent className="space-y-6">
+          {/* Pricing Section */}
+          <div className="border-b pb-4">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Customer Pricing</h4>
+            <div className="max-w-md">
+              <div className="space-y-2">
+                <Label htmlFor="listPrice">List Price (CAD) *</Label>
+                <Input
+                  id="listPrice"
+                  type="number"
+                  {...register("listPrice", { valueAsNumber: true })}
+                  placeholder="25000"
+                  className="text-lg font-medium"
+                />
+                <p className="text-xs text-gray-500">The selling price shown to customers on the website</p>
+                {errors.listPrice && <p className="text-sm text-red-600">{errors.listPrice.message}</p>}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="doors">Number of Doors *</Label>
-              <Input
-                id="doors"
-                type="number"
-                {...register("doors", { valueAsNumber: true })}
-                placeholder="4"
-              />
-              {errors.doors && <p className="text-sm text-red-600">{errors.doors.message}</p>}
-            </div>
+          {/* Physical Specifications Section */}
+          <div>
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Physical Specifications</h4>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="exteriorColor">Exterior Color *</Label>
+                  <Input
+                    id="exteriorColor"
+                    {...register("exteriorColor")}
+                    placeholder="Black, White, Silver..."
+                  />
+                  {errors.exteriorColor && <p className="text-sm text-red-600">{errors.exteriorColor.message}</p>}
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="seatingCapacity">Seating Capacity *</Label>
-              <Input
-                id="seatingCapacity"
-                type="number"
-                {...register("seatingCapacity", { valueAsNumber: true })}
-                placeholder="5"
-              />
-              {errors.seatingCapacity && <p className="text-sm text-red-600">{errors.seatingCapacity.message}</p>}
+                <div className="space-y-2">
+                  <Label htmlFor="interiorColor">Interior Color *</Label>
+                  <Input
+                    id="interiorColor"
+                    {...register("interiorColor")}
+                    placeholder="Black, Beige, Gray..."
+                  />
+                  {errors.interiorColor && <p className="text-sm text-red-600">{errors.interiorColor.message}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="doors">Number of Doors *</Label>
+                  <Input
+                    id="doors"
+                    type="number"
+                    {...register("doors", { valueAsNumber: true })}
+                    placeholder="4"
+                  />
+                  {errors.doors && <p className="text-sm text-red-600">{errors.doors.message}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="seatingCapacity">Seating Capacity *</Label>
+                  <Input
+                    id="seatingCapacity"
+                    type="number"
+                    {...register("seatingCapacity", { valueAsNumber: true })}
+                    placeholder="5"
+                  />
+                  {errors.seatingCapacity && <p className="text-sm text-red-600">{errors.seatingCapacity.message}</p>}
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -705,17 +697,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="stockNumber">Stock Number *</Label>
-              <Input
-                id="stockNumber"
-                {...register("stockNumber")}
-                placeholder="STK001"
-              />
-              {errors.stockNumber && <p className="text-sm text-red-600">{errors.stockNumber.message}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="acquisitionDate">Acquisition Date *</Label>
+              <Label htmlFor="acquisitionDate">Acquisition Date</Label>
               <Input
                 id="acquisitionDate"
                 type="date"
@@ -734,6 +716,8 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                 {...register("acquisitionCost", { valueAsNumber: true })}
                 placeholder="20000"
               />
+              <p className="text-xs text-gray-500">Your actual cost to acquire this vehicle (used for profit calculations)</p>
+              {errors.acquisitionCost && <p className="text-sm text-red-600">{errors.acquisitionCost.message}</p>}
             </div>
 
             <div className="space-y-2">

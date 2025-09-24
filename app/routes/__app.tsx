@@ -1,9 +1,24 @@
-import { Outlet } from "react-router";
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { SiteHeader } from "~/components/site-header";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { auth } from "~/lib/auth";
 
 export default function AppRoute() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Simple authentication check
+    if (!auth.isAuthenticated()) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
+  // If not authenticated, don't render the layout
+  if (!auth.isAuthenticated()) {
+    return null;
+  }
   return (
     <SidebarProvider
       style={

@@ -5,15 +5,23 @@ import { Separator } from "~/components/ui/separator"
 import { SidebarTrigger } from "~/components/ui/sidebar"
 import Logo from "~/components/shared/Logo"
 import { titleFromPath, useUIStore } from "~/stores/ui"
+import { auth } from "~/lib/auth"
 
 export function SiteHeader() {
   const location = useLocation()
   const pageTitle = useUIStore((s) => s.pageTitle)
   const setPageTitle = useUIStore((s) => s.setPageTitle)
+  const user = auth.getUser()
 
   useEffect(() => {
     setPageTitle(titleFromPath(location.pathname))
   }, [location.pathname, setPageTitle])
+
+  const handleLogout = () => {
+    if (confirm("Are you sure you want to logout?")) {
+      auth.logout()
+    }
+  }
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b/50 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -38,6 +46,18 @@ export function SiteHeader() {
               Visit Website
             </a>
           </Button>
+          
+          {/* User info and logout */}
+          {user && (
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">
+                Welcome, {user.firstName || user.email}
+              </span>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>

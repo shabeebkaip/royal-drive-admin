@@ -219,7 +219,7 @@ export default function StatusesPage() {
       {statusesHook.loading ? (
         <ShimmerTableLoader 
           rows={10} 
-          columns={6}
+          columns={5}
         />
       ) : (
         <DataTableWithoutPagination
@@ -257,7 +257,6 @@ export default function StatusesPage() {
                 const formData = new FormData(e.currentTarget)
                 const data = {
                   name: formData.get('name') as string,
-                  code: (formData.get('code') as string)?.trim() || undefined,
                   color: (formData.get('color') as string)?.trim() || undefined,
                   isDefault: formData.get('isDefault') === 'on',
                   active: true // Always set to true by default
@@ -283,39 +282,7 @@ export default function StatusesPage() {
                   required
                   placeholder="Enter status name (e.g., Available)"
                   className="w-full"
-                  onChange={(e) => {
-                    // Auto-generate code from name
-                    const name = e.target.value
-                    const code = name
-                      .toLowerCase()
-                      .trim()
-                      .replace(/[^a-z0-9\s\-]/g, '') // Remove special chars except spaces and hyphens
-                      .replace(/\s+/g, '-') // Replace spaces with hyphens
-                      .replace(/-+/g, '-') // Replace multiple hyphens with single
-                      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
-                    
-                    const codeInput = document.getElementById('code') as HTMLInputElement
-                    if (codeInput) {
-                      codeInput.value = code
-                    }
-                  }}
                 />
-              </div>
-
-              <div>
-                <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
-                  Code
-                </label>
-                <Input
-                  id="code"
-                  name="code"
-                  type="text"
-                  placeholder="Auto-generated from name"
-                  className="w-full"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Auto-generated from name, you can modify if needed
-                </p>
               </div>
 
               <div>
@@ -393,7 +360,6 @@ export default function StatusesPage() {
                 const formData = new FormData(e.currentTarget)
                 const data = {
                   name: formData.get('name') as string,
-                  code: (formData.get('code') as string)?.trim() || undefined,
                   color: (formData.get('color') as string)?.trim() || undefined,
                   isDefault: formData.get('isDefault') === 'on',
                   active: formData.get('active') === 'true'
@@ -421,40 +387,7 @@ export default function StatusesPage() {
                   defaultValue={selectedStatus.name}
                   placeholder="Enter status name"
                   className="w-full"
-                  onChange={(e) => {
-                    // Auto-generate code from name only if code field is empty or matches old auto-generated pattern
-                    const name = e.target.value
-                    const code = name
-                      .toLowerCase()
-                      .trim()
-                      .replace(/[^a-z0-9\s\-]/g, '') // Remove special chars except spaces and hyphens
-                      .replace(/\s+/g, '-') // Replace spaces with hyphens
-                      .replace(/-+/g, '-') // Replace multiple hyphens with single
-                      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
-                    
-                    const codeInput = document.getElementById('edit-code') as HTMLInputElement
-                    if (codeInput) {
-                      codeInput.value = code
-                    }
-                  }}
                 />
-              </div>
-
-              <div>
-                <label htmlFor="edit-code" className="block text-sm font-medium text-gray-700 mb-1">
-                  Code
-                </label>
-                <Input
-                  id="edit-code"
-                  name="code"
-                  type="text"
-                  defaultValue={selectedStatus.code || ""}
-                  placeholder="Auto-generated from name"
-                  className="w-full"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Auto-generated from name, you can modify if needed
-                </p>
               </div>
 
               <div>
@@ -536,7 +469,7 @@ export default function StatusesPage() {
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-lg font-semibold mb-2">Delete Status</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Are you sure you want to delete "{selectedStatus.name} ({selectedStatus.code})"? 
+              Are you sure you want to delete "{selectedStatus.name}"? 
               {selectedStatus.isDefault && (
                 <span className="text-red-600 font-medium">
                   {" "}This is the default status and cannot be deleted.

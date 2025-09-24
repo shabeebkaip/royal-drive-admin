@@ -37,15 +37,6 @@ export function createStatusColumns(actions: StatusActions): ColumnDef<Status>[]
       },
     },
     {
-      accessorKey: "code",
-      header: "Code",
-      cell: ({ row }) => (
-        <Badge variant="outline" className="font-mono">
-          {row.getValue("code")}
-        </Badge>
-      ),
-    },
-    {
       accessorKey: "color",
       header: "Color",
       cell: ({ row }) => {

@@ -32,8 +32,8 @@ export const statusCrudConfig = {
 
   // Form field configuration for different contexts
   fields: {
-    create: ["name", "code", "color", "isDefault"],
-    edit: ["name", "code", "color", "isDefault", "active"],
+    create: ["name", "color", "isDefault"],
+    edit: ["name", "color", "isDefault", "active"],
     filter: ["search", "active", "isDefault"],
   },
 
@@ -43,12 +43,6 @@ export const statusCrudConfig = {
       required: true,
       maxLength: 50,
       message: "Status name is required and cannot exceed 50 characters"
-    },
-    code: {
-      required: false,
-      maxLength: 30,
-      pattern: /^[a-z0-9\-]*$/,
-      message: "Code must contain only lowercase letters, numbers, and hyphens"
     },
     color: {
       required: false,
@@ -102,44 +96,4 @@ export const statusCrudConfig = {
     { name: "Teal", value: "#20c997" },
     { name: "Gray", value: "#6c757d" },
   ],
-
-  // Sample data for reference
-  sampleData: [
-    { 
-      name: "Available", 
-      code: "available", 
-      description: "Vehicle is available for sale",
-      color: "#28a745", 
-      icon: "✅",
-      isDefault: true 
-    },
-    { 
-      name: "Sold", 
-      code: "sold", 
-      description: "Vehicle has been sold",
-      color: "#dc3545", 
-      icon: "🔴" 
-    },
-    { 
-      name: "Pending", 
-      code: "pending", 
-      description: "Sale is pending completion",
-      color: "#ffc107", 
-      icon: "⏳" 
-    },
-    { 
-      name: "Reserved", 
-      code: "reserved", 
-      description: "Vehicle is reserved for a customer",
-      color: "#007bff", 
-      icon: "🔒" 
-    },
-    { 
-      name: "On Hold", 
-      code: "on_hold", 
-      description: "Vehicle is temporarily on hold",
-      color: "#fd7e14", 
-      icon: "⏸️" 
-    },
-  ]
 }

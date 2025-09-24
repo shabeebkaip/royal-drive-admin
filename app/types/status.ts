@@ -5,7 +5,6 @@ export interface Status extends BaseEntity {
   id: string  // Maps to _id from API
   _id: string
   name: string
-  code: string
   slug: string
   description?: string
   color?: string        // Hex color code for UI (e.g., "#28a745")
@@ -21,14 +20,12 @@ export interface Status extends BaseEntity {
 export interface StatusDropdownItem {
   _id: string
   name: string
-  code: string
   color?: string
   icon?: string
 }
 
 export interface CreateStatusRequest {
   name: string
-  code?: string
   description?: string
   color?: string
   icon?: string
@@ -38,7 +35,6 @@ export interface CreateStatusRequest {
 
 export interface UpdateStatusRequest {
   name?: string
-  code?: string
   description?: string
   color?: string
   icon?: string

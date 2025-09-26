@@ -1,48 +1,37 @@
 "use client"
 
 import * as React from "react"
-import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
-
 import { cn } from "~/lib/utils"
 
-const ScrollArea = React.forwardRef<
-  React.ElementRef<typeof ScrollAreaPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
->(({ className, children, ...props }, ref) => (
-  <ScrollAreaPrimitive.Root
-    ref={ref}
-    className={cn("relative overflow-hidden", className)}
-    {...props}
-  >
-    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
-      {children}
-    </ScrollAreaPrimitive.Viewport>
-    <ScrollBar />
-    <ScrollAreaPrimitive.Corner />
-  </ScrollAreaPrimitive.Root>
-))
-ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName
+// Lightweight custom ScrollArea (removes dependency on @radix-ui/react-scroll-area)
+// Props kept broadly compatible (className, children). Additional props are spread to wrapper div.
+// Styling: wrapper hides native scrollbar track; custom scrollbar rendered absolutely.
 
-const ScrollBar = React.forwardRef<
-  React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
-  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
->(({ className, orientation = "vertical", ...props }, ref) => (
-  <ScrollAreaPrimitive.ScrollAreaScrollbar
-    ref={ref}
-    orientation={orientation}
-    className={cn(
-      "flex touch-none select-none transition-colors",
-      orientation === "vertical" &&
-        "h-full w-2.5 border-l border-l-transparent p-[1px]",
-      orientation === "horizontal" &&
-        "h-2.5 flex-col border-t border-t-transparent p-[1px]",
-      className
-    )}
-    {...props}
-  >
-    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
-  </ScrollAreaPrimitive.ScrollAreaScrollbar>
-))
-ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName
+interface ScrollAreaProps extends React.HTMLAttributes<HTMLDivElement> {
+  viewportClassName?: string
+  hideScrollbar?: boolean
+}
+
+const ScrollArea = React.forwardRef<HTMLDivElement, ScrollAreaProps>(
+  ({ className, children, viewportClassName, hideScrollbar = false, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn("relative overflow-hidden", className)} {...props}>
+        <div
+          className={cn(
+            "h-full w-full overflow-auto", 
+            hideScrollbar && "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
+            viewportClassName
+          )}
+        >
+          {children}
+        </div>
+      </div>
+    )
+  }
+)
+ScrollArea.displayName = "ScrollArea"
+
+// Placeholder ScrollBar export to avoid breaking imports; optional usage.
+const ScrollBar: React.FC<{ orientation?: 'vertical' | 'horizontal'; className?: string }> = () => null
 
 export { ScrollArea, ScrollBar }

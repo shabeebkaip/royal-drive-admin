@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { enquiryColumns } from './enquiry-columns'
 import type { VehicleEnquiry } from '~/types/enquiry'
-import { DataTable } from '~/components/data-table'
+import { DataTableGeneric } from '~/components/shared'
 
 interface EnquiriesTableProps {
   data: VehicleEnquiry[]
@@ -11,7 +11,11 @@ interface EnquiriesTableProps {
 export function EnquiriesTable({ data, loading }: EnquiriesTableProps) {
   return (
     <div className="space-y-2">
-      <DataTable columns={enquiryColumns} data={data} loading={loading} />
+      {loading ? (
+        <div className="text-sm text-muted-foreground p-4 border rounded-md">Loading enquiries...</div>
+      ) : (
+        <DataTableGeneric columns={enquiryColumns} data={data} />
+      )}
     </div>
   )
 }

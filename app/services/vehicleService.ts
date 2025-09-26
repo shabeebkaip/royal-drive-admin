@@ -1,18 +1,27 @@
-import type { 
-  Vehicle, 
-  VehicleFormData, 
-  VehicleFilters, 
+import type {
+  Vehicle,
+  VehicleFormData,
+  VehicleFilters,
   VehicleSearchParams,
   VehicleStats,
   VehicleBulkOperation,
   VehicleDropdowns,
   ApiResponse,
-  PaginatedResponse
+  PaginatedResponse,
 } from '~/types/vehicle'
+import { auth } from '~/lib/auth'
 // Mock service removed; always use real API
 
 // Base URL for the API
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3001/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string | undefined) || 'http://localhost:3001/api/v1'
+
+function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}) {
+  const token = auth.getToken()
+  const headers = new Headers(init.headers || {})
+  if (token) headers.set('Authorization', `Bearer ${token}`)
+  if (!headers.has('Accept')) headers.set('Accept', 'application/json')
+  return fetch(input, { ...init, headers, credentials: 'include' })
+}
 
 // Always use real API endpoints; no mock fallback
 
@@ -43,7 +52,7 @@ export const vehicleService = {
     if (params.status) searchParams.set('status', params.status)
     if (params.inStock !== undefined) searchParams.set('inStock', params.inStock.toString())
 
-    const response = await fetch(`${API_BASE_URL}/vehicles?${searchParams}`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles?${searchParams}`)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch vehicles: ${response.statusText}`)
@@ -58,7 +67,7 @@ export const vehicleService = {
   async getVehicle(id: string): Promise<ApiResponse<Vehicle>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${id}`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${id}`)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch vehicle: ${response.statusText}`)
@@ -73,7 +82,7 @@ export const vehicleService = {
   async createVehicle(data: VehicleFormData): Promise<ApiResponse<Vehicle>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +103,7 @@ export const vehicleService = {
   async updateVehicle(id: string, data: Partial<VehicleFormData>): Promise<ApiResponse<Vehicle>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -115,7 +124,7 @@ export const vehicleService = {
   async deleteVehicle(id: string): Promise<ApiResponse<void>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${id}`, {
       method: 'DELETE',
     })
     
@@ -132,7 +141,7 @@ export const vehicleService = {
   async getVehicleStats(): Promise<ApiResponse<VehicleStats>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/stats`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/stats`)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch vehicle stats: ${response.statusText}`)
@@ -147,7 +156,7 @@ export const vehicleService = {
   async searchVehicles(filters: VehicleFilters): Promise<PaginatedResponse<Vehicle>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/search`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/search`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -168,7 +177,7 @@ export const vehicleService = {
   async getDropdownData(): Promise<ApiResponse<VehicleDropdowns>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/dropdown-data`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/dropdown-data`)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch dropdown data: ${response.statusText}`)
@@ -183,7 +192,7 @@ export const vehicleService = {
   async getModelsByMake(makeId: string): Promise<ApiResponse<Array<{ id: string; name: string }>>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/makes/${makeId}/models`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/makes/${makeId}/models`)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch models: ${response.statusText}`)
@@ -203,7 +212,7 @@ export const vehicleService = {
       formData.append(`image_${index}`, file)
     })
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}/images`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${vehicleId}/images`, {
       method: 'POST',
       body: formData,
     })
@@ -221,7 +230,7 @@ export const vehicleService = {
   async deleteImage(vehicleId: string, imageUrl: string): Promise<ApiResponse<void>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}/images`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${vehicleId}/images`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -242,7 +251,7 @@ export const vehicleService = {
   async bulkOperation(operation: VehicleBulkOperation): Promise<ApiResponse<{ processed: number; failed: number }>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/bulk`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/bulk`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -263,7 +272,7 @@ export const vehicleService = {
   async duplicateVehicle(id: string): Promise<ApiResponse<Vehicle>> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${id}/duplicate`, {
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${id}/duplicate`, {
       method: 'POST',
     })
     
@@ -285,7 +294,7 @@ export const vehicleService = {
   }>> {
     // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/valuation/${vin}`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/valuation/${vin}`)
     
     if (!response.ok) {
       throw new Error(`Failed to get valuation: ${response.statusText}`)
@@ -300,7 +309,7 @@ export const vehicleService = {
   async generateReport(vehicleId: string, format: 'pdf' | 'excel'): Promise<Blob> {
   // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}/report?format=${format}`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${vehicleId}/report?format=${format}`)
     
     if (!response.ok) {
       throw new Error(`Failed to generate report: ${response.statusText}`)
@@ -321,7 +330,7 @@ export const vehicleService = {
   }>>> {
     // Always call real API
 
-    const response = await fetch(`${API_BASE_URL}/vehicles/${vehicleId}/history`)
+  const response = await authorizedFetch(`${API_BASE_URL}/vehicles/${vehicleId}/history`)
     
     if (!response.ok) {
       throw new Error(`Failed to fetch vehicle history: ${response.statusText}`)

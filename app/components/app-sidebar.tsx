@@ -54,8 +54,8 @@ const data = {
   ],
   navProcurement: [
     {
-      title: "Quotation Enquiries",
-      url: "/enquiries/quotations",
+      title: "Vehicle Enquiries", // Leads generated from inventory vehicle detail pages
+      url: "/enquiries/vehicles", // Updated route to reflect vehicle-originated enquiries
       icon: IconFileDescription,
     },
     {

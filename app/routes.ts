@@ -15,5 +15,6 @@ export default [
 		route("transmissions", "routes/transmissions.tsx"),
 		route("drive-types", "routes/drive-types.tsx"),
 		route("status", "routes/statuses.tsx"),
+		route("enquiries/vehicles", "routes/enquiries.vehicles.tsx"), // New route for vehicle-originated enquiries
 	]),
 ] satisfies RouteConfig;

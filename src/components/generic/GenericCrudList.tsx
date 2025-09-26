@@ -17,6 +17,8 @@ interface GenericCrudListProps<T extends CrudEntity> {
   loading?: boolean;
 }
 
+// DEPRECATED: Legacy generic CRUD list. Replaced by new CRUD components under app/components/crud.
+// Exporting a dummy to prevent build breakage if referenced.
 export function GenericCrudList<T extends CrudEntity>({
   items,
   columns,

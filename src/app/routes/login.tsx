@@ -1,19 +1,8 @@
-import { GalleryVerticalEnd } from "lucide-react"
-
-import { LoginForm } from "~/components/login-form"
-
-export default function LoginPage() {
-  return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="#" className="flex items-center gap-2 self-center font-medium">
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
-          </div>
-          Acme Inc.
-        </a>
-        <LoginForm />
-      </div>
-    </div>
-  )
+// DEPRECATED: This file is no longer used. The active login route lives in app/routes/login.tsx
+// Keeping stub to avoid import resolution errors if any stale references remain.
+export default function DeprecatedLoginStub() {
+  if (import.meta.env.DEV) {
+    return <div style={{padding:20,fontFamily:'monospace'}}>Deprecated login route stub. Use /app/routes/login.tsx</div>
+  }
+  return null
 }

@@ -13,6 +13,7 @@ export interface ServerPaginationProps {
   onFirst: () => void
   onLast: () => void
   isLoading?: boolean
+  showSinglePage?: boolean // when true, still render summary even if only one page
 }
 
 export function ServerPagination({
@@ -28,10 +29,9 @@ export function ServerPagination({
   onFirst,
   onLast,
   isLoading = false,
+  showSinglePage = false,
 }: ServerPaginationProps) {
-  if (totalPages <= 1) {
-    return null
-  }
+  if (totalPages <= 1 && !showSinglePage) return null
 
   const startItem = (currentPage - 1) * itemsPerPage + 1
   const endItem = Math.min(currentPage * itemsPerPage, totalItems)

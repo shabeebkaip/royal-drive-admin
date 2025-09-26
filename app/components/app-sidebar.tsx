@@ -59,6 +59,11 @@ const data = {
       icon: IconFileDescription,
     },
     {
+      title: "Car Submissions", // Public sell-your-car submissions management
+      url: "/car-submissions",
+      icon: IconCar,
+    },
+    {
       title: "Financing Enquiries",
       url: "/enquiries/financing",
       icon: IconCreditCard,

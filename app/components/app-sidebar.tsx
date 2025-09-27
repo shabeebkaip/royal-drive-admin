@@ -46,11 +46,11 @@ const data = {
       url: "/vehicles",
       icon: IconCar,
     },
-    {
-      title: "Sales",
-      url: "/sales",
-      icon: IconChartBar,
-    },
+    // {
+    //   title: "Sales",
+    //   url: "/sales",
+    //   icon: IconChartBar,
+    // },
   ],
   navProcurement: [
     {
@@ -148,9 +148,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <NavUser user={data.user} />
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   )
 }

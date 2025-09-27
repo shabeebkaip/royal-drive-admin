@@ -560,13 +560,13 @@ export default function VehiclesPage() {
                   <Label>Make</Label>
                   <Select 
                     value={searchParams.make || ''} 
-                    onValueChange={(value) => handleFilterChange('make', value || undefined)}
+                    onValueChange={(value) => handleFilterChange('make', value === 'all-makes' ? undefined : value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="All Makes" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Makes</SelectItem>
+                      <SelectItem value="all-makes">All Makes</SelectItem>
                       {dropdowns?.makes.map((make) => (
                         <SelectItem key={make._id} value={make._id}>
                           {make.name}
@@ -581,13 +581,13 @@ export default function VehiclesPage() {
                   <Label>Model</Label>
                   <Select 
                     value={searchParams.model || ''} 
-                    onValueChange={(value) => handleFilterChange('model', value || undefined)}
+                    onValueChange={(value) => handleFilterChange('model', value === 'all-models' ? undefined : value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="All Models" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Models</SelectItem>
+                      <SelectItem value="all-models">All Models</SelectItem>
                       {dropdowns?.models.map((model) => (
                         <SelectItem key={model._id} value={model._id}>
                           {model.name}
@@ -602,13 +602,13 @@ export default function VehiclesPage() {
                   <Label>Condition</Label>
                   <Select 
                     value={searchParams.condition || ''} 
-                    onValueChange={(value) => handleFilterChange('condition', value || undefined)}
+                    onValueChange={(value) => handleFilterChange('condition', value === 'all-conditions' ? undefined : value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="All Conditions" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Conditions</SelectItem>
+                      <SelectItem value="all-conditions">All Conditions</SelectItem>
                       <SelectItem value="new">New</SelectItem>
                       <SelectItem value="used">Used</SelectItem>
                       <SelectItem value="certified-pre-owned">Certified Pre-Owned</SelectItem>
@@ -621,13 +621,13 @@ export default function VehiclesPage() {
                   <Label>Status</Label>
                   <Select 
                     value={searchParams.status || ''} 
-                    onValueChange={(value) => handleFilterChange('status', value || undefined)}
+                    onValueChange={(value) => handleFilterChange('status', value === 'all-statuses' ? undefined : value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="All Statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Statuses</SelectItem>
+                      <SelectItem value="all-statuses">All Statuses</SelectItem>
                       {dropdowns?.statuses.map((status) => (
                         <SelectItem key={status._id} value={status._id}>
                           {status.name}

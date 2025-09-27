@@ -20,8 +20,8 @@ export interface DashboardAnalyticsResponse {
     submissionsByStatus: Record<string, number>
   }
   topMakes: { makeId: string; count: number; name: string; slug?: string }[]
-  trend: { date: string; vehicles: number; enquiries: number; submissions: number }[]
-  trendSmoothed: { date: string; vehicles: number; vehiclesSmoothed: number; enquiries: number; enquiriesSmoothed: number; submissions: number; submissionsSmoothed: number }[]
+  trend: { date: string; vehicles: number; enquiries: number; submissions: number; sales: number; salesRevenue: number }[]
+  trendSmoothed: { date: string; vehicles: number; vehiclesSmoothed: number; enquiries: number; enquiriesSmoothed: number; submissions: number; submissionsSmoothed: number; sales: number; salesSmoothed: number; salesRevenue: number; salesRevenueSmoothed: number }[]
   meta?: { cached?: boolean }
 }
 

@@ -18,5 +18,6 @@ export default [
 		route("enquiries/vehicles", "routes/enquiries.vehicles.tsx"), // New route for vehicle-originated enquiries
 		route("car-submissions", "routes/car-submissions.tsx"),
 		route("enquiries/financing", "routes/enquiries.financing.tsx"), // Financing enquiries
+		route("sales", "routes/sales.tsx"), // Sales management
 	]),
 ] satisfies RouteConfig;

@@ -9,8 +9,9 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog"
 import type { BaseEntity, CrudConfig } from "./types"
+import type { FieldValues } from 'react-hook-form'
 
-type CrudDeleteDialogProps<TEntity extends BaseEntity, TFormData> = {
+type CrudDeleteDialogProps<TEntity extends BaseEntity, TFormData extends FieldValues> = {
   open: boolean
   onOpenChange: (open: boolean) => void
   entity: TEntity | null
@@ -19,7 +20,7 @@ type CrudDeleteDialogProps<TEntity extends BaseEntity, TFormData> = {
   config: CrudConfig<TEntity, TFormData>
 }
 
-export function CrudDeleteDialog<TEntity extends BaseEntity, TFormData>({
+export function CrudDeleteDialog<TEntity extends BaseEntity, TFormData extends FieldValues>({
   open,
   onOpenChange,
   entity,

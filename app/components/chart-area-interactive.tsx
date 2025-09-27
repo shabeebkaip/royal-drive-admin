@@ -27,17 +27,18 @@ import {
 
 export const description = "An interactive area chart"
 
-interface TrendPoint { date: string; vehicles: number; enquiries: number; submissions: number }
+interface TrendPoint { date: string; vehicles: number; enquiries: number; submissions: number; sales: number; salesRevenue: number }
 
 const chartConfig = {
   vehicles: { label: 'Vehicles', color: 'hsl(var(--chart-1))' },
   enquiries: { label: 'Enquiries', color: 'hsl(var(--chart-2))' },
   submissions: { label: 'Submissions', color: 'hsl(var(--chart-3))' },
+  sales: { label: 'Sales', color: 'hsl(var(--chart-4))' },
 } satisfies ChartConfig
 export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined }) {
   const isMobile = useIsMobile()
   const [timeRange, setTimeRange] = React.useState('30d')
-  const [series, setSeries] = React.useState<{ vehicles: boolean; enquiries: boolean; submissions: boolean }>({ vehicles: true, enquiries: true, submissions: true })
+  const [series, setSeries] = React.useState<{ vehicles: boolean; enquiries: boolean; submissions: boolean; sales: boolean }>({ vehicles: true, enquiries: true, submissions: true, sales: true })
 
   React.useEffect(() => {
     if (isMobile) {
@@ -46,6 +47,7 @@ export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined 
   }, [isMobile])
 
   const src = data || []
+  console.log('Chart data:', src)
   const referenceDate = src.length ? new Date(src[src.length - 1].date) : new Date()
   const filteredData = src.filter((item) => {
     const date = new Date(item.date)
@@ -64,37 +66,81 @@ export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined 
     <Card className="@container/card">
       <CardHeader>
   <CardTitle>Activity Trend</CardTitle>
-  <CardDescription>Vehicles, enquiries & submissions</CardDescription>
+  <CardDescription>Vehicles, enquiries, submissions & sales</CardDescription>
         <CardAction>
-          <ToggleGroup
-            type="single"
-            value={timeRange}
-            onValueChange={setTimeRange}
-            variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="90d">90d</ToggleGroupItem>
-            <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
-            <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
-          </ToggleGroup>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger
-              className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
-              size="sm"
-              aria-label="Select a value"
+          <div className="flex flex-col gap-2 @container/action">
+            <ToggleGroup
+              type="single"
+              value={timeRange}
+              onValueChange={setTimeRange}
+              variant="outline"
+              className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
             >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="90d" className="rounded-lg">Last 90 days</SelectItem>
-              <SelectItem value="30d" className="rounded-lg">
-                Last 30 days
-              </SelectItem>
-              <SelectItem value="7d" className="rounded-lg">
-                Last 7 days
-              </SelectItem>
-            </SelectContent>
-          </Select>
+              <ToggleGroupItem value="90d">90d</ToggleGroupItem>
+              <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
+              <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
+            </ToggleGroup>
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger
+                className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
+                size="sm"
+                aria-label="Select a value"
+              >
+                <SelectValue placeholder="Last 3 months" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                <SelectItem value="90d" className="rounded-lg">Last 90 days</SelectItem>
+                <SelectItem value="30d" className="rounded-lg">
+                  Last 30 days
+                </SelectItem>
+                <SelectItem value="7d" className="rounded-lg">
+                  Last 7 days
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <label className="flex items-center gap-1 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={series.vehicles} 
+                  onChange={(e) => setSeries(s => ({ ...s, vehicles: e.target.checked }))}
+                  className="w-3 h-3"
+                />
+                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(var(--chart-1))' }}></div>
+                Vehicles
+              </label>
+              <label className="flex items-center gap-1 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={series.enquiries} 
+                  onChange={(e) => setSeries(s => ({ ...s, enquiries: e.target.checked }))}
+                  className="w-3 h-3"
+                />
+                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(var(--chart-2))' }}></div>
+                Enquiries
+              </label>
+              <label className="flex items-center gap-1 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={series.submissions} 
+                  onChange={(e) => setSeries(s => ({ ...s, submissions: e.target.checked }))}
+                  className="w-3 h-3"
+                />
+                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(var(--chart-3))' }}></div>
+                Submissions
+              </label>
+              <label className="flex items-center gap-1 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={series.sales} 
+                  onChange={(e) => setSeries(s => ({ ...s, sales: e.target.checked }))}
+                  className="w-3 h-3"
+                />
+                <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(var(--chart-4))' }}></div>
+                Sales
+              </label>
+            </div>
+          </div>
         </CardAction>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
@@ -115,6 +161,10 @@ export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined 
               <linearGradient id="fillSubmissions" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={'hsl(var(--chart-3))'} stopOpacity={0.5} />
                 <stop offset="95%" stopColor={'hsl(var(--chart-3))'} stopOpacity={0.05} />
+              </linearGradient>
+              <linearGradient id="fillSales" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={'hsl(var(--chart-4))'} stopOpacity={0.5} />
+                <stop offset="95%" stopColor={'hsl(var(--chart-4))'} stopOpacity={0.05} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
@@ -148,8 +198,8 @@ export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined 
             />
             {filteredData.length < 2 ? (
               // Not enough points to draw a meaningful area curve
-              <text x="50%" y="45%" textAnchor="middle" className="fill-muted-foreground">
-                Not enough data yet
+              <text x="50%" y="45%" textAnchor="middle" className="fill-muted-foreground text-sm">
+                Not enough data points for trend visualization
               </text>
             ) : (
               <>
@@ -160,7 +210,7 @@ export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined 
                     fill="url(#fillVehicles)"
                     stroke={'hsl(var(--chart-1))'}
                     strokeWidth={2}
-                    dot={false}
+                    dot={{ fill: 'hsl(var(--chart-1))', strokeWidth: 2, r: 4 }}
                     isAnimationActive={false}
                   />
                 )}
@@ -171,7 +221,7 @@ export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined 
                     fill="url(#fillEnquiries)"
                     stroke={'hsl(var(--chart-2))'}
                     strokeWidth={2}
-                    dot={false}
+                    dot={{ fill: 'hsl(var(--chart-2))', strokeWidth: 2, r: 4 }}
                     isAnimationActive={false}
                   />
                 )}
@@ -182,7 +232,18 @@ export function ChartAreaInteractive({ data }: { data: TrendPoint[] | undefined 
                     fill="url(#fillSubmissions)"
                     stroke={'hsl(var(--chart-3))'}
                     strokeWidth={2}
-                    dot={false}
+                    dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 2, r: 4 }}
+                    isAnimationActive={false}
+                  />
+                )}
+                {series.sales && (
+                  <Area
+                    dataKey="sales"
+                    type="monotone"
+                    fill="url(#fillSales)"
+                    stroke={'hsl(var(--chart-4))'}
+                    strokeWidth={2}
+                    dot={{ fill: 'hsl(var(--chart-4))', strokeWidth: 2, r: 4 }}
                     isAnimationActive={false}
                   />
                 )}

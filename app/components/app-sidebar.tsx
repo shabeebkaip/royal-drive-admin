@@ -46,6 +46,11 @@ const data = {
       url: "/vehicles",
       icon: IconCar,
     },
+    {
+      title: "Sales",
+      url: "/sales",
+      icon: IconChartBar,
+    },
     // {
     //   title: "Sales",
     //   url: "/sales",

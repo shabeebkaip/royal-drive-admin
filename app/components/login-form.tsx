@@ -56,7 +56,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             <div className="grid gap-6">
               <div className="grid gap-6">
                 <div className="grid gap-3">
@@ -64,9 +64,10 @@ export function LoginForm({
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@royaldrive.com"
+                    placeholder="enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="off"
                     required
                     disabled={isLoading}
                   />
@@ -81,6 +82,7 @@ export function LoginForm({
                     placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
                     required
                     disabled={isLoading}
                   />
@@ -100,13 +102,6 @@ export function LoginForm({
           </form>
         </CardContent>
       </Card>
-      <div className="text-muted-foreground text-center text-xs text-balance">
-        <p className="text-gray-600">
-          Default credentials: <br />
-          <code className="text-sm bg-gray-100 px-2 py-1 rounded">royaldrivemotor@gmail.com</code> / 
-          <code className="text-sm bg-gray-100 px-2 py-1 rounded">RoyalDrive@123#</code>
-        </p>
-      </div>
     </div>
   )
 }

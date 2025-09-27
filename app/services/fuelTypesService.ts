@@ -6,7 +6,7 @@ import type {
   UpdateFuelTypeStatusRequest 
 } from "~/types/fuel-type"
 
-const BASE_URL = "http://localhost:3001/api/v1/fuel-types"
+const BASE_URL = "https://api.royaldrivecanada.com/api/v1/fuel-types"
 
 // API Response interfaces
 interface ApiResponse<T> {

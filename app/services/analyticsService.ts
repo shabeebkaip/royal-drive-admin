@@ -1,7 +1,7 @@
 import { auth } from '~/lib/auth'
 import type { DashboardAnalyticsResponse, DashboardPeriod } from '~/types/analytics'
 
-const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string | undefined) || 'http://localhost:3001/api/v1'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string | undefined) || 'https://api.royaldrivecanada.com/api/v1'
 
 function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const token = auth.getToken()

@@ -13,7 +13,7 @@ import { auth } from '~/lib/auth'
 // Mock service removed; always use real API
 
 // Base URL for the API
-const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string | undefined) || 'http://localhost:3001/api/v1'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string | undefined) || 'https://api.royaldrivecanada.com/api/v1'
 
 function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const token = auth.getToken()

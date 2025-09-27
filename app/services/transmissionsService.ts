@@ -6,7 +6,7 @@ import type {
   TransmissionDropdownItem 
 } from "~/types/transmission"
 
-const BASE_URL = "http://localhost:3001/api/v1/transmissions"
+const BASE_URL = "https://api.royaldrivecanada.com/api/v1/transmissions"
 
 // API Response interfaces
 interface ApiResponse<T> {

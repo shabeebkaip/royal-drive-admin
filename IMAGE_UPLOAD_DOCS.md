@@ -145,7 +145,7 @@ The upload service uses the environment variable for the API base URL:
 
 **.env file:**
 ```
-VITE_API_BASE_URL=http://localhost:3001/api/v1/
+VITE_API_BASE_URL=https://api.royaldrivecanada.com/api/v1/
 ```
 
 **Upload endpoint:** `POST {VITE_API_BASE_URL}/upload/image`
@@ -153,7 +153,7 @@ VITE_API_BASE_URL=http://localhost:3001/api/v1/
 **Expected server response:**
 ```json
 {
-  "url": "http://localhost:3001/api/v1/uploads/royal-drive/images/filename.jpg"
+  "url": "https://api.royaldrivecanada.com/api/v1/uploads/royal-drive/images/filename.jpg"
 }
 ```
 

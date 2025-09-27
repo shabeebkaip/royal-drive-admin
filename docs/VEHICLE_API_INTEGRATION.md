@@ -10,7 +10,7 @@ Create a `.env` file in the project root with the following variables:
 
 ```bash
 # API Configuration
-VITE_API_BASE_URL=http://localhost:3001/api/v1
+VITE_API_BASE_URL=https://api.royaldrivecanada.com/api/v1
 
 # Environment
 NODE_ENV=development
@@ -21,7 +21,7 @@ The API services automatically use the environment variable or fallback to local
 
 ```typescript
 // In services/vehicleApiService.ts
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3001/api/v1'
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
 const BASE_URL = `${API_BASE_URL}/vehicles`
 ```
 

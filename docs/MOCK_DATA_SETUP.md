@@ -26,7 +26,7 @@ const USE_MOCK_DATA = import.meta.env.DEV && !import.meta.env.VITE_API_BASE_URL
 ## **Environment Configuration**
 ```bash
 # Current .env configuration
-VITE_API_BASE_URL=http://localhost:3001/api/v1
+VITE_API_BASE_URL=https://api.royaldrivecanada.com/api/v1
 
 # To use mock data: comment out or remove the VITE_API_BASE_URL
 # To use real API: ensure VITE_API_BASE_URL points to your backend
@@ -67,7 +67,7 @@ VITE_API_BASE_URL=http://localhost:3001/api/v1
 ```bash
 # When backend is ready:
 # 1. Ensure backend runs on http://localhost:3001
-# 2. Set VITE_API_BASE_URL=http://localhost:3001/api/v1
+# 2. Set VITE_API_BASE_URL=https://api.royaldrivecanada.com/api/v1
 # 3. Service automatically switches to real API
 ```
 

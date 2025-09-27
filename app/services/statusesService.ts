@@ -6,7 +6,7 @@ import type {
   StatusDropdownItem 
 } from "~/types/status"
 
-const BASE_URL = "http://localhost:3001/api/v1/statuses"
+const BASE_URL = "https://api.royaldrivecanada.com/api/v1/statuses"
 
 // API Response interfaces
 interface ApiResponse<T> {

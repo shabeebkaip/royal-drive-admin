@@ -6,7 +6,7 @@ import type {
   DriveTypeDropdownItem 
 } from "~/types/drive-type"
 
-const BASE_URL = "http://localhost:3001/api/v1/drive-types"
+const BASE_URL = "https://api.royaldrivecanada.com/api/v1/drive-types"
 
 // API Response interfaces
 interface ApiResponse<T> {

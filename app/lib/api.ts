@@ -31,7 +31,7 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
 
   constructor(endpoint: string) {
     // Use environment variable or fallback to localhost
-    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:3001/api/v1'
+    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
     this.baseUrl = `${apiBaseUrl}/${endpoint}`
   }
 

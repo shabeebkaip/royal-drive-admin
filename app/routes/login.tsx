@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 import { Button } from "~/components/ui/button"
@@ -14,10 +14,18 @@ import { Label } from "~/components/ui/label"
 import { auth } from "~/lib/auth"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("royaldrivemotor@gmail.com")
-  const [password, setPassword] = useState("RoyalDrive@123#")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [key, setKey] = useState(0)
   const navigate = useNavigate()
+
+  // Force clear fields on mount
+  useEffect(() => {
+    setEmail("")
+    setPassword("")
+    setKey(prev => prev + 1)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,17 +83,19 @@ export default function LoginPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} autoComplete="off">
                   <div className="grid gap-6">
                     <div className="grid gap-6">
                       <div className="grid gap-3">
                         <Label htmlFor="email">Email</Label>
                         <Input
+                          key={`email-${key}`}
                           id="email"
                           type="email"
-                          placeholder="admin@royaldrive.com"
+                          placeholder="Enter your email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
+                          autoComplete="off"
                           required
                           disabled={isLoading}
                         />
@@ -95,11 +105,13 @@ export default function LoginPage() {
                           <Label htmlFor="password">Password</Label>
                         </div>
                         <Input 
+                          key={`password-${key}`}
                           id="password" 
                           type="password" 
                           placeholder="Enter your password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
+                          autoComplete="new-password"
                           required
                           disabled={isLoading}
                         />
@@ -119,17 +131,6 @@ export default function LoginPage() {
                 </form>
               </CardContent>
             </Card>
-          </div>
-        </div>
-        
-        {/* Default credentials info */}
-        <div className="mt-6 text-center">
-          <div className="text-muted-foreground text-center text-xs text-balance">
-            <p className="text-gray-600">
-              Default credentials: <br />
-              <code className="text-sm bg-gray-100 px-2 py-1 rounded">royaldrivemotor@gmail.com</code> / 
-              <code className="text-sm bg-gray-100 px-2 py-1 rounded">RoyalDrive@123#</code>
-            </p>
           </div>
         </div>
       </div>

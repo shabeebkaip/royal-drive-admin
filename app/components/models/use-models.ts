@@ -110,8 +110,13 @@ export function useModels() {
   // Create new model
   const create = async (formData: ModelFormData): Promise<Model> => {
     setError(null)
+    console.log('useModels create - Form data received:', formData)
+    console.log('useModels create - Make ID:', formData.make)
+    console.log('useModels create - Vehicle Type ID:', formData.vehicleType)
+    
     try {
       const newModel = await modelsApiService.create(formData)
+      console.log('useModels create - API response:', newModel)
       setData(prev => [newModel, ...prev])
       // Reload stats after creating
       loadStats()
@@ -121,6 +126,7 @@ export function useModels() {
       return newModel
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create model'
+      console.error('useModels create - Error:', err)
       setError(errorMessage)
       toast.error("Failed to create model", {
         description: errorMessage

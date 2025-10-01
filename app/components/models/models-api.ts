@@ -70,13 +70,93 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
     return this.getAll(params)
   }
 
-  // Override create to set active: true by default
+  // Override create to set active: true by default and handle API response format
   async create(data: ModelFormData): Promise<Model> {
+    console.log('ModelsApiService create - Original data:', data)
+    
+    // Prepare data according to API documentation
     const createData = {
-      ...data,
+      name: data.name,
+      make: data.make, // ObjectId as string
+      vehicleType: data.vehicleType, // ObjectId as string  
+      description: data.description || undefined,
       active: true, // Always set active to true for new models
     }
-    return super.create(createData as any)
+    
+    console.log('ModelsApiService create - Data being sent to API:', createData)
+    console.log('ModelsApiService create - API URL:', this.baseUrl)
+    
+    try {
+      const response = await fetch(this.baseUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(createData),
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('ModelsApiService create - HTTP error:', response.status, errorData)
+        throw new Error(errorData.message || `Failed to create model: ${response.statusText}`)
+      }
+      
+      const result = await response.json()
+      console.log('ModelsApiService create - Raw API response:', result)
+      
+      // Handle API response format: { success: true, message: "...", data: {...} }
+      const modelData = result.data || result
+      console.log('ModelsApiService create - Processed model data:', modelData)
+      
+      return modelData
+    } catch (error) {
+      console.error('ModelsApiService create - API error:', error)
+      throw error
+    }
+  }
+
+  // Override update to use PATCH method as per API documentation
+  async update(id: string, data: ModelFormData): Promise<Model> {
+    console.log('ModelsApiService update - Original data:', data)
+    
+    // Prepare data according to API documentation
+    const updateData = {
+      name: data.name,
+      make: data.make, // ObjectId as string
+      vehicleType: data.vehicleType, // ObjectId as string
+      description: data.description || undefined,
+    }
+    
+    console.log('ModelsApiService update - Data being sent to API:', updateData)
+    console.log('ModelsApiService update - API URL:', `${this.baseUrl}/${id}`)
+    
+    try {
+      const response = await fetch(`${this.baseUrl}/${id}`, {
+        method: 'PATCH', // Using PATCH as per API documentation
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('ModelsApiService update - HTTP error:', response.status, errorData)
+        throw new Error(errorData.message || `Failed to update model: ${response.statusText}`)
+      }
+      
+      const result = await response.json()
+      console.log('ModelsApiService update - Raw API response:', result)
+      
+      // Handle API response format: { success: true, message: "...", data: {...} }
+      const modelData = result.data || result
+      console.log('ModelsApiService update - Processed model data:', modelData)
+      
+      return modelData
+    } catch (error) {
+      console.error('ModelsApiService update - API error:', error)
+      throw error
+    }
   }
 
   // Additional methods specific to models

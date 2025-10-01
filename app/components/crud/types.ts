@@ -6,6 +6,7 @@ import type { FieldValues, UseFormRegister, FieldErrors, UseFormWatch, UseFormSe
 // Base entity interface that all CRUD entities must implement
 export interface BaseEntity {
   id: string
+  _id?: string // MongoDB ObjectId support
   createdAt: string
   updatedAt?: string
 }

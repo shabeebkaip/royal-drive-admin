@@ -87,9 +87,6 @@ export const vehicleInventoryColumns: ColumnDef<VehicleInventoryItem>[] = [
             <p className="text-sm text-gray-600 truncate">
               {vehicle.model?.name || 'Model'} {vehicle.trim && `• ${vehicle.trim}`}
             </p>
-            <p className="text-xs text-gray-500">
-              Stock: {vehicle.internal.stockNumber}
-            </p>
           </div>
         </div>
       )

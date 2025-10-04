@@ -2,15 +2,14 @@ import type { BaseEntity } from "~/components/crud"
 import type { Make } from "./make"
 import type { VehicleType } from "./vehicle-type"
 
-// Model interface - matches API response format
+// Model interface
 export interface Model extends BaseEntity {
-  _id?: string // MongoDB ObjectId (when returned from API)
   name: string
   slug: string
   description?: string
   active: boolean
-  make: Make | string // Populated Make object or ObjectId string
-  vehicleType: VehicleType | string // Populated VehicleType object or ObjectId string
+  make: Make | string // Populated or just ID
+  vehicleType: VehicleType | string // Populated or just ID
   vehicleCount?: number // Virtual field from backend
 }
 

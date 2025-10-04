@@ -36,7 +36,6 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
     // Initialize form values from entity data when editing
     useEffect(() => {
       if (formData) {
-        console.log('Form initialization - formData:', formData)
         // When editing, formData contains the full Model entity
         // We need to extract the IDs for the dropdowns
         const entityData = formData as any // The actual Model entity
@@ -44,29 +43,23 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
         let makeId = ""
         let vehicleTypeId = ""
         
-        // Extract make ID - handle both populated object and ObjectId string
+        // Extract make ID
         if (entityData.make) {
           if (typeof entityData.make === 'string') {
             makeId = entityData.make
-          } else if (entityData.make._id) {
-            makeId = entityData.make._id // MongoDB ObjectId
           } else if (entityData.make.id) {
-            makeId = entityData.make.id // Transformed ID
+            makeId = entityData.make.id
           }
         }
         
-        // Extract vehicle type ID - handle both populated object and ObjectId string
+        // Extract vehicle type ID
         if (entityData.vehicleType) {
           if (typeof entityData.vehicleType === 'string') {
             vehicleTypeId = entityData.vehicleType
-          } else if (entityData.vehicleType._id) {
-            vehicleTypeId = entityData.vehicleType._id // MongoDB ObjectId
           } else if (entityData.vehicleType.id) {
-            vehicleTypeId = entityData.vehicleType.id // Transformed ID
+            vehicleTypeId = entityData.vehicleType.id
           }
         }
-        
-        console.log('Form initialization - Extracted IDs:', { makeId, vehicleTypeId })
         
         // Set the form values
         if (makeId) setValue("make", makeId)
@@ -102,13 +95,6 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
             sortOrder: 'asc',
             limit: 100 // Get all active vehicle types
           })
-          console.log('loadVehicleTypes - API response:', response)
-          console.log('loadVehicleTypes - Vehicle types data:', response.data)
-          if (response.data && response.data.length > 0) {
-            console.log('loadVehicleTypes - First vehicle type:', response.data[0])
-            console.log('loadVehicleTypes - First vehicle type ID field:', response.data[0].id)
-            console.log('loadVehicleTypes - First vehicle type _id field:', response.data[0]._id)
-          }
           setVehicleTypes(response.data || [])
         } catch (error) {
           console.error('Failed to load vehicle types:', error)
@@ -141,31 +127,19 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
         <div className="space-y-2">
           <Label className="text-sm font-medium">Make *</Label>
           <Select
-            value={selectedMake || ""}
-            onValueChange={(value) => {
-              console.log('Make selected:', value)
-              setValue("make", value)
-            }}
+            value={selectedMake}
+            onValueChange={(value) => setValue("make", value)}
             disabled={isLoadingMakes}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={isLoadingMakes ? "Loading makes..." : "Select a make"}>
-                {selectedMake && makes.length > 0 ? 
-                  makes.find(m => (m.id || m._id) === selectedMake)?.name || "Select a make"
-                  : null
-                }
-              </SelectValue>
+              <SelectValue placeholder={isLoadingMakes ? "Loading makes..." : "Select a make"} />
             </SelectTrigger>
             <SelectContent>
-              {makes.map((make) => {
-                const makeId = make.id || make._id
-                if (!makeId) return null
-                return (
-                  <SelectItem key={makeId} value={makeId}>
-                    {make.name}
-                  </SelectItem>
-                )
-              }).filter(Boolean)}
+              {makes.map((make) => (
+                <SelectItem key={make.id} value={make.id}>
+                  {make.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.make && (
@@ -177,37 +151,19 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
         <div className="space-y-2">
           <Label className="text-sm font-medium">Vehicle Type *</Label>
           <Select
-            value={selectedVehicleType || ""}
-            onValueChange={(value) => {
-              console.log('Vehicle Type selected:', value)
-              setValue("vehicleType", value)
-            }}
+            value={selectedVehicleType}
+            onValueChange={(value) => setValue("vehicleType", value)}
             disabled={isLoadingVehicleTypes}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={isLoadingVehicleTypes ? "Loading vehicle types..." : "Select a vehicle type"}>
-                {selectedVehicleType && vehicleTypes.length > 0 ? 
-                  vehicleTypes.find(vt => (vt.id || vt._id) === selectedVehicleType)?.name || "Select a vehicle type"
-                  : null
-                }
-              </SelectValue>
+              <SelectValue placeholder={isLoadingVehicleTypes ? "Loading vehicle types..." : "Select a vehicle type"} />
             </SelectTrigger>
             <SelectContent>
-              {vehicleTypes.map((vehicleType, index) => {
-                console.log(`Vehicle Type ${index}:`, vehicleType)
-                console.log(`Vehicle Type ${index} ID:`, vehicleType.id)
-                console.log(`Vehicle Type ${index} _id:`, vehicleType._id)
-                const vehicleTypeId = vehicleType.id || vehicleType._id
-                if (!vehicleTypeId) {
-                  console.error(`Vehicle Type ${index} has no valid ID:`, vehicleType)
-                  return null
-                }
-                return (
-                  <SelectItem key={vehicleTypeId} value={vehicleTypeId}>
-                    {vehicleType.name}
-                  </SelectItem>
-                )
-              }).filter(Boolean)}
+              {vehicleTypes.map((vehicleType) => (
+                <SelectItem key={vehicleType.id} value={vehicleType.id}>
+                  {vehicleType.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           {errors.vehicleType && (

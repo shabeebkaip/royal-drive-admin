@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { vehicleApiService } from '~/services/vehicleApiService'
+import { vehicleApiService, transformFormDataToApiFormat } from '~/services/vehicleApiService'
 import type { VehicleFormData } from '~/components/vehicles/addEdit/schema'
+import { getChangedFields } from '~/lib/sanitize-payload'
 
 export function useVehicleOperations() {
   const [loading, setLoading] = useState(false)
@@ -28,6 +29,38 @@ export function useVehicleOperations() {
     
     try {
       const result = await vehicleApiService.updateVehicle(id, data)
+      setLoading(false)
+      return result
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
+      setError(errorMessage)
+      setLoading(false)
+      throw err
+    }
+  }
+
+  const updateVehiclePartial = async (id: string, updatedData: VehicleFormData, originalFormData: Partial<VehicleFormData>) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      // Transform both to API format for proper comparison
+      const originalApiData = transformFormDataToApiFormat(originalFormData as VehicleFormData)
+      const updatedApiData = transformFormDataToApiFormat(updatedData)
+      
+      // Get only the changed fields
+      const changes = getChangedFields(originalApiData, updatedApiData)
+      
+      // If nothing changed, don't make API call
+      if (Object.keys(changes).length === 0) {
+        setLoading(false)
+        return { success: true, message: 'No changes detected', data: null }
+      }
+
+      console.log('Changed fields:', changes)
+      
+      // Use patch endpoint for partial update
+      const result = await vehicleApiService.patchVehicle(id, changes)
       setLoading(false)
       return result
     } catch (err) {
@@ -73,6 +106,7 @@ export function useVehicleOperations() {
   return {
     createVehicle,
     updateVehicle,
+    updateVehiclePartial,
     getVehicleById,
     deleteVehicle,
     loading,

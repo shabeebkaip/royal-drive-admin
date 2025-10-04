@@ -1,4 +1,5 @@
 import type { VehicleFormData } from "~/components/vehicles/addEdit/schema"
+import { sanitizeVehiclePayload } from "~/lib/sanitize-payload"
 
 // Use environment variable or fallback to localhost
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
@@ -26,8 +27,8 @@ interface ApiError {
   error?: string
 }
 
-// Transform form data to API format
-function transformFormDataToApiFormat(formData: VehicleFormData) {
+// Transform form data to API format (exported for use in hooks)
+export function transformFormDataToApiFormat(formData: VehicleFormData) {
   return {
     // Basic Vehicle Information
     vin: formData.vin || undefined,
@@ -131,15 +132,16 @@ export const vehicleApiService = {
   async createVehicle(formData: VehicleFormData): Promise<ApiResponse<any>> {
     try {
       const apiData = transformFormDataToApiFormat(formData)
+      const sanitizedData = sanitizeVehiclePayload(apiData)
 
-      console.log('Creating vehicle with data:', apiData)
+      console.log('Creating vehicle with data:', sanitizedData)
 
       const response = await fetch(BASE_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(sanitizedData),
       })
 
       const result = await response.json()
@@ -155,19 +157,20 @@ export const vehicleApiService = {
     }
   },
 
-  // Update an existing vehicle
+  // Update an existing vehicle (full update)
   async updateVehicle(id: string, formData: VehicleFormData): Promise<ApiResponse<any>> {
     try {
       const apiData = transformFormDataToApiFormat(formData)
+      const sanitizedData = sanitizeVehiclePayload(apiData)
 
-      console.log('Updating vehicle with data:', apiData)
+      console.log('Updating vehicle with data:', sanitizedData)
 
       const response = await fetch(`${BASE_URL}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(sanitizedData),
       })
 
       const result = await response.json()
@@ -179,6 +182,45 @@ export const vehicleApiService = {
       return result
     } catch (error) {
       console.error('Error updating vehicle:', error)
+      throw error
+    }
+  },
+
+  // Partially update an existing vehicle (only changed fields)
+  async patchVehicle(id: string, changes: Partial<any>): Promise<ApiResponse<any>> {
+    try {
+      const sanitizedData = sanitizeVehiclePayload(changes)
+
+      // Check if there are any changes after sanitization
+      if (!sanitizedData || Object.keys(sanitizedData).length === 0) {
+        console.log('No changes to send after sanitization')
+        return {
+          success: true,
+          message: 'No changes to update',
+          data: null,
+          timestamp: new Date().toISOString()
+        }
+      }
+
+      console.log('Patching vehicle with changes:', sanitizedData)
+
+      const response = await fetch(`${BASE_URL}/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sanitizedData),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || `HTTP error! status: ${response.status}`)
+      }
+
+      return result
+    } catch (error) {
+      console.error('Error patching vehicle:', error)
       throw error
     }
   },

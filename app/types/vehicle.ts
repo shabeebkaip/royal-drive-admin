@@ -149,7 +149,6 @@ export interface Vehicle {
   
   // Internal Tracking
   internal: {
-    stockNumber: string          // Unique stock number
     acquisitionDate: Date        // Date acquired by dealer
     acquisitionCost?: number     // Cost to acquire vehicle
     daysInInventory: number      // Days in inventory (calculated)
@@ -355,7 +354,6 @@ export interface VehicleFormData {
   }
   
   internal: {
-    stockNumber: string
     acquisitionDate: string
     acquisitionCost?: number
     lastServiceDate?: string

@@ -1,6 +1,6 @@
 import type { Route } from "./+types/vehicles.$id"
 import { useNavigate, useParams } from "react-router"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { toast } from "sonner"
 import { PageTitle } from "~/components/shared/page-title"
 import { VehicleForm } from "~/components/vehicles/addEdit/vehicle-form"
@@ -13,7 +13,10 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
   const [vehicle, setVehicle] = useState<any>(null)
   const [isLoadingVehicle, setIsLoadingVehicle] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { updateVehicle, getVehicleById, loading } = useVehicleOperations()
+  const { updateVehiclePartial, getVehicleById, loading } = useVehicleOperations()
+  
+  // Store original form data for comparison
+  const originalFormDataRef = useRef<Partial<VehicleFormData> | null>(null)
 
   // Fetch vehicle data from API
   useEffect(() => {
@@ -48,15 +51,23 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
       return
     }
 
+    if (!originalFormDataRef.current) {
+      toast.error("Original data not available")
+      return
+    }
+
     try {
-      await updateVehicle(id, data)
+      // Use partial update - only sends changed fields
+      const result = await updateVehiclePartial(id, data, originalFormDataRef.current)
       
-      toast.success("Vehicle updated successfully", {
-        description: `Vehicle details have been updated successfully.`
-      })
-      
-      // Navigate back to vehicles list on success
-      navigate("/vehicles")
+      if (result.success) {
+        toast.success("Vehicle updated successfully", {
+          description: `Vehicle details have been updated successfully.`
+        })
+        
+        // Navigate back to vehicles list on success
+        navigate("/vehicles")
+      }
     } catch (error) {
       console.error("Error updating vehicle:", error)
       
@@ -160,6 +171,11 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
     
     // Images
     images: vehicle.media?.images || [],
+  }
+
+  // Store original form data on first load
+  if (!originalFormDataRef.current) {
+    originalFormDataRef.current = vehicleFormData
   }
 
   return (

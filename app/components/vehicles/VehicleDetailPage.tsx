@@ -104,7 +104,7 @@ export default function VehicleDetailPage() {
       const a = document.createElement('a')
       a.style.display = 'none'
       a.href = url
-      a.download = `vehicle-${vehicle.internal.stockNumber}-report.${format === 'pdf' ? 'pdf' : 'xlsx'}`
+      a.download = `vehicle-${vehicle._id}-report.${format === 'pdf' ? 'pdf' : 'xlsx'}`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -173,7 +173,7 @@ export default function VehicleDetailPage() {
           <div>
             <PageTitle title={`${vehicle.year} ${make} ${model}`} />
             <p className="text-sm text-muted-foreground">
-              Stock #{vehicle.internal.stockNumber} • {vehicle.vin || 'No VIN'}
+              {vehicle.vin || 'No VIN'}
             </p>
           </div>
         </div>

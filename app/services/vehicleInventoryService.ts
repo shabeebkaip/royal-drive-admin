@@ -137,7 +137,6 @@ export interface VehicleInventoryItem {
     }
   }
   internal: {
-    stockNumber: string
     acquisitionDate: string
     daysInInventory: number
     assignedSalesperson?: string
@@ -221,7 +220,6 @@ export interface VehicleFilters {
   uvipObtained?: boolean
   
   // Inventory Management
-  stockNumber?: string
   maxDaysInInventory?: number
   assignedSalesperson?: string
   
@@ -336,7 +334,6 @@ class VehicleInventoryService {
     if (filters.uvipObtained !== undefined) queryParams.append('uvipObtained', filters.uvipObtained.toString())
     
     // Add inventory management filters
-    if (filters.stockNumber) queryParams.append('stockNumber', filters.stockNumber)
     if (filters.maxDaysInInventory) queryParams.append('maxDaysInInventory', filters.maxDaysInInventory.toString())
     if (filters.assignedSalesperson) queryParams.append('assignedSalesperson', filters.assignedSalesperson)
     

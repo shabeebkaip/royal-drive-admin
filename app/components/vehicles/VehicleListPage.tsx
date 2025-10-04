@@ -20,20 +20,16 @@ import { Link } from "react-router"
 // Define table columns for vehicles
 const vehicleColumns = [
   {
-    accessorKey: "internal.stockNumber",
-    header: "Stock #",
+    accessorKey: "year",
+    header: "Year",
     cell: ({ row }: any) => (
       <Link 
         to={`/vehicles/${row.original._id}`}
         className="font-medium text-blue-600 hover:text-blue-800"
       >
-        {row.original.internal.stockNumber}
+        {row.original.year}
       </Link>
     )
-  },
-  {
-    accessorKey: "year",
-    header: "Year",
   },
   {
     accessorKey: "make",
@@ -306,18 +302,6 @@ export default function VehiclesPage() {
 
   // Create vehicle columns with callbacks
   const getVehicleColumns = () => [
-    {
-      accessorKey: "internal.stockNumber",
-      header: "Stock #",
-      cell: ({ row }: any) => (
-        <Link 
-          to={`/vehicles/${row.original._id}`}
-          className="font-medium text-blue-600 hover:text-blue-800"
-        >
-          {row.original.internal.stockNumber}
-        </Link>
-      )
-    },
     {
       accessorKey: "year",
       header: "Year",

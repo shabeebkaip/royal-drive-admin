@@ -174,7 +174,6 @@ const mockVehicles: MockVehicle[] = [
       }
     },
     internal: {
-      stockNumber: 'STK-2024-001',
       acquisitionDate: new Date('2024-01-05'),
       acquisitionCost: 25000,
       daysInInventory: 15,
@@ -323,7 +322,6 @@ const mockVehicles: MockVehicle[] = [
       }
     },
     internal: {
-      stockNumber: 'STK-2024-002',
       acquisitionDate: new Date('2024-01-08'),
       acquisitionCost: 22000,
       daysInInventory: 12
@@ -411,7 +409,7 @@ export const mockVehicleService = {
         return make.toLowerCase().includes(searchTerm) ||
           model.toLowerCase().includes(searchTerm) ||
           vehicle.year.toString().includes(searchTerm) ||
-          vehicle.internal.stockNumber.toLowerCase().includes(searchTerm)
+          (vehicle.vin && vehicle.vin.toLowerCase().includes(searchTerm))
       })
     }
 
@@ -789,8 +787,7 @@ export const mockVehicleService = {
       ...originalVehicle,
       _id: `vehicle-${Date.now()}`,
       internal: {
-        ...originalVehicle.internal,
-        stockNumber: `${originalVehicle.internal.stockNumber}-COPY`
+        ...originalVehicle.internal
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

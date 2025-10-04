@@ -30,7 +30,18 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
       try {
         setIsLoadingVehicle(true)
         const response = await getVehicleById(id)
-        setVehicle(response.data)
+        const vehicleData = response.data
+        
+        // Check if vehicle is sold - redirect if it is
+        if (vehicleData?.status?.slug === 'sold') {
+          toast.error("Cannot edit sold vehicle", {
+            description: "This vehicle has been sold and cannot be edited."
+          })
+          navigate(`/vehicles/${id}`)
+          return
+        }
+        
+        setVehicle(vehicleData)
       } catch (error) {
         console.error("Error fetching vehicle:", error)
         setError("Failed to load vehicle data")
@@ -43,7 +54,7 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
     }
 
     fetchVehicle()
-  }, [id]) // Remove getVehicleById from dependencies to avoid infinite loop
+  }, [id, navigate]) // Remove getVehicleById from dependencies to avoid infinite loop
 
   const handleSubmit = async (data: VehicleFormData) => {
     if (!id) {

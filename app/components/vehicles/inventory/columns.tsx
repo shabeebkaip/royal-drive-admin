@@ -19,38 +19,46 @@ interface ActionsProps {
   onView?: (vehicle: VehicleInventoryItem) => void
 }
 
-const ActionsCell = ({ vehicle, onEdit, onDelete, onView }: ActionsProps) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-        <span className="sr-only">Open menu</span>
-        <MoreHorizontal className="h-4 w-4" />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="w-[160px]">
-      <DropdownMenuItem asChild>
-        <Link to={`/vehicles/${vehicle._id}`} className="flex items-center">
-          <Eye className="mr-2 h-4 w-4" />
-          View Details
-        </Link>
-      </DropdownMenuItem>
-      <DropdownMenuItem asChild>
-        <Link to={`/vehicles/${vehicle._id}/edit`} className="flex items-center">
-          <Edit className="mr-2 h-4 w-4" />
-          Edit Vehicle
-        </Link>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem 
-        className="text-red-600 focus:text-red-600"
-        onClick={() => onDelete?.(vehicle)}
-      >
-        <Trash2 className="mr-2 h-4 w-4" />
-        Delete
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-)
+const ActionsCell = ({ vehicle, onEdit, onDelete, onView }: ActionsProps) => {
+  const isSold = vehicle.status?.slug === 'sold'
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuItem asChild>
+          <Link to={`/vehicles/${vehicle._id}`} className="flex items-center">
+            <Eye className="mr-2 h-4 w-4" />
+            View Details
+          </Link>
+        </DropdownMenuItem>
+        {!isSold && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to={`/vehicles/${vehicle._id}/edit`} className="flex items-center">
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Vehicle
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              className="text-red-600 focus:text-red-600"
+              onClick={() => onDelete?.(vehicle)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 // Minimal table with essential information only - no horizontal scrolling
 export const vehicleInventoryColumns: ColumnDef<VehicleInventoryItem>[] = [

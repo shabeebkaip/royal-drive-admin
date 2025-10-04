@@ -96,10 +96,13 @@ export function useVehicleInventory(initialFilters: Partial<VehicleFilters> = {}
     }))
   }, [])
 
-  // Update a single filter
+  // Update a single filter (without resetting page for pagination changes)
   const updateFilter = useCallback((key: keyof VehicleFilters, value: any) => {
-    setFilters({ [key]: value })
-  }, [setFilters])
+    setFiltersState(prev => ({
+      ...prev,
+      [key]: value,
+    }))
+  }, [])
 
   // Clear all filters except pagination defaults
   const clearFilters = useCallback(() => {

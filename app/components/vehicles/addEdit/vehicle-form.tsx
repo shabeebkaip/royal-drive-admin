@@ -83,8 +83,8 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
         setLoadingMakes(true)
         const response = await makesApiService.getAllWithFilters({
           active: true,
-          sortBy: 'name',
-          sortOrder: 'asc',
+          sortBy: 'vehicleCount',
+          sortOrder: 'desc',
           limit: 1000
         })
         setMakes(response.data || [])

@@ -51,6 +51,8 @@ export default function SoldVehiclesPage(_props: Route.ComponentProps) {
       }}
       hideFilters={true} // Hide search and filters for sold vehicles page
       hideAddButton={true} // Hide add vehicle button for sold vehicles page
+      customTitle="Sold Vehicles" // Custom title for sold vehicles page
+      hideActionButtons={true} // Hide Clear Filters and Add Vehicle buttons in empty state
     />
   )
 }

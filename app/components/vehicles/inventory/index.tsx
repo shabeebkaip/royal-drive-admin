@@ -48,12 +48,16 @@ interface VehicleInventoryProps {
   defaultFilters?: Record<string, any>;
   hideFilters?: boolean;
   hideAddButton?: boolean;
+  customTitle?: string;
+  hideActionButtons?: boolean;
 }
 
 export function VehicleInventory({
   defaultFilters = {},
   hideFilters = false,
   hideAddButton = false,
+  customTitle,
+  hideActionButtons = false,
 }: VehicleInventoryProps) {
   console.log(
     "🚗 VehicleInventory component rendered with defaultFilters:",
@@ -437,7 +441,7 @@ export function VehicleInventory({
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">
-                Vehicle Inventory
+                {customTitle || "Vehicle Inventory"}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
                 {loading ? "Loading..." : `${pagination?.total || 0} vehicles`}
@@ -602,20 +606,22 @@ export function VehicleInventory({
                         : "Add your first vehicle to get started"}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {(Object.keys(filters).length > 0 || searchQuery) && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={clearFilters}
-                      >
-                        Clear Filters
+                  {!hideActionButtons && (
+                    <div className="flex items-center gap-2">
+                      {(Object.keys(filters).length > 0 || searchQuery) && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={clearFilters}
+                        >
+                          Clear Filters
+                        </Button>
+                      )}
+                      <Button size="sm" asChild>
+                        <Link to="/vehicles/add">Add Vehicle</Link>
                       </Button>
-                    )}
-                    <Button size="sm" asChild>
-                      <Link to="/vehicles/add">Add Vehicle</Link>
-                    </Button>
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

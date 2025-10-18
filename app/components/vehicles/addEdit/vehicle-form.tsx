@@ -9,6 +9,7 @@ import { Textarea } from "~/components/ui/textarea"
 import { Checkbox } from "~/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Separator } from "~/components/ui/separator"
+import { SearchableDropdown } from "~/components/ui/searchable-dropdown"
 import { vehicleFormSchema, defaultVehicleValues, type VehicleFormData } from "./schema"
 import { ImageUpload } from "./image-upload"
 import { makesApiService } from "~/components/makes/makes-api"
@@ -190,7 +191,7 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
   // Fetch Models when make changes
   useEffect(() => {
     const fetchModels = async () => {
-      if (!selectedMake || selectedMake === "Other") {
+      if (!selectedMake) {
         setModels([])
         return
       }
@@ -250,9 +251,9 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
     }
 
     // Only fetch models if we have makes data and a selected make
-    if (makes.length > 0 && selectedMake && selectedMake !== "Other") {
+    if (makes.length > 0 && selectedMake) {
       fetchModels()
-    } else if (!selectedMake || selectedMake === "Other") {
+    } else if (!selectedMake) {
       setModels([])
     }
   }, [selectedMake, makes])
@@ -272,95 +273,43 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="make">Make *</Label>
-              <Select
+              <SearchableDropdown
+                options={displayMakes.map((make) => ({
+                  label: make.name,
+                  value: (make as any)._id || make.id,
+                }))}
+                value={selectedMake || ""}
                 onValueChange={(value) => {
                   setValue("make", value)
                   setValue("model", "") // Reset model when make changes
                 }}
-                defaultValue={initialData?.make || undefined}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select make" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingMakes ? (
-                    <SelectItem value="loading" disabled>Loading makes...</SelectItem>
-                  ) : (
-                    <>
-                      {displayMakes.map((make) => (
-                        <SelectItem key={make.id || make.name} value={(make as any)._id || make.id}>
-                          {make.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="Other">Other / Custom Make</SelectItem>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+                placeholder="Select make"
+                searchPlaceholder="Search makes..."
+                emptyText="No make found"
+                loading={loadingMakes}
+                allowClear
+              />
               {errors.make && <p className="text-sm text-red-600">{errors.make.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="model">Model *</Label>
-              <Select
+              <SearchableDropdown
+                options={models.map((model) => ({
+                  label: model.name,
+                  value: (model as any)._id || model.id,
+                }))}
+                value={selectedModel || ""}
                 onValueChange={(value) => setValue("model", value)}
+                placeholder={selectedMake ? "Select model" : "Select make first"}
+                searchPlaceholder="Search models..."
+                emptyText={selectedMake ? "No model found" : "Select make first"}
                 disabled={!selectedMake}
-                defaultValue={initialData?.model || undefined}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={selectedMake ? "Select model" : "Select make first"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingModels ? (
-                    <SelectItem value="loading" disabled>Loading models...</SelectItem>
-                  ) : selectedMake ? (
-                    <>
-                      {models.map((model) => (
-                        <SelectItem key={model.id} value={(model as any)._id || model.id}>
-                          {model.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="Other">Other / Custom Model</SelectItem>
-                    </>
-                  ) : (
-                    <SelectItem value="no-make" disabled>Select make first</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                loading={loadingModels}
+                allowClear
+              />
               {errors.model && <p className="text-sm text-red-600">{errors.model.message}</p>}
             </div>
-
-            {/* Custom Make Input (when Other is selected) */}
-            {selectedMake === "Other" && (
-              <div className="space-y-2">
-                <Label htmlFor="customMake">Custom Make *</Label>
-                <Input
-                  id="customMake"
-                  value={customMake}
-                  placeholder="Enter custom make..."
-                  onChange={(e) => {
-                    setCustomMake(e.target.value)
-                    setValue("make", e.target.value)
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Custom Model Input (when Other is selected) */}
-            {selectedModel === "Other" && (
-              <div className="space-y-2">
-                <Label htmlFor="customModel">Custom Model *</Label>
-                <Input
-                  id="customModel"
-                  value={customModel}
-                  placeholder="Enter custom model..."
-                  onChange={(e) => {
-                    setCustomModel(e.target.value)
-                    setValue("model", e.target.value)
-                  }}
-                />
-              </div>
-            )}
 
             <div className="space-y-2">
               <Label htmlFor="year">Year *</Label>
@@ -392,25 +341,22 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
 
             <div className="space-y-2">
               <Label htmlFor="type">Vehicle Type *</Label>
-              <Select onValueChange={(value) => setValue("type", value as any)} defaultValue={initialData?.type || undefined}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select body type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingVehicleTypes ? (
-                    <SelectItem value="loading" disabled>Loading vehicle types...</SelectItem>
-                  ) : (
-                    <>
-                      {vehicleTypes.map((type) => (
-                        <SelectItem key={type.id} value={(type as any)._id || type.id}>
-                          {type.name}
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="other">Other</SelectItem>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+              <SearchableDropdown
+                options={[
+                  ...vehicleTypes.map((type) => ({
+                    label: type.name,
+                    value: (type as any)._id || type.id,
+                  })),
+                  { label: "Other", value: "other" }
+                ]}
+                value={watch("type") || ""}
+                onValueChange={(value) => setValue("type", value as any)}
+                placeholder="Select body type"
+                searchPlaceholder="Search vehicle types..."
+                emptyText="No vehicle type found"
+                loading={loadingVehicleTypes}
+                allowClear
+              />
               {errors.type && <p className="text-sm text-red-600">{errors.type.message}</p>}
             </div>
           </div>
@@ -461,24 +407,19 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
 
             <div className="space-y-2">
               <Label htmlFor="fuelType">Fuel Type *</Label>
-              <Select onValueChange={(value) => setValue("fuelType", value as any)} defaultValue={initialData?.fuelType || undefined}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select fuel type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingFuelTypes ? (
-                    <SelectItem value="loading" disabled>Loading fuel types...</SelectItem>
-                  ) : (
-                    <>
-                      {fuelTypes.map((fuel) => (
-                        <SelectItem key={fuel.id} value={(fuel as any)._id || fuel.id}>
-                          {fuel.name}
-                        </SelectItem>
-                      ))}
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+              <SearchableDropdown
+                options={fuelTypes.map((fuel) => ({
+                  label: fuel.name,
+                  value: (fuel as any)._id || fuel.id,
+                }))}
+                value={watch("fuelType") || ""}
+                onValueChange={(value) => setValue("fuelType", value as any)}
+                placeholder="Select fuel type"
+                searchPlaceholder="Search fuel types..."
+                emptyText="No fuel type found"
+                loading={loadingFuelTypes}
+                allowClear
+              />
               {errors.fuelType && <p className="text-sm text-red-600">{errors.fuelType.message}</p>}
             </div>
           </div>
@@ -486,47 +427,37 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="transmissionType">Transmission *</Label>
-              <Select onValueChange={(value) => setValue("transmissionType", value as any)} defaultValue={initialData?.transmissionType || undefined}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select transmission" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingTransmissions ? (
-                    <SelectItem value="loading" disabled>Loading transmissions...</SelectItem>
-                  ) : (
-                    <>
-                      {transmissions.map((transmission) => (
-                        <SelectItem key={transmission.id} value={(transmission as any)._id || transmission.id}>
-                          {transmission.name}
-                        </SelectItem>
-                      ))}
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+              <SearchableDropdown
+                options={transmissions.map((transmission) => ({
+                  label: transmission.name,
+                  value: (transmission as any)._id || transmission.id,
+                }))}
+                value={watch("transmissionType") || ""}
+                onValueChange={(value) => setValue("transmissionType", value as any)}
+                placeholder="Select transmission"
+                searchPlaceholder="Search transmissions..."
+                emptyText="No transmission found"
+                loading={loadingTransmissions}
+                allowClear
+              />
               {errors.transmissionType && <p className="text-sm text-red-600">{errors.transmissionType.message}</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="drivetrain">Drivetrain *</Label>
-              <Select onValueChange={(value) => setValue("drivetrain", value as any)} defaultValue={initialData?.drivetrain || undefined}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select drivetrain" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingDriveTypes ? (
-                    <SelectItem value="loading" disabled>Loading drive types...</SelectItem>
-                  ) : (
-                    <>
-                      {driveTypes.map((drive) => (
-                        <SelectItem key={drive.id} value={(drive as any)._id || drive.id}>
-                          {drive.name}
-                        </SelectItem>
-                      ))}
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+              <SearchableDropdown
+                options={driveTypes.map((drive) => ({
+                  label: drive.name,
+                  value: (drive as any)._id || drive.id,
+                }))}
+                value={watch("drivetrain") || ""}
+                onValueChange={(value) => setValue("drivetrain", value as any)}
+                placeholder="Select drivetrain"
+                searchPlaceholder="Search drivetrains..."
+                emptyText="No drivetrain found"
+                loading={loadingDriveTypes}
+                allowClear
+              />
               {errors.drivetrain && <p className="text-sm text-red-600">{errors.drivetrain.message}</p>}
             </div>
 
@@ -807,24 +738,19 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
-              <Select onValueChange={(value) => setValue("status", value as any)} defaultValue={initialData?.status || undefined}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={loadingStatuses ? "Loading statuses..." : "Select status"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingStatuses ? (
-                    <SelectItem value="loading" disabled>Loading statuses...</SelectItem>
-                  ) : statuses.length > 0 ? (
-                    statuses.map((status) => (
-                      <SelectItem key={status._id} value={status._id}>
-                        {status.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-statuses" disabled>No statuses available</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+              <SearchableDropdown
+                options={statuses.map((status) => ({
+                  label: status.name,
+                  value: status._id,
+                }))}
+                value={watch("status") || ""}
+                onValueChange={(value) => setValue("status", value as any)}
+                placeholder="Select status"
+                searchPlaceholder="Search statuses..."
+                emptyText="No status found"
+                loading={loadingStatuses}
+                allowClear
+              />
               {errors.status && <p className="text-sm text-red-600">{errors.status.message}</p>}
             </div>
 

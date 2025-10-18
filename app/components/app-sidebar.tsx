@@ -43,19 +43,23 @@ const data = {
     },
     {
       title: "Inventory",
-      url: "/vehicles",
       icon: IconCar,
+      items: [
+        {
+          title: "All Vehicles",
+          url: "/vehicles",
+        },
+        {
+          title: "Sold Vehicles",
+          url: "/vehicles/sold",
+        },
+      ],
     },
     {
       title: "Sales",
       url: "/sales",
       icon: IconChartBar,
     },
-    // {
-    //   title: "Sales",
-    //   url: "/sales",
-    //   icon: IconChartBar,
-    // },
   ],
   navProcurement: [
     {

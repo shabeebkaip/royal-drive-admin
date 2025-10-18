@@ -401,9 +401,33 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
 
         <InfoSection title="Timeline" icon={<Calendar className="h-5 w-5 text-purple-600" />}>
           <div className="space-y-4">
-            <TimelineItem icon={<CheckCircle className="h-4 w-4" />} title="Vehicle Created" date={vehicle.createdAt} />
-            {vehicle.updatedAt && vehicle.createdAt !== vehicle.updatedAt && <TimelineItem icon={<Edit className="h-4 w-4" />} title="Last Updated" date={vehicle.updatedAt} />}
-            {vehicle.internal?.acquisitionDate && <TimelineItem icon={<DollarSign className="h-4 w-4" />} title="Acquired by Dealership" date={vehicle.internal.acquisitionDate} />}
+            {vehicle.internal?.acquisitionDate && (
+              <TimelineItem 
+                icon={<DollarSign className="h-4 w-4" />} 
+                title="Acquired by Dealership" 
+                date={vehicle.internal.acquisitionDate} 
+              />
+            )}
+            <TimelineItem 
+              icon={<CheckCircle className="h-4 w-4" />} 
+              title="Vehicle Added to Inventory" 
+              date={vehicle.createdAt} 
+            />
+            {vehicle.updatedAt && vehicle.createdAt !== vehicle.updatedAt && (
+              <TimelineItem 
+                icon={<Edit className="h-4 w-4" />} 
+                title="Last Updated" 
+                date={vehicle.updatedAt} 
+              />
+            )}
+            {vehicle.status?.slug === 'sold' && vehicle.updatedAt && (
+              <TimelineItem 
+                icon={<TrendingUp className="h-4 w-4" />} 
+                title="Vehicle Sold" 
+                date={vehicle.updatedAt} 
+                highlight
+              />
+            )}
           </div>
         </InfoSection>
       </div>
@@ -423,8 +447,21 @@ function StatusItem({ label, passed }: { label: string; passed?: boolean }) {
   return <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"><span className="text-sm font-medium text-gray-700">{label}</span><Badge variant={passed ? "default" : "secondary"} className="text-xs">{passed ? <><CheckCircle className="h-3 w-3 mr-1" /> Passed</> : <><AlertCircle className="h-3 w-3 mr-1" /> Pending</>}</Badge></div>;
 }
 
-function TimelineItem({ icon, title, date }: { icon: React.ReactNode; title: string; date: string }) {
-  return <div className="flex gap-4"><div className="flex flex-col items-center"><div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">{icon}</div><div className="h-full w-px bg-gray-200" /></div><div className="flex-1 pb-4"><p className="font-medium text-gray-900">{title}</p><p className="text-sm text-gray-500">{new Date(date).toLocaleString()}</p></div></div>;
+function TimelineItem({ icon, title, date, highlight }: { icon: React.ReactNode; title: string; date: string; highlight?: boolean }) {
+  return (
+    <div className="flex gap-4">
+      <div className="flex flex-col items-center">
+        <div className={`h-8 w-8 rounded-full flex items-center justify-center ${highlight ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+          {icon}
+        </div>
+        <div className="h-full w-px bg-gray-200" />
+      </div>
+      <div className="flex-1 pb-4">
+        <p className={`font-medium ${highlight ? 'text-green-900' : 'text-gray-900'}`}>{title}</p>
+        <p className="text-sm text-gray-500">{new Date(date).toLocaleString()}</p>
+      </div>
+    </div>
+  );
 }
 
 function InfoSection({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {

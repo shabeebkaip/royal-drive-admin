@@ -66,6 +66,20 @@ export interface VehicleStatus {
   updatedAt?: string
 }
 
+export interface Model {
+  id: string
+  _id: string
+  name: string
+  slug: string
+  make: {
+    _id: string
+    name: string
+  }
+  active: boolean
+  createdAt: string
+  updatedAt?: string
+}
+
 // Service classes
 class MakeService extends ApiService<Make, Partial<Make>> {
   constructor() {
@@ -163,8 +177,46 @@ class VehicleStatusService extends ApiService<VehicleStatus, Partial<VehicleStat
   }
 }
 
+class ModelService extends ApiService<Model, Partial<Model>> {
+  constructor() {
+    super('models')
+  }
+
+  async getModelsByMake(makeId: string): Promise<Model[]> {
+    try {
+      // Build query params manually for make filter
+      const queryString = new URLSearchParams({
+        make: makeId,
+        active: 'true',
+        limit: '200',
+        sortBy: 'name',
+        sortOrder: 'asc'
+      }).toString()
+      
+      const baseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+      const response = await fetch(`${baseUrl}/models?${queryString}`)
+      const data = await response.json()
+      return data.data || []
+    } catch (error) {
+      console.error('Error fetching models:', error)
+      return []
+    }
+  }
+
+  async getActiveModels(): Promise<Model[]> {
+    try {
+      const response = await this.getAll({ active: true, limit: 200, sortBy: 'name', sortOrder: 'asc' })
+      return response.data
+    } catch (error) {
+      console.error('Error fetching models:', error)
+      return []
+    }
+  }
+}
+
 // Service instances
 export const makeService = new MakeService()
+export const modelService = new ModelService()
 export const vehicleTypeService = new VehicleTypeService()
 export const fuelTypeService = new FuelTypeService()
 export const transmissionService = new TransmissionService()

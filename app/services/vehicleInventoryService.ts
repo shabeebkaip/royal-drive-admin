@@ -277,9 +277,15 @@ class VehicleInventoryService {
     if (filters.page) queryParams.append('page', filters.page.toString())
     if (filters.limit) queryParams.append('limit', filters.limit.toString())
     
-    // Add sorting
-    if (filters.sortBy) queryParams.append('sortBy', filters.sortBy)
-    if (filters.sortOrder) queryParams.append('sortOrder', filters.sortOrder)
+    // Add sorting - API expects combined sortBy values like 'price_asc', 'year_desc'
+    if (filters.sortBy) {
+      // If we have both sortBy and sortOrder, combine them
+      if (filters.sortOrder) {
+        queryParams.append('sortBy', `${filters.sortBy}_${filters.sortOrder}`)
+      } else {
+        queryParams.append('sortBy', filters.sortBy)
+      }
+    }
     
     // Add basic information filters
     if (filters.make) queryParams.append('make', filters.make)
@@ -287,7 +293,7 @@ class VehicleInventoryService {
     if (filters.year) queryParams.append('year', filters.year.toString())
     if (filters.minYear) queryParams.append('minYear', filters.minYear.toString())
     if (filters.maxYear) queryParams.append('maxYear', filters.maxYear.toString())
-    if (filters.type) queryParams.append('type', filters.type)
+    if (filters.type) queryParams.append('vehicleType', filters.type) // API expects 'vehicleType'
     if (filters.condition) queryParams.append('condition', filters.condition)
     
     // Add engine & performance filters
@@ -311,8 +317,8 @@ class VehicleInventoryService {
     if (filters.mileageUnit) queryParams.append('mileageUnit', filters.mileageUnit)
     
     // Add physical specification filters
-    if (filters.exteriorColor) queryParams.append('exteriorColor', filters.exteriorColor)
-    if (filters.interiorColor) queryParams.append('interiorColor', filters.interiorColor)
+    // API expects 'color' parameter (for exterior color)
+    if (filters.exteriorColor) queryParams.append('color', filters.exteriorColor)
     if (filters.minDoors) queryParams.append('minDoors', filters.minDoors.toString())
     if (filters.maxDoors) queryParams.append('maxDoors', filters.maxDoors.toString())
     if (filters.minSeating) queryParams.append('minSeating', filters.minSeating.toString())
@@ -337,8 +343,8 @@ class VehicleInventoryService {
     if (filters.maxDaysInInventory) queryParams.append('maxDaysInInventory', filters.maxDaysInInventory.toString())
     if (filters.assignedSalesperson) queryParams.append('assignedSalesperson', filters.assignedSalesperson)
     
-    // Add search filters
-    if (filters.search) queryParams.append('search', filters.search)
+    // Add search filters - API uses 'q' for full-text search
+    if (filters.search) queryParams.append('q', filters.search)
     if (filters.vin) queryParams.append('vin', filters.vin)
 
     try {

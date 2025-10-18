@@ -39,8 +39,7 @@ export interface UseVehicleInventoryResult {
 const defaultFilters: VehicleFilters = {
   page: 1,
   limit: 12,
-  sortBy: 'createdAt',
-  sortOrder: 'desc',
+  sortBy: 'year_desc', // API format: year_desc (newest first)
   inStock: true,
 }
 

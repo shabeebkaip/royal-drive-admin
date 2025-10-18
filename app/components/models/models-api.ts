@@ -15,7 +15,7 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
   }
 
   // Override getAll to handle models response structure
-  async getAll(params?: QueryParams): Promise<ApiResponse<Model>> {
+  async getAll(params?: QueryParams & { make?: string }): Promise<ApiResponse<Model>> {
     try {
       const searchParams = new URLSearchParams()
       
@@ -25,6 +25,7 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       if (params?.active !== undefined) searchParams.append('active', params.active.toString())
       if (params?.sortBy) searchParams.append('sortBy', params.sortBy)
       if (params?.sortOrder) searchParams.append('sortOrder', params.sortOrder)
+      if (params?.make) searchParams.append('make', params.make)
       
       const url = searchParams.toString() ? `${this.baseUrl}?${searchParams}` : this.baseUrl
       

@@ -1,12 +1,12 @@
 import { Label } from "~/components/ui/label"
 import { Input } from "~/components/ui/input"
 import { Textarea } from "~/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
+import { SearchableDropdown } from "~/components/ui/searchable-dropdown"
 import type { CrudConfig, FormRenderProps } from "~/components/crud"
 import type { Model } from "~/types/model"
 import { modelFormSchema, defaultModelValues, type ModelFormData } from "~/lib/schemas/model"
 import { createModelColumns } from "~/components/models/columns"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { makesApiService } from "~/components/makes/makes-api"
 import { vehicleTypesApiService } from "~/components/vehicle-types/vehicle-types-api"
 import type { Make } from "~/types/make"
@@ -22,100 +22,86 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
   
   columns: createModelColumns,
   
-  renderForm: ({ register, errors, watch, setValue, formData }: FormRenderProps<ModelFormData>) => {
+  renderForm: ({ register, errors, watch, setValue }: FormRenderProps<ModelFormData>) => {
     const [makes, setMakes] = useState<Make[]>([])
     const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([])
-    const [isLoadingMakes, setIsLoadingMakes] = useState(true)
-    const [isLoadingVehicleTypes, setIsLoadingVehicleTypes] = useState(true)
-    
-    const selectedMake = watch("make")
-    const selectedVehicleType = watch("vehicleType")
+    const [loadingMakes, setLoadingMakes] = useState(true)
+    const [loadingVehicleTypes, setLoadingVehicleTypes] = useState(true)
+    console.log('vehicle types:', vehicleTypes)
+    // Watch form values
+    const makeValue = watch("make")
+    const vehicleTypeValue = watch("vehicleType")
 
-    console.log('Form render - selectedMake:', vehicleTypes)
-    
-    // Initialize form values from entity data when editing
+    console.log('🔍 Form Values:', {
+      name: watch("name"),
+      make: makeValue,
+      vehicleType: vehicleTypeValue,
+      description: watch("description")
+    })
+
+  // No custom lists; use raw items with mappers
+  const getMakeLabel = (m: any) => m?.name ?? ""
+  const getMakeValue = (m: any) => String(m?._id ?? m?.id ?? "")
+  const getTypeLabel = (t: any) => t?.name ?? ""
+  const getTypeValue = (t: any) => String(t?._id ?? t?.id ?? "")
+
+    // Load makes on mount
     useEffect(() => {
-      if (formData) {
-        // When editing, formData contains the full Model entity
-        // We need to extract the IDs for the dropdowns
-        const entityData = formData as any // The actual Model entity
-        
-        let makeId = ""
-        let vehicleTypeId = ""
-        
-        // Extract make ID
-        if (entityData.make) {
-          if (typeof entityData.make === 'string') {
-            makeId = entityData.make
-          } else if (entityData.make.id) {
-            makeId = entityData.make.id
-          }
-        }
-        
-        // Extract vehicle type ID
-        if (entityData.vehicleType) {
-          if (typeof entityData.vehicleType === 'string') {
-            vehicleTypeId = entityData.vehicleType
-          } else if (entityData.vehicleType.id) {
-            vehicleTypeId = entityData.vehicleType.id
-          }
-        }
-        
-        // Set the form values
-        if (makeId) setValue("make", makeId)
-        if (vehicleTypeId) setValue("vehicleType", vehicleTypeId)
-      }
-    }, [formData, setValue])
-    
-    // Load makes and vehicle types for dropdowns
-    useEffect(() => {
-      const loadMakes = async () => {
+      const fetchMakes = async () => {
         try {
-          setIsLoadingMakes(true)
+          setLoadingMakes(true)
+          console.log('🔄 Fetching makes...')
           const response = await makesApiService.getAllWithFilters({
             active: true,
             sortBy: 'name',
             sortOrder: 'asc',
-            limit: 100 // Get all active makes
+            limit: 100
           })
+          console.log('✅ Makes loaded:', response.data?.length || 0)
           setMakes(response.data || [])
         } catch (error) {
-          console.error('Failed to load makes:', error)
+          console.error('❌ Error loading makes:', error)
         } finally {
-          setIsLoadingMakes(false)
+          setLoadingMakes(false)
         }
       }
-      
-      const loadVehicleTypes = async () => {
+      fetchMakes()
+    }, [])
+
+    // Load vehicle types on mount
+    useEffect(() => {
+      const fetchVehicleTypes = async () => {
         try {
-          setIsLoadingVehicleTypes(true)
+          setLoadingVehicleTypes(true)
+          console.log('🔄 Fetching vehicle types...')
           const response = await vehicleTypesApiService.getAllWithFilters({
             active: true,
             sortBy: 'name',
             sortOrder: 'asc',
-            limit: 100 // Get all active vehicle types
+            limit: 100
           })
+          console.log('✅ Vehicle types loaded:', response.data?.length || 0)
           setVehicleTypes(response.data || [])
         } catch (error) {
-          console.error('Failed to load vehicle types:', error)
+          console.error('❌ Error loading vehicle types:', error)
         } finally {
-          setIsLoadingVehicleTypes(false)
+          setLoadingVehicleTypes(false)
         }
       }
-      
-      loadMakes()
-      loadVehicleTypes()
+      fetchVehicleTypes()
     }, [])
     
     return (
       <div className="space-y-6">
-        {/* Model Name */}
+        {/* Model Name - Required */}
         <div className="space-y-2">
-          <Label htmlFor="name" className="text-sm font-medium">Model Name *</Label>
+          <Label htmlFor="name" className="text-sm font-medium">
+            Model Name *
+          </Label>
           <Input
             id="name"
             {...register("name")}
-            placeholder="e.g., A4, 3 Series, Civic, Camry..."
+            placeholder="e.g., Camry, Civic, A4..."
             autoFocus
           />
           {errors.name && (
@@ -123,67 +109,75 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
           )}
         </div>
 
-        {/* Make Selection */}
+        {/* Make Selection - Required */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">Make *</Label>
-          <Select
-            value={selectedMake}
-            onValueChange={(value) => setValue("make", value)}
-            disabled={isLoadingMakes}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={isLoadingMakes ? "Loading makes..." : "Select a make"} />
-            </SelectTrigger>
-            <SelectContent>
-              {makes.map((make) => (
-                <SelectItem key={make.id} value={make.id}>
-                  {make.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableDropdown
+            items={makes}
+            getOptionLabel={getMakeLabel}
+            getOptionValue={getMakeValue}
+            value={makeValue || ""}
+            onValueChange={(value) => {
+              console.log('✅ Make selected:', value)
+              console.log('📝 Setting make value...')
+              // Coerce to string to satisfy schema and ensure watch updates
+              setValue("make", String(value), { shouldValidate: true, shouldDirty: true })
+              console.log('✅ Make value set to:', value)
+            }}
+            placeholder="Select a make"
+            searchPlaceholder="Search makes..."
+            emptyText="No make found"
+            loading={loadingMakes}
+            disabled={loadingMakes}
+            allowClear
+          />
           {errors.make && (
             <p className="text-sm text-red-600">{errors.make.message}</p>
           )}
         </div>
 
-        {/* Vehicle Type Selection */}
+        {/* Vehicle Type Selection - Required */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">Vehicle Type *</Label>
-          <Select
-            value={selectedVehicleType}
-            onValueChange={(value) => setValue("vehicleType", value)}
-            disabled={isLoadingVehicleTypes}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={isLoadingVehicleTypes ? "Loading vehicle types..." : "Select a vehicle type"} />
-            </SelectTrigger>
-            <SelectContent>
-              {vehicleTypes.map((vehicleType) => (
-                <SelectItem key={vehicleType.id} value={vehicleType.id}>
-                  {vehicleType.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableDropdown
+            items={vehicleTypes}
+            getOptionLabel={getTypeLabel}
+            getOptionValue={getTypeValue}
+            value={vehicleTypeValue || ""}
+            onValueChange={(value) => {
+              console.log('✅ Vehicle Type selected:', value)
+              console.log('📝 Setting vehicleType value...')
+              // Coerce to string to satisfy schema and ensure watch updates
+              setValue("vehicleType", String(value), { shouldValidate: true, shouldDirty: true })
+              console.log('✅ Vehicle Type value set to:', value)
+            }}
+            placeholder="Select a vehicle type"
+            searchPlaceholder="Search vehicle types..."
+            emptyText="No vehicle type found"
+            loading={loadingVehicleTypes}
+            disabled={loadingVehicleTypes}
+            allowClear
+          />
           {errors.vehicleType && (
             <p className="text-sm text-red-600">{errors.vehicleType.message}</p>
           )}
         </div>
 
-        {/* Description */}
+        {/* Description - Optional */}
         <div className="space-y-2">
-          <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+          <Label htmlFor="description" className="text-sm font-medium">
+            Description (Optional)
+          </Label>
           <Textarea
             id="description"
             {...register("description")}
-            placeholder="Brief description of this model (optional)"
-            className="min-h-[80px]"
+            placeholder="Brief description of this model..."
+            className="min-h-[80px] resize-none"
           />
           {errors.description && (
             <p className="text-sm text-red-600">{errors.description.message}</p>
           )}
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Optional description to help differentiate this model from others.
           </p>
         </div>
@@ -200,7 +194,6 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
       ? `Please reassign or remove all ${model.vehicleCount} vehicle${model.vehicleCount !== 1 ? "s" : ""} from this model before deleting.`
       : null,
 
-  // Enhanced configuration for status filtering and additional features
   supportsStatusFilter: true,
   supportsAdvancedSearch: true,
 }

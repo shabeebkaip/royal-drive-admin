@@ -3,6 +3,20 @@ import type { Make } from "~/types/make"
 import type { MakeFormData } from "~/lib/schemas/make"
 import type { CrudOperations } from "~/components/crud"
 
+// Helper to transform MongoDB _id to id
+function transformMongoDoc<T>(doc: any): T {
+  if (!doc) return doc
+  const { _id, ...rest } = doc
+  return {
+    ...rest,
+    id: _id || doc.id,
+  } as T
+}
+
+function transformMongoDocs<T>(docs: any[]): T[] {
+  return docs.map(doc => transformMongoDoc<T>(doc))
+}
+
 export interface MakeDropdownItem {
   id: string
   name: string
@@ -39,7 +53,7 @@ export class MakesApiService extends ApiService<Make, MakeFormData> {
     return super.update(id, updateData as any)
   }
 
-  // Get active makes for dropdown
+    // Get active makes for dropdown
   async getDropdownOptions(): Promise<MakeDropdownItem[]> {
     try {
       const response = await fetch(`${this.baseUrl}/dropdown`, {
@@ -55,7 +69,8 @@ export class MakesApiService extends ApiService<Make, MakeFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDocs<MakeDropdownItem>(Array.isArray(data) ? data : [data])
     } catch (error) {
       console.error('API Error (getDropdownOptions):', error)
       throw error
@@ -78,7 +93,8 @@ export class MakesApiService extends ApiService<Make, MakeFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDoc<Make>(data)
     } catch (error) {
       console.error('API Error (getBySlug):', error)
       throw error
@@ -102,7 +118,8 @@ export class MakesApiService extends ApiService<Make, MakeFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDoc<Make>(data)
     } catch (error) {
       console.error('API Error (updateStatus):', error)
       throw error
@@ -125,7 +142,8 @@ export class MakesApiService extends ApiService<Make, MakeFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDocs<Make>(Array.isArray(data) ? data : [data])
     } catch (error) {
       console.error('API Error (getPopular):', error)
       throw error

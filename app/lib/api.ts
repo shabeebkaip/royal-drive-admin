@@ -26,6 +26,22 @@ export interface QueryParams {
   sortOrder?: 'asc' | 'desc'
 }
 
+// Transform MongoDB document to frontend entity (convert _id to id)
+function transformMongoDoc<T extends BaseEntity>(doc: any): T {
+  if (!doc) return doc
+  
+  const { _id, ...rest } = doc
+  return {
+    ...rest,
+    id: _id || doc.id, // Use _id if present, fallback to id
+  } as T
+}
+
+// Transform array of MongoDB documents
+function transformMongoDocs<T extends BaseEntity>(docs: any[]): T[] {
+  return docs.map(doc => transformMongoDoc<T>(doc))
+}
+
 export class ApiService<TEntity extends BaseEntity, TFormData> {
   protected baseUrl: string
 
@@ -65,13 +81,16 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
       if (result.data && result.data.makes && Array.isArray(result.data.makes)) {
         // Handle the API response format: { data: { makes: [], pagination: {} } }
         return {
-          data: result.data.makes,
+          data: transformMongoDocs<TEntity>(result.data.makes),
           pagination: result.data.pagination
         } as ApiResponse<TEntity>
       } else if (result.data && Array.isArray(result.data)) {
-        return result as ApiResponse<TEntity>
+        return {
+          data: transformMongoDocs<TEntity>(result.data),
+          pagination: result.pagination
+        } as ApiResponse<TEntity>
       } else if (Array.isArray(result)) {
-        return { data: result } as ApiResponse<TEntity>
+        return { data: transformMongoDocs<TEntity>(result) } as ApiResponse<TEntity>
       } else {
         throw new Error('Invalid response format')
       }
@@ -96,7 +115,8 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDoc<TEntity>(data)
     } catch (error) {
       console.error('API Error (getById):', error)
       throw error
@@ -119,7 +139,8 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const createdData = result.data || result
+      return transformMongoDoc<TEntity>(createdData)
     } catch (error) {
       console.error('API Error (create):', error)
       throw error
@@ -142,7 +163,8 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const updatedData = result.data || result
+      return transformMongoDoc<TEntity>(updatedData)
     } catch (error) {
       console.error('API Error (update):', error)
       throw error
@@ -181,7 +203,8 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
       }
       
       const result = await response.json()
-      return Array.isArray(result) ? result : result.data || []
+      const data = Array.isArray(result) ? result : result.data || []
+      return transformMongoDocs<TEntity>(data)
     } catch (error) {
       console.error('API Error (search):', error)
       throw error

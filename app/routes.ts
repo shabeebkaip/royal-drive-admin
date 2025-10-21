@@ -20,5 +20,13 @@ export default [
 		route("car-submissions", "routes/car-submissions.tsx"),
 		route("enquiries/financing", "routes/enquiries.financing.tsx"), // Financing enquiries
 		route("sales", "routes/sales.tsx"), // Sales management
+		// Legal pages
+		route("legal/terms", "routes/legal.terms.tsx"),
+		route("legal/privacy", "routes/legal.privacy.tsx"),
+		// Settings
+		route("settings", "routes/settings.tsx"),
 	]),
 ] satisfies RouteConfig;
+
+// Note: favicon.ico requests are automatically handled by React Router
+// The actual favicon is at /public/favicon.svg and served via link tag in root.tsx

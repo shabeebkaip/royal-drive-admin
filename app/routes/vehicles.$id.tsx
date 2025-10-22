@@ -130,6 +130,7 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
   const acquisitionCost = vehicle.internal?.acquisitionCost || 0;
   const profit = listPrice - acquisitionCost;
   const profitMargin = acquisitionCost > 0 ? ((profit / acquisitionCost) * 100).toFixed(1) : "0";
+  const isProfit = profit >= 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-blue-50">
@@ -203,7 +204,12 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
                 {acquisitionCost > 0 && (
                   <div className="mt-3 flex items-center gap-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600"><span>Cost: ${acquisitionCost.toLocaleString()}</span></div>
-                    <div className="flex items-center gap-2 text-sm"><TrendingUp className="h-4 w-4 text-green-600" /><span className="font-semibold text-green-600">${profit.toLocaleString()} profit ({profitMargin}%)</span></div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <TrendingUp className={`h-4 w-4 ${isProfit ? 'text-green-600' : 'text-red-600'}`} />
+                      <span className={`font-semibold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                        ${Math.abs(profit).toLocaleString()} {isProfit ? 'profit' : 'loss'} ({profitMargin}%)
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>

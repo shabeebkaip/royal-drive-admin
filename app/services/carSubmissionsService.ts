@@ -1,7 +1,10 @@
 import { auth } from '~/lib/auth'
 import type { CarSubmission, CarSubmissionSearchParams, PaginatedResponse, ApiResponse, CarSubmissionStatus, CarSubmissionPriority, CarSubmissionContactEntry } from '~/types/car-submission'
 
-const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string | undefined) || 'https://api.royaldrivecanada.com/api/v1'
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+}
 
 function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const token = auth.getToken()

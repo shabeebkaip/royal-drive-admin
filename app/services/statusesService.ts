@@ -6,7 +6,11 @@ import type {
   StatusDropdownItem 
 } from "~/types/status"
 
-const BASE_URL = "https://api.royaldrivecanada.com/api/v1/statuses"
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+}
+const BASE_URL = `${API_BASE_URL}/statuses`
 
 // API Response interfaces
 interface ApiResponse<T> {

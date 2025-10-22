@@ -193,7 +193,10 @@ class ModelService extends ApiService<Model, Partial<Model>> {
         sortOrder: 'asc'
       }).toString()
       
-      const baseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+      const baseUrl = import.meta.env?.VITE_API_BASE_URL
+      if (!baseUrl) {
+        throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+      }
       const response = await fetch(`${baseUrl}/models?${queryString}`)
       const data = await response.json()
       return data.data || []

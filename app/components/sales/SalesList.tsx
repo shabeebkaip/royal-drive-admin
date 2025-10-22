@@ -70,6 +70,9 @@ export function SalesList() {
       header: 'Vehicle',
       cell: ({ row }) => {
         const vehicle = row.original.vehicle
+        if (!vehicle) {
+          return <span className="text-sm text-muted-foreground">N/A</span>
+        }
         if (typeof vehicle === 'string') {
           return <span className="text-sm text-muted-foreground">{vehicle}</span>
         }

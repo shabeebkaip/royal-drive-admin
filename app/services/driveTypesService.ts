@@ -6,7 +6,11 @@ import type {
   DriveTypeDropdownItem 
 } from "~/types/drive-type"
 
-const BASE_URL = "https://api.royaldrivecanada.com/api/v1/drive-types"
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+}
+const BASE_URL = `${API_BASE_URL}/drive-types`
 
 // API Response interfaces
 interface ApiResponse<T> {

@@ -45,8 +45,11 @@ class AuthService {
   private baseUrl: string
 
   constructor() {
-    // Get base URL from environment variables with fallback
-    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+    // Get base URL from environment variables
+    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL
+    if (!apiBaseUrl) {
+      throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+    }
     this.baseUrl = `${apiBaseUrl}/auth`
   }
 

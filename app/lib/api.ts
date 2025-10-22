@@ -46,8 +46,11 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
   protected baseUrl: string
 
   constructor(endpoint: string) {
-    // Use environment variable or fallback to localhost
-    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+    // Use environment variable only - must be configured in .env
+    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL
+    if (!apiBaseUrl) {
+      throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+    }
     this.baseUrl = `${apiBaseUrl}/${endpoint}`
   }
 

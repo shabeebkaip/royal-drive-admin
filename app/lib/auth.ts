@@ -31,7 +31,10 @@ export interface LoginResponse {
   }
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+}
 
 // Cookie utilities
 function setCookie(name: string, value: string, days: number = 7) {

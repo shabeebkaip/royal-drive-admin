@@ -8,6 +8,8 @@ export interface UseVehicleInventoryResult {
   
   // State
   loading: boolean
+  isInitialLoad: boolean
+  isFetching: boolean
   error: string | null
   
   // Filters
@@ -46,6 +48,8 @@ const defaultFilters: VehicleFilters = {
 export function useVehicleInventory(initialFilters: Partial<VehicleFilters> = {}): UseVehicleInventoryResult {
   const [vehicles, setVehicles] = useState<VehicleInventoryItem[]>([])
   const [pagination, setPagination] = useState<VehicleInventoryResponse['data']['pagination'] | null>(null)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const [isFetching, setIsFetching] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFiltersState] = useState<VehicleFilters>({
@@ -62,7 +66,13 @@ export function useVehicleInventory(initialFilters: Partial<VehicleFilters> = {}
 
   const fetchVehicles = useCallback(async () => {
     try {
-      setLoading(true)
+      // Only show full loading on initial load, otherwise just fetching
+      if (vehicles.length === 0) {
+        setLoading(true)
+        setIsInitialLoad(true)
+      } else {
+        setIsFetching(true)
+      }
       setError(null)
       
       console.log('🔍 Fetching vehicles with filters:', filters)
@@ -79,8 +89,10 @@ export function useVehicleInventory(initialFilters: Partial<VehicleFilters> = {}
       console.error('❌ Error fetching vehicles:', err)
     } finally {
       setLoading(false)
+      setIsInitialLoad(false)
+      setIsFetching(false)
     }
-  }, [filters])
+  }, [filters, vehicles.length])
 
   useEffect(() => {
     fetchVehicles()
@@ -168,6 +180,8 @@ export function useVehicleInventory(initialFilters: Partial<VehicleFilters> = {}
     
     // State
     loading,
+    isInitialLoad,
+    isFetching,
     error,
     
     // Filters

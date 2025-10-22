@@ -33,7 +33,7 @@ import {
 } from "~/components/ui/table";
 import { useVehicleInventory } from "~/hooks/useVehicleInventory";
 import { VehicleFilterSidebar } from "./filter-sidebar";
-import { vehicleInventoryColumns } from "./columns";
+import { getVehicleInventoryColumns } from "./columns";
 import { VehicleShimmerLoader } from "./shimmer-loader";
 import { useLocalStorage } from "~/hooks/use-local-storage";
 import { vehicleService } from "~/services/vehicleService";
@@ -50,6 +50,7 @@ interface VehicleInventoryProps {
   hideAddButton?: boolean;
   customTitle?: string;
   hideActionButtons?: boolean;
+  excludeSoldStatus?: string; // ID of sold status to exclude from inventory
 }
 
 export function VehicleInventory({
@@ -58,10 +59,13 @@ export function VehicleInventory({
   hideAddButton = false,
   customTitle,
   hideActionButtons = false,
+  excludeSoldStatus,
 }: VehicleInventoryProps) {
   console.log(
     "🚗 VehicleInventory component rendered with defaultFilters:",
-    defaultFilters
+    defaultFilters,
+    "excludeSoldStatus:",
+    excludeSoldStatus
   );
 
   const [viewMode, setViewMode] = useLocalStorage<"table" | "grid">(
@@ -74,9 +78,11 @@ export function VehicleInventory({
   const [isDeleting, setIsDeleting] = useState(false);
 
   const {
-    vehicles,
+    vehicles: allVehicles,
     pagination,
     loading,
+    isInitialLoad,
+    isFetching,
     error,
     filters,
     setFilters,
@@ -86,6 +92,11 @@ export function VehicleInventory({
     searchQuery,
     setSearchQuery,
   } = useVehicleInventory(defaultFilters);
+
+  // Filter out sold vehicles if excludeSoldStatus is provided
+  const vehicles = excludeSoldStatus
+    ? allVehicles.filter(vehicle => vehicle.status?._id !== excludeSoldStatus)
+    : allVehicles;
 
   const handlePageChange = (page: number) => {
     console.log("📄 Page change requested:", page);
@@ -128,7 +139,7 @@ export function VehicleInventory({
   // Initialize table at component level (hooks must be at top level)
   const table = useReactTable({
     data: vehicles,
-    columns: vehicleInventoryColumns,
+    columns: getVehicleInventoryColumns(handleDeleteClick),
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     pageCount: pagination?.pages ?? 0,
@@ -367,7 +378,7 @@ export function VehicleInventory({
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={vehicleInventoryColumns.length}
+                      colSpan={table.getAllColumns().length}
                       className="h-24 text-center text-gray-500"
                     >
                       No results.
@@ -571,60 +582,70 @@ export function VehicleInventory({
 
           {/* Content */}
           {!error && (
-            <div className="space-y-4">
-              {/* Loading State */}
-              {loading && (
+            <>
+              {/* Loading State - only show shimmer on initial load */}
+              {isInitialLoad ? (
                 <VehicleShimmerLoader
                   viewMode={viewMode}
                   compact={false}
                   rows={12}
                 />
-              )}
-
-              {/* Show content only if we have vehicles and not loading */}
-              {!loading && vehicles.length > 0 && (
-                <>
-                  {viewMode === "grid"
-                    ? renderVehicleGrid()
-                    : renderVehicleTable()}
-                </>
-              )}
-
-              {/* Empty State - show only when not loading and no vehicles */}
-              {!loading && vehicles.length === 0 && (
-                <div className="flex flex-col items-center justify-center min-h-[500px] space-y-4">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
-                    <AlertCircle className="h-8 w-8 text-gray-400" />
-                  </div>
-                  <div className="text-center space-y-1">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      No vehicles found
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      {Object.keys(filters).length > 0 || searchQuery
-                        ? "Try adjusting your search or filters"
-                        : "Add your first vehicle to get started"}
-                    </p>
-                  </div>
-                  {!hideActionButtons && (
-                    <div className="flex items-center gap-2">
-                      {(Object.keys(filters).length > 0 || searchQuery) && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={clearFilters}
-                        >
-                          Clear Filters
-                        </Button>
+              ) : (
+                <div className="relative">
+                  {/* Subtle loading overlay for refetching */}
+                  {isFetching && (
+                    <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm py-2 rounded-lg">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span>Updating...</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Show content if we have vehicles */}
+                  {vehicles.length > 0 ? (
+                    <>
+                      {viewMode === "grid"
+                        ? renderVehicleGrid()
+                        : renderVehicleTable()}
+                    </>
+                  ) : (
+                    /* Empty State */
+                    <div className="flex flex-col items-center justify-center min-h-[500px] space-y-4">
+                      <div className="w-16 h-16 mx-auto rounded-full bg-gray-100 flex items-center justify-center">
+                        <AlertCircle className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <div className="text-center space-y-1">
+                        <h3 className="text-lg font-medium text-gray-900">
+                          No vehicles found
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {Object.keys(filters).length > 0 || searchQuery
+                            ? "Try adjusting your search or filters"
+                            : "Add your first vehicle to get started"}
+                        </p>
+                      </div>
+                      {!hideActionButtons && (
+                        <div className="flex items-center gap-2">
+                          {(Object.keys(filters).length > 0 || searchQuery) && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={clearFilters}
+                            >
+                              Clear Filters
+                            </Button>
+                          )}
+                          <Button size="sm" asChild>
+                            <Link to="/vehicles/add">Add Vehicle</Link>
+                          </Button>
+                        </div>
                       )}
-                      <Button size="sm" asChild>
-                        <Link to="/vehicles/add">Add Vehicle</Link>
-                      </Button>
                     </div>
                   )}
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>

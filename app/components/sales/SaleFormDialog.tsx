@@ -25,6 +25,8 @@ interface SaleFormDialogProps {
 
 export function SaleFormDialog({ open, onOpenChange, onSubmit, isLoading = false }: SaleFormDialogProps) {
   const { vehicles, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null)
+  
   const {
     register,
     handleSubmit,
@@ -49,12 +51,27 @@ export function SaleFormDialog({ open, onOpenChange, onSubmit, isLoading = false
     },
   })
 
+  const handleVehicleChange = (vehicleId: string) => {
+    setValue('vehicle', vehicleId)
+    const vehicle = vehicles.find(v => v.value === vehicleId)
+    if (vehicle) {
+      setSelectedVehicle(vehicle.data)
+      // Auto-fill sale price with list price
+      if (vehicle.data.pricing?.listPrice) {
+        setValue('salePrice', vehicle.data.pricing.listPrice)
+      }
+    } else {
+      setSelectedVehicle(null)
+    }
+  }
+
   const handleFormSubmit = async (data: SaleFormData) => {
     try {
       // Ensure currency is always CAD
       const formData = { ...data, currency: 'CAD' as const }
       await onSubmit(formData)
       reset()
+      setSelectedVehicle(null)
       onOpenChange(false)
     } catch (error) {
       // Error handled by parent component
@@ -63,6 +80,7 @@ export function SaleFormDialog({ open, onOpenChange, onSubmit, isLoading = false
 
   const handleClose = () => {
     reset()
+    setSelectedVehicle(null)
     onOpenChange(false)
   }
 
@@ -83,7 +101,7 @@ export function SaleFormDialog({ open, onOpenChange, onSubmit, isLoading = false
               <Label htmlFor="vehicle" className="text-sm font-medium">Vehicle *</Label>
               <Select
                 value={watch('vehicle') || ''}
-                onValueChange={(value) => setValue('vehicle', value)}
+                onValueChange={handleVehicleChange}
                 disabled={vehiclesLoading}
               >
                 <SelectTrigger className={`w-full ${errors.vehicle ? 'border-red-500' : ''}`}>
@@ -118,6 +136,21 @@ export function SaleFormDialog({ open, onOpenChange, onSubmit, isLoading = false
               )}
               {!vehiclesLoading && !vehiclesError && vehicles.length > 0 && (
                 <p className="text-sm text-green-600">✓ {vehicles.length} vehicles loaded</p>
+              )}
+              
+              {/* Reference Information Display */}
+              {selectedVehicle && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                  <h4 className="text-sm font-semibold text-blue-900">Vehicle Reference Information</h4>
+                  <div className="text-sm">
+                    <span className="text-blue-700 font-medium">Website List Price:</span>
+                    <p className="text-blue-900 font-semibold text-lg mt-1">
+                      {selectedVehicle.pricing?.listPrice 
+                        ? `CAD ${selectedVehicle.pricing.listPrice.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : 'N/A'}
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -164,22 +197,6 @@ export function SaleFormDialog({ open, onOpenChange, onSubmit, isLoading = false
                 />
                 {errors.salePrice && (
                   <p className="text-sm text-red-600">{errors.salePrice.message}</p>
-                )}
-              </div>
-
-              {/* Cost of Goods */}
-              <div className="space-y-2">
-                <Label htmlFor="costOfGoods" className="text-sm font-medium">Cost of Goods</Label>
-                <Input
-                  id="costOfGoods"
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00 (optional)"
-                  {...register('costOfGoods', { valueAsNumber: true })}
-                  className={errors.costOfGoods ? 'border-red-500' : ''}
-                />
-                {errors.costOfGoods && (
-                  <p className="text-sm text-red-600">{errors.costOfGoods.message}</p>
                 )}
               </div>
 
@@ -236,15 +253,6 @@ export function SaleFormDialog({ open, onOpenChange, onSubmit, isLoading = false
               </div>
             </div>
 
-            {/* External Deal ID */}
-            <div className="space-y-2">
-              <Label htmlFor="externalDealId" className="text-sm font-medium">External Deal ID</Label>
-              <Input
-                id="externalDealId"
-                placeholder="External reference ID (optional)"
-                {...register('externalDealId')}
-              />
-            </div>
 
             {/* Notes */}
             <div className="space-y-2">

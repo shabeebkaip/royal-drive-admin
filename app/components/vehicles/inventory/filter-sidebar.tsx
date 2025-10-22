@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue 
 } from "~/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import { Label } from "~/components/ui/label"
 import { Checkbox } from "~/components/ui/checkbox"
 import { Separator } from "~/components/ui/separator"
@@ -70,7 +69,10 @@ export function VehicleFilterSidebar({
   const loadModelsForMake = async (makeId: string) => {
     setLoadingModels(true)
     try {
-      const baseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+      const baseUrl = import.meta.env?.VITE_API_BASE_URL
+      if (!baseUrl) {
+        throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+      }
       const response = await fetch(`${baseUrl}/models?make=${makeId}&active=true&limit=200`)
       
       if (!response.ok) {

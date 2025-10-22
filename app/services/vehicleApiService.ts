@@ -1,8 +1,11 @@
 import type { VehicleFormData } from "~/components/vehicles/addEdit/schema"
 import { sanitizeVehiclePayload } from "~/lib/sanitize-payload"
 
-// Use environment variable or fallback to localhost
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+// Use environment variable only - must be configured in .env
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+}
 const BASE_URL = `${API_BASE_URL}/vehicles`
 
 // API Response interfaces

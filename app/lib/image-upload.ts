@@ -29,7 +29,15 @@ export async function uploadImage(file: File): Promise<string> {
       description: `Uploading ${file.name}`
     })
 
-    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'https://api.royaldrivecanada.com/api/v1'
+    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL
+    if (!apiBaseUrl) {
+      toast.dismiss(uploadToast)
+      toast.error("Configuration error", {
+        description: "API base URL is not configured"
+      })
+      throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+    }
+    
     const response = await fetch(`${apiBaseUrl}/uploads`, {
       method: 'POST',
       body: formData,

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { vehicleInventoryService } from '~/services/vehicleInventoryService'
+import { vehicleInventoryService, type VehicleInventoryItem } from '~/services/vehicleInventoryService'
 import { toast } from 'sonner'
 
 interface VehicleOption {
   id: string
   label: string
   value: string
+  data: VehicleInventoryItem // Full vehicle data for reference
 }
 
 export function useVehicles() {
@@ -42,44 +43,43 @@ export function useVehicles() {
         return
       }
       
-      // Filter out sold vehicles and vehicles that are not available
-      const availableVehicles = vehicleData.filter(vehicle => {
+      // Filter to show ONLY sold vehicles for sales records
+      const soldVehicles = vehicleData.filter(vehicle => {
         const statusSlug = vehicle.status?.slug
-        // Also ensure the vehicle has a valid ID
+        // Only show vehicles with 'sold' status and valid ID
         return vehicle._id && 
                vehicle._id.trim() !== '' &&
-               statusSlug !== 'sold' && 
-               statusSlug !== 'pending' && 
-               statusSlug === 'available'
+               statusSlug === 'sold'
       })
       
-      console.log(`Filtered ${availableVehicles.length} available vehicles out of ${vehicleData.length} total`)
+      console.log(`Filtered ${soldVehicles.length} sold vehicles out of ${vehicleData.length} total`)
       
-      if (availableVehicles.length === 0) {
-        console.warn('No available vehicles found for sale')
+      if (soldVehicles.length === 0) {
+        console.warn('No sold vehicles found')
         setVehicles([])
-        setError('No available vehicles for sale')
-        toast.info('No vehicles available for sale')
+        setError('No sold vehicles found')
+        toast.info('No sold vehicles available')
         return
       }
       
-      const options = availableVehicles
+      const options = soldVehicles
         .filter(vehicle => vehicle._id && vehicle._id.trim() !== '') // Double check for valid IDs
         .map((vehicle) => ({
-        id: vehicle._id,
-        value: vehicle._id,
-        label: `${vehicle.year || 'Unknown'} ${vehicle.make?.name || 'Unknown'} ${vehicle.model?.name || 'Unknown'}${vehicle.trim ? ` ${vehicle.trim}` : ''} - ${vehicle.vin || vehicle._id}`.trim()
-      }))
+          id: vehicle._id,
+          value: vehicle._id,
+          label: `${vehicle.year || 'Unknown'} ${vehicle.make?.name || 'Unknown'} ${vehicle.model?.name || 'Unknown'}${vehicle.trim ? ` ${vehicle.trim}` : ''} - ${vehicle.vin || vehicle._id}`.trim(),
+          data: vehicle // Include full vehicle data
+        }))
       
       // Final validation to ensure no empty values
       const validOptions = options.filter(option => option.value && option.value.trim() !== '')
       
       console.log('Valid vehicle options:', validOptions)
       setVehicles(validOptions)
-      console.log(`Successfully loaded ${validOptions.length} available vehicles for sale`)
+      console.log(`Successfully loaded ${validOptions.length} sold vehicles`)
       
       // Show success message with count
-      toast.success(`${validOptions.length} vehicles available for sale`)
+      toast.success(`${validOptions.length} sold vehicles loaded`)
     } catch (error: any) {
       console.error('Failed to load vehicles:', error)
       const errorMessage = error?.message || 'Failed to load vehicles'

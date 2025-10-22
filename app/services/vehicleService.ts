@@ -12,8 +12,11 @@ import type {
 import { auth } from '~/lib/auth'
 // Mock service removed; always use real API
 
-// Base URL for the API
-const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string | undefined) || 'https://api.royaldrivecanada.com/api/v1'
+// Base URL for the API - must be configured in .env
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+}
 
 function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}) {
   const token = auth.getToken()

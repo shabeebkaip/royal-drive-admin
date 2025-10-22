@@ -3,6 +3,20 @@ import type { Model, ModelDropdownItem } from "~/types/model"
 import type { ModelFormData } from "~/lib/schemas/model"
 import type { CrudOperations } from "~/components/crud"
 
+// Helper to transform MongoDB _id to id
+function transformMongoDoc<T>(doc: any): T {
+  if (!doc) return doc
+  const { _id, ...rest } = doc
+  return {
+    ...rest,
+    id: _id || doc.id,
+  } as T
+}
+
+function transformMongoDocs<T>(docs: any[]): T[] {
+  return docs.map(doc => transformMongoDoc<T>(doc))
+}
+
 export interface ModelStats {
   total: number
   active: number
@@ -45,13 +59,16 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       // Handle the API response format: { data: { models: [], pagination: {} } }
       if (result.data && result.data.models && Array.isArray(result.data.models)) {
         return {
-          data: result.data.models,
+          data: transformMongoDocs<Model>(result.data.models),
           pagination: result.data.pagination
         } as ApiResponse<Model>
       } else if (result.data && Array.isArray(result.data)) {
-        return result as ApiResponse<Model>
+        return {
+          data: transformMongoDocs<Model>(result.data),
+          pagination: result.pagination
+        } as ApiResponse<Model>
       } else if (Array.isArray(result)) {
-        return { data: result } as ApiResponse<Model>
+        return { data: transformMongoDocs<Model>(result) } as ApiResponse<Model>
       } else {
         throw new Error('Invalid response format')
       }
@@ -99,7 +116,8 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDoc<Model>(data)
     } catch (error) {
       console.error('API Error (updateStatus):', error)
       throw error
@@ -121,7 +139,8 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       }
       
       const result = await response.json()
-      return result.data?.models || result.data || result
+      const data = result.data?.models || result.data || result
+      return transformMongoDocs<Model>(Array.isArray(data) ? data : [data])
     } catch (error) {
       console.error('API Error (getByMake):', error)
       throw error
@@ -143,7 +162,8 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       }
       
       const result = await response.json()
-      return result.data?.models || result.data || result
+      const data = result.data?.models || result.data || result
+      return transformMongoDocs<Model>(Array.isArray(data) ? data : [data])
     } catch (error) {
       console.error('API Error (getByVehicleType):', error)
       throw error
@@ -166,7 +186,8 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDoc<Model>(data)
     } catch (error) {
       console.error('API Error (getBySlug):', error)
       throw error
@@ -189,7 +210,8 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDocs<ModelDropdownItem>(Array.isArray(data) ? data : [data])
     } catch (error) {
       console.error('API Error (getDropdownOptions):', error)
       throw error
@@ -234,7 +256,8 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       }
       
       const result = await response.json()
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDocs<Model>(Array.isArray(data) ? data : [data])
     } catch (error) {
       console.error('API Error (getPopular):', error)
       throw error
@@ -256,7 +279,8 @@ export class ModelsApiService extends ApiService<Model, ModelFormData> {
       }
       
       const result = await response.json()
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDocs<Model>(Array.isArray(data) ? data : [data])
     } catch (error) {
       console.error('API Error (search):', error)
       throw error

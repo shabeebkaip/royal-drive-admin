@@ -22,12 +22,12 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
   
   columns: createModelColumns,
   
-  renderForm: ({ register, errors, watch, setValue }: FormRenderProps<ModelFormData>) => {
+  renderForm: ({ register, errors, watch, setValue, formData }: FormRenderProps<ModelFormData>) => {
     const [makes, setMakes] = useState<Make[]>([])
     const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([])
     const [loadingMakes, setLoadingMakes] = useState(true)
     const [loadingVehicleTypes, setLoadingVehicleTypes] = useState(true)
-    console.log('vehicle types:', vehicleTypes)
+    
     // Watch form values
     const makeValue = watch("make")
     const vehicleTypeValue = watch("vehicleType")
@@ -36,8 +36,36 @@ export const modelCrudConfig: CrudConfig<Model, ModelFormData> = {
       name: watch("name"),
       make: makeValue,
       vehicleType: vehicleTypeValue,
-      description: watch("description")
+      description: watch("description"),
+      formData
     })
+
+    // Initialize form with populated data on edit
+    useEffect(() => {
+      if (formData) {
+        console.log('📝 Initializing form with data:', formData)
+        
+        // Extract ID from make (could be string or populated object)
+        const makeId = typeof formData.make === 'string' 
+          ? formData.make 
+          : (formData.make as any)?._id || (formData.make as any)?.id || ''
+        
+        // Extract ID from vehicleType (could be string or populated object)
+        const vehicleTypeId = typeof formData.vehicleType === 'string'
+          ? formData.vehicleType
+          : (formData.vehicleType as any)?._id || (formData.vehicleType as any)?.id || ''
+        
+        console.log('📝 Extracted IDs:', { makeId, vehicleTypeId })
+        
+        // Set form values with extracted IDs
+        if (makeId) {
+          setValue("make", String(makeId), { shouldValidate: false })
+        }
+        if (vehicleTypeId) {
+          setValue("vehicleType", String(vehicleTypeId), { shouldValidate: false })
+        }
+      }
+    }, [formData, setValue])
 
   // No custom lists; use raw items with mappers
   const getMakeLabel = (m: any) => m?.name ?? ""

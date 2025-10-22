@@ -61,7 +61,9 @@ const ActionsCell = ({ vehicle, onEdit, onDelete, onView }: ActionsProps) => {
 }
 
 // Minimal table with essential information only - no horizontal scrolling
-export const vehicleInventoryColumns: ColumnDef<VehicleInventoryItem>[] = [
+export const getVehicleInventoryColumns = (
+  onDelete?: (vehicle: VehicleInventoryItem) => void
+): ColumnDef<VehicleInventoryItem>[] => [
   {
     id: "vehicle",
     header: "Vehicle",
@@ -205,6 +207,6 @@ export const vehicleInventoryColumns: ColumnDef<VehicleInventoryItem>[] = [
   {
     id: "actions",
     header: "",
-    cell: ({ row }) => <ActionsCell vehicle={row.original} />,
+    cell: ({ row }) => <ActionsCell vehicle={row.original} onDelete={onDelete} />,
   },
 ]

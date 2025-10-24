@@ -126,9 +126,14 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
   const images = vehicle.media?.images || [];
   const hasImages = images.length > 0;
   
+  // For sold vehicles, use actual sale price; for others, use list price
+  const isSold = vehicle.status?.slug === 'sold';
+  const salePrice = vehicle.internal?.actualSalePrice || 0;
   const listPrice = vehicle.pricing?.listPrice || 0;
+  const displayPrice = isSold && salePrice > 0 ? salePrice : listPrice;
+  
   const acquisitionCost = vehicle.internal?.acquisitionCost || 0;
-  const profit = listPrice - acquisitionCost;
+  const profit = displayPrice - acquisitionCost;
   const profitMargin = acquisitionCost > 0 ? ((profit / acquisitionCost) * 100).toFixed(1) : "0";
   const isProfit = profit >= 0;
 
@@ -196,11 +201,14 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
               <Separator />
 
               <div>
-                <p className="text-sm text-gray-500 mb-1">List Price</p>
+                <p className="text-sm text-gray-500 mb-1">{isSold ? 'Sale Price' : 'List Price'}</p>
                 <div className="flex items-baseline gap-3">
-                  <p className="text-5xl font-bold text-blue-600">${listPrice.toLocaleString()}</p>
+                  <p className="text-5xl font-bold text-blue-600">${displayPrice.toLocaleString()}</p>
                   <span className="text-gray-500">{vehicle.pricing?.currency || "CAD"}</span>
                 </div>
+                {isSold && listPrice !== displayPrice && (
+                  <p className="text-sm text-gray-500 mt-1">List Price: ${listPrice.toLocaleString()}</p>
+                )}
                 {acquisitionCost > 0 && (
                   <div className="mt-3 flex items-center gap-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600"><span>Cost: ${acquisitionCost.toLocaleString()}</span></div>
@@ -291,7 +299,14 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
 
             <InfoSection title="Pricing Details" icon={<CreditCard className="h-5 w-5 text-green-600" />}>
               <div className="space-y-3">
-                <PriceRow label="List Price" value={listPrice} large />
+                {isSold && salePrice > 0 ? (
+                  <>
+                    <PriceRow label="Sale Price" value={salePrice} large />
+                    <PriceRow label="Original List Price" value={listPrice} />
+                  </>
+                ) : (
+                  <PriceRow label="List Price" value={listPrice} large />
+                )}
                 {vehicle.pricing?.licensingPrice && <PriceRow label="Licensing Fee" value={vehicle.pricing.licensingPrice} />}
                 {vehicle.pricing?.msrp && <PriceRow label="MSRP" value={vehicle.pricing.msrp} />}
                 {(vehicle.pricing?.licensingPrice || vehicle.pricing?.taxes) && (
@@ -438,11 +453,11 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
                 date={vehicle.updatedAt} 
               />
             )}
-            {vehicle.status?.slug === 'sold' && vehicle.updatedAt && (
+            {vehicle.status?.slug === 'sold' && vehicle.internal?.soldDate && (
               <TimelineItem 
                 icon={<TrendingUp className="h-4 w-4" />} 
-                title="Vehicle Sold" 
-                date={vehicle.updatedAt} 
+                title={`Vehicle Sold${vehicle.internal?.actualSalePrice ? ` for $${vehicle.internal.actualSalePrice.toLocaleString()}` : ''}`}
+                date={vehicle.internal.soldDate} 
                 highlight
               />
             )}

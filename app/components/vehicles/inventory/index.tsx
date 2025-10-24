@@ -70,7 +70,7 @@ export function VehicleInventory({
 
   const [viewMode, setViewMode] = useLocalStorage<"table" | "grid">(
     "vehicle-inventory-view",
-    "table"
+    "grid"
   );
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

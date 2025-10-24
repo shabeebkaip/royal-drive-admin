@@ -292,20 +292,32 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
             <InfoSection title="Pricing Details" icon={<CreditCard className="h-5 w-5 text-green-600" />}>
               <div className="space-y-3">
                 <PriceRow label="List Price" value={listPrice} large />
+                {vehicle.pricing?.licensingPrice && <PriceRow label="Licensing Fee" value={vehicle.pricing.licensingPrice} />}
                 {vehicle.pricing?.msrp && <PriceRow label="MSRP" value={vehicle.pricing.msrp} />}
-                {vehicle.pricing?.taxes && (
+                {(vehicle.pricing?.licensingPrice || vehicle.pricing?.taxes) && (
                   <>
                     <Separator />
                     <div className="space-y-2">
-                      <p className="text-sm font-semibold text-gray-700">Taxes & Fees</p>
-                      {vehicle.pricing.taxes.hst && <PriceRow label={`HST (${vehicle.pricing.taxes.hst}%)`} value={(listPrice * vehicle.pricing.taxes.hst) / 100} small />}
-                      {vehicle.pricing.taxes.licensing && <PriceRow label="Licensing" value={vehicle.pricing.taxes.licensing} small />}
-                      {vehicle.pricing.taxes.other && <PriceRow label="Other Fees" value={vehicle.pricing.taxes.other} small />}
+                      <p className="text-sm font-semibold text-gray-700">Price Calculation</p>
+                      <PriceRow label="Subtotal" value={listPrice + (vehicle.pricing?.licensingPrice || 0)} />
+                      {vehicle.pricing?.taxes?.hst && (
+                        <PriceRow 
+                          label={`HST (${vehicle.pricing.taxes.hst}%)`} 
+                          value={((listPrice + (vehicle.pricing?.licensingPrice || 0)) * vehicle.pricing.taxes.hst) / 100} 
+                          small 
+                        />
+                      )}
+                      {vehicle.pricing?.taxes?.other && <PriceRow label="Other Fees" value={vehicle.pricing.taxes.other} small />}
                     </div>
                     <Separator />
                     <div className="flex justify-between items-center text-lg font-bold text-blue-600">
                       <span>Total Price</span>
-                      <span>${(listPrice + (vehicle.pricing.taxes.hst ? (listPrice * vehicle.pricing.taxes.hst) / 100 : 0) + (vehicle.pricing.taxes.licensing || 0) + (vehicle.pricing.taxes.other || 0)).toLocaleString()}</span>
+                      <span>${(
+                        listPrice + 
+                        (vehicle.pricing?.licensingPrice || 0) + 
+                        (vehicle.pricing?.taxes?.hst ? ((listPrice + (vehicle.pricing?.licensingPrice || 0)) * vehicle.pricing.taxes.hst) / 100 : 0) + 
+                        (vehicle.pricing?.taxes?.other || 0)
+                      ).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                   </>
                 )}

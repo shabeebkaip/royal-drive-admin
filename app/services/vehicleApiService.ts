@@ -77,6 +77,7 @@ export function transformFormDataToApiFormat(formData: VehicleFormData) {
     // Pricing
     pricing: {
       listPrice: formData.listPrice,
+      licensingPrice: formData.licensingPrice || 70,
       currency: formData.currency || "CAD",
       taxes: {
         hst: formData.hstRate || 13, // Ontario HST default

@@ -72,6 +72,14 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
   const selectedMake = watch("make")
   const selectedModel = watch("model")
   const images = watch("images") || []
+  const listPrice = watch("listPrice") || 0
+  const licensingPrice = watch("licensingPrice") || 70
+  const hstRate = watch("hstRate") || 13
+
+  // Calculate pricing breakdown
+  const subtotal = listPrice + licensingPrice
+  const taxAmount = (subtotal * hstRate) / 100
+  const totalPrice = subtotal + taxAmount
 
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: currentYear - 1990 + 1 }, (_, i) => currentYear - i)
@@ -549,8 +557,8 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
           {/* Pricing Section */}
           <div className="border-b pb-4">
             <h4 className="text-sm font-medium text-gray-900 mb-3">Customer Pricing</h4>
-            <div className="max-w-md">
-              <div className="space-y-2">
+            <div className="space-y-4">
+              <div className="max-w-md space-y-2">
                 <Label htmlFor="listPrice">List Price (CAD) *</Label>
                 <Input
                   id="listPrice"
@@ -562,6 +570,48 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
                 <p className="text-xs text-gray-500">The selling price shown to customers on the website</p>
                 {errors.listPrice && <p className="text-sm text-red-600">{errors.listPrice.message}</p>}
               </div>
+
+              <div className="max-w-md space-y-2">
+                <Label htmlFor="licensingPrice">Licensing Price (CAD)</Label>
+                <Input
+                  id="licensingPrice"
+                  type="number"
+                  {...register("licensingPrice", { valueAsNumber: true })}
+                  placeholder="70"
+                  className="text-lg font-medium"
+                />
+                <p className="text-xs text-gray-500">Licensing fee (defaults to $70 CAD)</p>
+                {errors.licensingPrice && <p className="text-sm text-red-600">{errors.licensingPrice.message}</p>}
+              </div>
+
+              {/* Pricing Breakdown */}
+              {listPrice > 0 && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-md">
+                  <h5 className="text-sm font-semibold text-blue-900 mb-3">Price Breakdown</h5>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">List Price:</span>
+                      <span className="font-medium">${listPrice.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">Licensing Fee:</span>
+                      <span className="font-medium">${licensingPrice.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-blue-300">
+                      <span className="text-gray-700">Subtotal:</span>
+                      <span className="font-semibold">${subtotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-700">HST ({hstRate}%):</span>
+                      <span className="font-medium">${taxAmount.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t-2 border-blue-400">
+                      <span className="text-blue-900 font-bold">Total Price:</span>
+                      <span className="text-blue-900 font-bold text-lg">${totalPrice.toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

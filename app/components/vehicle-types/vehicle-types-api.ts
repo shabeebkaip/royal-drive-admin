@@ -28,6 +28,18 @@ export interface VehicleTypePaginationResponse {
   }
 }
 
+// Helper functions to transform MongoDB _id to id
+function transformMongoDoc<T>(doc: any): T {
+  if (!doc) return doc
+  const { _id, ...rest } = doc
+  return { ...rest, id: _id || doc.id } as T
+}
+
+function transformMongoDocs<T>(docs: any[]): T[] {
+  if (!Array.isArray(docs)) return docs
+  return docs.map(doc => transformMongoDoc<T>(doc))
+}
+
 export class VehicleTypesApiService extends ApiService<VehicleType, VehicleTypeFormData> {
   constructor() {
     super('vehicle-types')
@@ -84,7 +96,11 @@ export class VehicleTypesApiService extends ApiService<VehicleType, VehicleTypeF
     active?: boolean 
     sortBy?: 'name' | 'createdAt' | 'updatedAt'
   }): Promise<ApiResponse<VehicleType>> {
-    return this.getAll(params)
+    const response = await this.getAll(params)
+    return {
+      ...response,
+      data: transformMongoDocs<VehicleType>(response.data)
+    }
   }
 
   // Override create to set active: true by default
@@ -115,7 +131,7 @@ export class VehicleTypesApiService extends ApiService<VehicleType, VehicleTypeF
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      return transformMongoDoc<VehicleType>(result.data || result)
     } catch (error) {
       console.error('API Error (updateStatus):', error)
       throw error
@@ -138,7 +154,7 @@ export class VehicleTypesApiService extends ApiService<VehicleType, VehicleTypeF
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      return transformMongoDoc<VehicleType>(result.data || result)
     } catch (error) {
       console.error('API Error (getBySlug):', error)
       throw error
@@ -161,7 +177,8 @@ export class VehicleTypesApiService extends ApiService<VehicleType, VehicleTypeF
       
       const result = await response.json()
       // Handle API response format: { success: true, message: "...", data: {...} }
-      return result.data || result
+      const data = result.data || result
+      return transformMongoDocs<VehicleTypeDropdownItem>(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('API Error (getDropdownOptions):', error)
       throw error

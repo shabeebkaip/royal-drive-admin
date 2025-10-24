@@ -63,6 +63,7 @@ export interface VehicleInventoryItem {
   }
   pricing: {
     listPrice: number
+    licensingPrice?: number
     msrp?: number
     currency: 'CAD'
     taxes: {

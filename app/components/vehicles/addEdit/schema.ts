@@ -42,6 +42,7 @@ export const vehicleFormSchema = z.object({
 
   // Pricing (Customer-facing - Required listPrice only)
   listPrice: z.number().min(0, "List price is required and cannot be negative"),
+  licensingPrice: z.number().min(0, "Licensing price cannot be negative").default(70),
   
   // Pricing defaults
   currency: z.string().default("CAD"),
@@ -97,6 +98,7 @@ export const defaultVehicleValues: Partial<VehicleFormData> = {
   // Pricing defaults
   currency: "CAD",
   hstRate: 13, // Ontario HST
+  licensingPrice: 70, // Default licensing fee in CAD
   financingAvailable: true,
   
   // Availability defaults

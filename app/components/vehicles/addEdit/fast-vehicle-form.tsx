@@ -24,6 +24,7 @@ const fastEntrySchema = z.object({
   model: z.string().min(1, "Model is required"),
   year: z.number().min(1990).max(new Date().getFullYear() + 1),
   listPrice: z.number().min(0, "Price must be positive"),
+  licensingPrice: z.number().min(0, "Licensing price cannot be negative").default(70),
   images: z.array(z.string()).min(1, "At least one image is required"),
   
   // OPTIONAL WITH DEFAULTS

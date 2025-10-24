@@ -147,7 +147,8 @@ export default function VehiclesEdit(_props: Route.ComponentProps) {
     numberOfPreviousOwners: vehicle.numberOfPreviousOwners || 0,
     
     // Pricing
-    listPrice: vehicle.pricing?.listPrice,
+    listPrice: vehicle.pricing?.listPrice || 0,
+    licensingPrice: vehicle.pricing?.licensingPrice || 70,
     
     // Specifications
     exteriorColor: vehicle.specifications?.exteriorColor,

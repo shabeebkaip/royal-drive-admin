@@ -10,6 +10,7 @@ import { Checkbox } from "~/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Separator } from "~/components/ui/separator"
 import { SearchableDropdown } from "~/components/ui/searchable-dropdown"
+import { RichTextEditor } from "~/components/ui/rich-text-editor"
 import { vehicleFormSchema, defaultVehicleValues, type VehicleFormData } from "./schema"
 import { ImageUpload } from "./image-upload"
 import { makesApiService } from "~/components/makes/makes-api"
@@ -732,11 +733,11 @@ export function VehicleForm({ initialData, onSubmit, isLoading = false, mode }: 
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="description">Description *</Label>
-            <Textarea
-              id="description"
-              {...register("description")}
+            <RichTextEditor
+              value={watch("description") || ""}
+              onChange={(value) => setValue("description", value)}
               placeholder="Describe the vehicle features, condition, and selling points..."
-              rows={4}
+              disabled={isLoading}
             />
             {errors.description && <p className="text-sm text-red-600">{errors.description.message}</p>}
           </div>

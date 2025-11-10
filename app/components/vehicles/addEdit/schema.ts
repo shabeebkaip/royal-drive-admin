@@ -60,7 +60,7 @@ export const vehicleFormSchema = z.object({
   inStock: z.boolean().default(true),
 
   // Marketing (Required description)
-  description: z.string().min(1, "Marketing description is required").max(2000, "Description cannot exceed 2000 characters"),
+  description: z.string().min(1, "Marketing description is required"),
   featured: z.boolean().default(false),
   specialOffer: z.string().optional().or(z.literal("")),
 

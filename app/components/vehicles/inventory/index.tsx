@@ -81,7 +81,6 @@ export function VehicleInventory({
     vehicles: allVehicles,
     pagination,
     loading,
-    isInitialLoad,
     isFetching,
     error,
     filters,
@@ -584,7 +583,7 @@ export function VehicleInventory({
           {!error && (
             <>
               {/* Loading State - only show shimmer on initial load */}
-              {isInitialLoad ? (
+              {loading ? (
                 <VehicleShimmerLoader
                   viewMode={viewMode}
                   compact={false}
@@ -592,15 +591,6 @@ export function VehicleInventory({
                 />
               ) : (
                 <div className="relative">
-                  {/* Subtle loading overlay for refetching */}
-                  {isFetching && (
-                    <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-center bg-background/50 backdrop-blur-sm py-2 rounded-lg">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        <span>Updating...</span>
-                      </div>
-                    </div>
-                  )}
                   
                   {/* Show content if we have vehicles */}
                   {vehicles.length > 0 ? (

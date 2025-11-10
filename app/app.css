@@ -13,14 +13,70 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-    /* Subtle hero-like radial glow to match the website's soft blue aura */
-    background-image: radial-gradient(1200px 800px at 0% -10%, hsl(221 100% 97%), transparent 60%);
-    background-attachment: fixed;
+  @apply bg-background text-foreground;
+  /* Subtle hero-like radial glow to match the website's soft blue aura */
+  background-image: radial-gradient(1200px 800px at 0% -10%, hsl(221 100% 97%), transparent 60%);
+  background-attachment: fixed;
   }
 }
 
-/* Shimmer animation for loading states */
+/* Tiptap Editor Styles */
+.ProseMirror {
+  @apply focus:outline-none;
+}
+
+.ProseMirror p {
+  @apply mb-3;
+}
+
+.ProseMirror h1 {
+  @apply text-3xl font-bold mb-4 mt-6;
+}
+
+.ProseMirror h2 {
+  @apply text-2xl font-bold mb-3 mt-5;
+}
+
+.ProseMirror h3 {
+  @apply text-xl font-bold mb-2 mt-4;
+}
+
+.ProseMirror ul {
+  @apply list-disc pl-6 mb-3;
+}
+
+.ProseMirror ol {
+  @apply list-decimal pl-6 mb-3;
+}
+
+.ProseMirror li {
+  @apply mb-1;
+}
+
+.ProseMirror blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4 text-gray-700;
+}
+
+.ProseMirror code {
+  @apply bg-gray-100 text-red-600 px-2 py-1 rounded text-sm font-mono;
+}
+
+.ProseMirror pre {
+  @apply bg-gray-900 text-white p-4 rounded-lg my-4 overflow-x-auto;
+}
+
+.ProseMirror pre code {
+  @apply bg-transparent text-white px-0 py-0;
+}
+
+.ProseMirror a {
+  @apply text-blue-600 underline cursor-pointer hover:text-blue-800;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-gray-400 float-left h-0 pointer-events-none;
+}/* Shimmer animation for loading states */
 @keyframes shimmer {
   100% {
     transform: translateX(100%);

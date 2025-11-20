@@ -63,6 +63,11 @@ const data = {
   ],
   navProcurement: [
     {
+      title: "Contact Enquiries", // General contact form submissions from website
+      url: "/enquiries/contact",
+      icon: IconFileDescription,
+    },
+    {
       title: "Vehicle Enquiries", // Leads generated from inventory vehicle detail pages
       url: "/enquiries/vehicles", // Updated route to reflect vehicle-originated enquiries
       icon: IconFileDescription,

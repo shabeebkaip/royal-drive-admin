@@ -16,6 +16,8 @@ export default [
 		route("transmissions", "routes/transmissions.tsx"),
 		route("drive-types", "routes/drive-types.tsx"),
 		route("status", "routes/statuses.tsx"),
+		route("enquiries/contact", "routes/enquiries.contact.tsx"), // Contact form enquiries
+		route("enquiries/:id", "routes/enquiries.$id.tsx"), // Enquiry detail page
 		route("enquiries/vehicles", "routes/enquiries.vehicles.tsx"), // New route for vehicle-originated enquiries
 		route("car-submissions", "routes/car-submissions.tsx"),
 		route("enquiries/financing", "routes/enquiries.financing.tsx"), // Financing enquiries

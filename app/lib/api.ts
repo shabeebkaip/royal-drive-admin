@@ -214,3 +214,87 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
     }
   }
 }
+
+// Authenticated API client for protected endpoints
+export const api = {
+  getBaseUrl() {
+    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL
+    if (!apiBaseUrl) {
+      throw new Error('VITE_API_BASE_URL is not configured in environment variables')
+    }
+    return apiBaseUrl
+  },
+
+  getAuthHeaders() {
+    // Get token from cookie (matches auth.ts implementation)
+    const token = this.getTokenFromCookie()
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    }
+  },
+
+  getTokenFromCookie(): string | null {
+    if (typeof document === 'undefined') return null
+    const cookie = document.cookie.split('; ').find(row => row.startsWith('auth_token='))
+    return cookie ? decodeURIComponent(cookie.split('=')[1]) : null
+  },
+
+  async get<T>(path: string): Promise<T> {
+    const response = await fetch(`${this.getBaseUrl()}${path}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }))
+      throw new Error(error.message || `Request failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  },
+
+  async post<T>(path: string, data: any): Promise<T> {
+    const response = await fetch(`${this.getBaseUrl()}${path}`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }))
+      throw new Error(error.message || `Request failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  },
+
+  async put<T>(path: string, data: any): Promise<T> {
+    const response = await fetch(`${this.getBaseUrl()}${path}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }))
+      throw new Error(error.message || `Request failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  },
+
+  async delete<T>(path: string): Promise<T> {
+    const response = await fetch(`${this.getBaseUrl()}${path}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: response.statusText }))
+      throw new Error(error.message || `Request failed: ${response.statusText}`)
+    }
+
+    return response.json()
+  },
+}

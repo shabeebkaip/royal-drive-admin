@@ -3,3 +3,5 @@ import { ContactEnquiryDetail } from "~/components/enquiries/contact-enquiry-det
 export default function ContactEnquiryDetailRoute() {
   return <ContactEnquiryDetail />
 }
+
+export const meta = () => [{ title: "Contact Enquiry Details" }]

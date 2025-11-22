@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import {
   IconCar,
   IconCategory,
@@ -11,14 +11,14 @@ import {
   IconGasStation,
   IconSettings,
   IconShieldLock,
-} from "@tabler/icons-react"
+} from "@tabler/icons-react";
 
-import { NavDocuments } from "~/components/nav-documents"
-import { NavMain } from "~/components/nav-main"
-import { NavProcurement } from "~/components/nav-procurement"
-import { NavSecondary } from "~/components/nav-secondary"
-import { NavUser } from "~/components/nav-user"
-import Logo from "~/components/shared/Logo"
+import { NavDocuments } from "~/components/nav-documents";
+import { NavMain } from "~/components/nav-main";
+import { NavProcurement } from "~/components/nav-procurement";
+import { NavSecondary } from "~/components/nav-secondary";
+import { NavUser } from "~/components/nav-user";
+import Logo from "~/components/shared/Logo";
 import {
   Sidebar,
   SidebarContent,
@@ -27,13 +27,13 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "~/components/ui/sidebar"
+} from "~/components/ui/sidebar";
 
 const data = {
   user: {
     name: "shadcn",
     email: "m@example.com",
-  avatar: "/favicon.svg",
+    avatar: "/favicon.svg",
   },
   navMain: [
     {
@@ -97,7 +97,7 @@ const data = {
       icon: IconDatabase,
     },
     {
-      name: "Types", 
+      name: "Types",
       url: "/vehicle-types",
       icon: IconCategory,
     },
@@ -127,25 +127,16 @@ const data = {
       icon: IconSettings,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="#" aria-label="Royal Drive">
-                <Logo size="sm" variant="dark" className="select-none" />
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+      <img
+        src="/Colour.svg"
+        alt="Royal Drive Logo"
+        className="w-full  h-20 object-contain"
+      />
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavProcurement items={data.navProcurement} />
@@ -156,5 +147,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={data.user} />
       </SidebarFooter> */}
     </Sidebar>
-  )
+  );
 }

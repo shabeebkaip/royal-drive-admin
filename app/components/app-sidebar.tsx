@@ -86,18 +86,8 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: IconSettings,
-    },
-    {
-      title: "Terms & Conditions",
-      url: "/legal/terms",
-      icon: IconFileText,
-    },
-    {
-      title: "Privacy Policy",
-      url: "/legal/privacy",
-      icon: IconShieldLock,
     },
   ],
   documents: [

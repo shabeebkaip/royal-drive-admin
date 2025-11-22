@@ -44,8 +44,8 @@ export default function Page() {
   if (loading) {
     return (
       <div className="space-y-6 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="pb-2">
                 <div className="h-4 bg-muted rounded w-20"></div>
@@ -117,6 +117,30 @@ export default function Page() {
 
   const totalActivity = breakdownData.reduce((sum, item) => sum + item.value, 0)
 
+  // Prepare status breakdown data
+  const vehicleStatusData = Object.entries(data.breakdown.vehiclesByStatus || {}).map(([status, count]) => ({
+    status,
+    count,
+    percentage: ((count / data.kpis.totalVehicles) * 100).toFixed(1)
+  }))
+
+  const enquiryStatusData = Object.entries(data.breakdown.enquiriesByStatus || {}).map(([status, count]) => ({
+    status,
+    count,
+    percentage: ((count / data.kpis.enquiries) * 100).toFixed(1)
+  }))
+
+  const submissionStatusData = Object.entries(data.breakdown.submissionsByStatus || {}).map(([status, count]) => ({
+    status,
+    count,
+    percentage: ((count / data.kpis.carSubmissions) * 100).toFixed(1)
+  }))
+
+  // Calculate conversion metrics
+  const conversionRate = data.kpis.salesCount > 0 && (data.kpis.enquiries + data.kpis.carSubmissions) > 0
+    ? ((data.kpis.salesCount / (data.kpis.enquiries + data.kpis.carSubmissions)) * 100).toFixed(1)
+    : '0'
+
   return (
     <div className="space-y-6 p-6 w-full">
       {/* Header */}
@@ -128,7 +152,7 @@ export default function Page() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardDescription className="text-blue-700">Revenue</CardDescription>
@@ -152,7 +176,7 @@ export default function Page() {
             <div className="text-2xl font-bold text-emerald-900">{fmtNumber(data.kpis.salesCount)}</div>
             <div className="flex items-center gap-2 mt-1">
               <GrowthBadge value={data.kpis.salesGrowth} />
-              <span className="text-xs text-emerald-700">completed</span>
+              <span className="text-xs text-emerald-700">{conversionRate}% conv.</span>
             </div>
           </CardContent>
         </Card>
@@ -175,18 +199,32 @@ export default function Page() {
 
         <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription className="text-amber-700">Leads</CardDescription>
-            <IconUsers className="w-4 h-4 text-amber-600" />
+            <CardDescription className="text-amber-700">Vehicle Enquiries</CardDescription>
+            <IconClipboardList className="w-4 h-4 text-amber-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-900">
-              {fmtNumber(data.kpis.enquiries + data.kpis.carSubmissions)}
-            </div>
+            <div className="text-2xl font-bold text-amber-900">{fmtNumber(data.kpis.enquiries)}</div>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="secondary" className="text-amber-700">
-                {data.kpis.enquiries}E + {data.kpis.carSubmissions}S
+                {enquiryStatusData.length} statuses
               </Badge>
-              <span className="text-xs text-amber-700">total leads</span>
+              <span className="text-xs text-amber-700">tracked</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardDescription className="text-purple-700">Car Submissions</CardDescription>
+            <IconUsers className="w-4 h-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-900">{fmtNumber(data.kpis.carSubmissions)}</div>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge variant="secondary" className="text-purple-700">
+                {submissionStatusData.length} statuses
+              </Badge>
+              <span className="text-xs text-purple-700">tracked</span>
             </div>
           </CardContent>
         </Card>
@@ -265,6 +303,102 @@ export default function Page() {
         </Card>
       </div>
 
+      {/* Status Breakdowns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Vehicle Enquiries Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-amber-700">
+              <IconClipboardList className="w-5 h-5" />
+              Vehicle Enquiries
+            </CardTitle>
+            <CardDescription>Status distribution of vehicle enquiries</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {enquiryStatusData.length > 0 ? (
+                enquiryStatusData.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                      <span className="text-sm font-medium capitalize">{item.status.replace(/_/g, ' ')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">{item.percentage}%</span>
+                      <Badge variant="secondary">{item.count}</Badge>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No enquiries yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Car Submissions Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700">
+              <IconUsers className="w-5 h-5" />
+              Car Submissions
+            </CardTitle>
+            <CardDescription>Status distribution of car submissions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {submissionStatusData.length > 0 ? (
+                submissionStatusData.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                      <span className="text-sm font-medium capitalize">{item.status.replace(/_/g, ' ')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">{item.percentage}%</span>
+                      <Badge variant="secondary">{item.count}</Badge>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No submissions yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Vehicles Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-violet-700">
+              <IconCar className="w-5 h-5" />
+              Vehicle Status
+            </CardTitle>
+            <CardDescription>Status distribution of inventory</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {vehicleStatusData.length > 0 ? (
+                vehicleStatusData.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-violet-500"></div>
+                      <span className="text-sm font-medium capitalize">{item.status.replace(/_/g, ' ')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">{item.percentage}%</span>
+                      <Badge variant="secondary">{item.count}</Badge>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No vehicles yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Additional Insights */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-6">
         {/* Activity Breakdown */}
@@ -308,6 +442,72 @@ export default function Page() {
           </CardContent>
         </Card>
 
+        {/* Conversion Funnel */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Sales Funnel</CardTitle>
+            <CardDescription>Lead to sale conversion</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium">Total Leads</span>
+                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.enquiries + data.kpis.carSubmissions)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="bg-amber-500 h-3 rounded-full" style={{ width: '100%' }}></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium">Vehicle Enquiries</span>
+                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.enquiries)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-amber-400 h-3 rounded-full" 
+                    style={{ width: `${((data.kpis.enquiries / (data.kpis.enquiries + data.kpis.carSubmissions)) * 100).toFixed(0)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium">Car Submissions</span>
+                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.carSubmissions)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-purple-500 h-3 rounded-full" 
+                    style={{ width: `${((data.kpis.carSubmissions / (data.kpis.enquiries + data.kpis.carSubmissions)) * 100).toFixed(0)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium">Converted to Sales</span>
+                  <span className="text-sm font-semibold text-emerald-600">{fmtNumber(data.kpis.salesCount)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-emerald-500 h-3 rounded-full" 
+                    style={{ width: `${conversionRate}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className="pt-3 border-t">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Conversion Rate</span>
+                <Badge variant="default" className="bg-emerald-600">{conversionRate}%</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Performance Metrics */}
         <Card>
           <CardHeader>
@@ -315,21 +515,27 @@ export default function Page() {
             <CardDescription>Key business indicators</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Avg Days in Inventory</span>
               <span className="font-semibold">{data.kpis.avgDaysInInventory.toFixed(1)} days</span>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Total Margin</span>
-              <span className="font-semibold">{fmtCurrency(data.kpis.totalMargin)}</span>
+              <span className="font-semibold text-emerald-600">{fmtCurrency(data.kpis.totalMargin)}</span>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Avg Margin per Sale</span>
-              <span className="font-semibold">{fmtCurrency(data.kpis.avgMargin)}</span>
+              <span className="font-semibold text-emerald-600">{fmtCurrency(data.kpis.avgMargin)}</span>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center py-2 border-b">
               <span className="text-sm text-muted-foreground">Active Users</span>
               <span className="font-semibold">{data.kpis.activeUsers}</span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-sm text-muted-foreground">Avg Revenue per Sale</span>
+              <span className="font-semibold text-blue-600">
+                {data.kpis.salesCount > 0 ? fmtCurrency(data.kpis.revenue / data.kpis.salesCount) : '—'}
+              </span>
             </div>
           </CardContent>
         </Card>

@@ -3,7 +3,7 @@ import { analyticsService } from '~/services/analyticsService'
 import type { DashboardAnalyticsResponse, DashboardPeriod } from '~/types/analytics'
 
 export function useDashboardAnalytics(initial: { period?: DashboardPeriod; dateFrom?: string; dateTo?: string } = {}) {
-  const [period, setPeriod] = useState<DashboardPeriod>(initial.period || 'last_30_days')
+  const [period, setPeriod] = useState<DashboardPeriod>(initial.period || 'all_time')
   const [dateFrom, setDateFrom] = useState<string | undefined>(initial.dateFrom)
   const [dateTo, setDateTo] = useState<string | undefined>(initial.dateTo)
   const [data, setData] = useState<DashboardAnalyticsResponse | null>(null)

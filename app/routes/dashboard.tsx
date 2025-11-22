@@ -1,8 +1,17 @@
 import { useDashboardAnalytics } from "~/hooks/useDashboardAnalytics"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
 import { Badge } from "~/components/ui/badge"
-import { IconTrendingUp, IconTrendingDown, IconCar, IconUsers, IconCurrencyDollar, IconClipboardList, IconChartBar } from "@tabler/icons-react"
+import { Button } from "~/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
+import { Input } from "~/components/ui/input"
+import { Label } from "~/components/ui/label"
+import { IconTrendingUp, IconTrendingDown, IconCar, IconUsers, IconCurrencyDollar, IconClipboardList, IconChartBar, IconCalendar, IconFilter } from "@tabler/icons-react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts"
+import { useEffect, useState } from "react"
+import { statusesApiService } from "~/services/statusesService"
+import type { StatusDropdownItem } from "~/types/status"
+import type { DashboardPeriod } from "~/types/analytics"
 
 // Utility functions
 function fmtCurrency(n: number | undefined) {
@@ -39,9 +48,64 @@ const chartColors = {
 const pieColors = ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ef4444', '#6b7280']
 
 export default function Page() {
-  const { data, loading, error, period, setPeriod } = useDashboardAnalytics()
+  const { data, loading, error, period, setPeriod, dateFrom, setDateFrom, dateTo, setDateTo, refetch } = useDashboardAnalytics()
+  const [statusMap, setStatusMap] = useState<Record<string, string>>({})
+  const [loadingStatuses, setLoadingStatuses] = useState(true)
+  const [customDateFrom, setCustomDateFrom] = useState(dateFrom || '')
+  const [customDateTo, setCustomDateTo] = useState(dateTo || '')
+  const [isCustomDateOpen, setIsCustomDateOpen] = useState(false)
 
-  if (loading) {
+  const periodOptions: { value: DashboardPeriod; label: string }[] = [
+    { value: 'all_time', label: 'All Time' },
+    { value: 'last_7_days', label: 'Last 7 Days' },
+    { value: 'last_30_days', label: 'Last 30 Days' },
+    { value: 'last_90_days', label: 'Last 90 Days' },
+    { value: 'ytd', label: 'Year to Date' },
+    { value: 'custom', label: 'Custom Range' }
+  ]
+
+  const handlePeriodChange = (newPeriod: DashboardPeriod) => {
+    setPeriod(newPeriod)
+    if (newPeriod !== 'custom') {
+      setDateFrom(undefined)
+      setDateTo(undefined)
+      setCustomDateFrom('')
+      setCustomDateTo('')
+    }
+  }
+
+  const handleApplyCustomDates = () => {
+    if (customDateFrom && customDateTo) {
+      setPeriod('custom')
+      setDateFrom(customDateFrom)
+      setDateTo(customDateTo)
+      setIsCustomDateOpen(false)
+      refetch()
+    }
+  }
+
+  // Fetch status mappings on mount
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      try {
+        const response = await statusesApiService.getActiveForDropdown()
+        if (response.success && response.data) {
+          const map: Record<string, string> = {}
+          response.data.forEach((status: StatusDropdownItem) => {
+            map[status._id] = status.name
+          })
+          setStatusMap(map)
+        }
+      } catch (err) {
+        console.error('Failed to fetch status mappings:', err)
+      } finally {
+        setLoadingStatuses(false)
+      }
+    }
+    fetchStatuses()
+  }, [])
+
+  if (loading || loadingStatuses) {
     return (
       <div className="space-y-6 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -101,8 +165,9 @@ export default function Page() {
   const trendData = data.trend.map(item => ({
     date: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     vehicles: item.vehicles,
-    enquiries: item.enquiries,
-    submissions: item.submissions,
+    vehicleEnquiries: item.vehicleEnquiries,
+    carSubmissions: item.carSubmissions,
+    contactEnquiries: item.contactEnquiries,
     sales: item.sales,
     revenue: item.salesRevenue
   }))
@@ -110,45 +175,118 @@ export default function Page() {
   // Prepare pie chart data for breakdown
   const breakdownData = [
     { name: 'Vehicles', value: data.kpis.totalVehicles, color: chartColors.vehicles },
-    { name: 'Enquiries', value: data.kpis.enquiries, color: chartColors.enquiries },
-    { name: 'Submissions', value: data.kpis.carSubmissions, color: chartColors.submissions },
+    { name: 'Vehicle Enquiries', value: data.kpis.vehicleEnquiries, color: chartColors.enquiries },
+    { name: 'Car Submissions', value: data.kpis.carSubmissions, color: chartColors.submissions },
+    { name: 'Contact Enquiries', value: data.kpis.contactEnquiries, color: '#ec4899' },
     { name: 'Sales', value: data.kpis.salesCount, color: chartColors.sales }
   ].filter(item => item.value > 0)
 
   const totalActivity = breakdownData.reduce((sum, item) => sum + item.value, 0)
 
+  // Helper function to get status name from ID
+  const getStatusName = (statusId: string): string => {
+    return statusMap[statusId] || statusId
+  }
+
   // Prepare status breakdown data
   const vehicleStatusData = Object.entries(data.breakdown.vehiclesByStatus || {}).map(([status, count]) => ({
-    status,
+    status: getStatusName(status),
+    statusId: status,
     count,
     percentage: ((count / data.kpis.totalVehicles) * 100).toFixed(1)
   }))
 
-  const enquiryStatusData = Object.entries(data.breakdown.enquiriesByStatus || {}).map(([status, count]) => ({
-    status,
+  const enquiryStatusData = Object.entries(data.breakdown.vehicleEnquiriesByStatus || {}).map(([status, count]) => ({
+    status: status,
+    statusId: status,
     count,
-    percentage: ((count / data.kpis.enquiries) * 100).toFixed(1)
+    percentage: ((count / data.kpis.vehicleEnquiries) * 100).toFixed(1)
   }))
 
-  const submissionStatusData = Object.entries(data.breakdown.submissionsByStatus || {}).map(([status, count]) => ({
-    status,
+  const submissionStatusData = Object.entries(data.breakdown.carSubmissionsByStatus || {}).map(([status, count]) => ({
+    status: status,
+    statusId: status,
     count,
     percentage: ((count / data.kpis.carSubmissions) * 100).toFixed(1)
   }))
 
   // Calculate conversion metrics
-  const conversionRate = data.kpis.salesCount > 0 && (data.kpis.enquiries + data.kpis.carSubmissions) > 0
-    ? ((data.kpis.salesCount / (data.kpis.enquiries + data.kpis.carSubmissions)) * 100).toFixed(1)
+  const conversionRate = data.kpis.salesCount > 0 && (data.kpis.vehicleEnquiries + data.kpis.carSubmissions + data.kpis.contactEnquiries) > 0
+    ? ((data.kpis.salesCount / (data.kpis.vehicleEnquiries + data.kpis.carSubmissions + data.kpis.contactEnquiries)) * 100).toFixed(1)
     : '0'
 
   return (
     <div className="space-y-6 p-6 w-full">
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Analytics overview for {new Date(data.period.start).toLocaleDateString()} - {new Date(data.period.end).toLocaleDateString()}
-        </p>
+      {/* Header with Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Analytics overview for {new Date(data.period.start).toLocaleDateString()} - {new Date(data.period.end).toLocaleDateString()}
+          </p>
+        </div>
+
+        {/* Period Filter */}
+        <div className="flex items-center gap-2">
+          <Select value={period} onValueChange={handlePeriodChange}>
+            <SelectTrigger className="w-[180px]">
+              <IconFilter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              {periodOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {period === 'custom' && (
+            <Popover open={isCustomDateOpen} onOpenChange={setIsCustomDateOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <IconCalendar className="w-4 h-4 mr-2" />
+                  {customDateFrom && customDateTo
+                    ? `${new Date(customDateFrom).toLocaleDateString()} - ${new Date(customDateTo).toLocaleDateString()}`
+                    : 'Select dates'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-4" align="end">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="dateFrom">From Date</Label>
+                    <Input
+                      id="dateFrom"
+                      type="date"
+                      value={customDateFrom}
+                      onChange={(e) => setCustomDateFrom(e.target.value)}
+                      max={customDateTo || undefined}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dateTo">To Date</Label>
+                    <Input
+                      id="dateTo"
+                      type="date"
+                      value={customDateTo}
+                      onChange={(e) => setCustomDateTo(e.target.value)}
+                      min={customDateFrom || undefined}
+                      max={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  <Button
+                    onClick={handleApplyCustomDates}
+                    disabled={!customDateFrom || !customDateTo}
+                    className="w-full"
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -203,7 +341,7 @@ export default function Page() {
             <IconClipboardList className="w-4 h-4 text-amber-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-900">{fmtNumber(data.kpis.enquiries)}</div>
+            <div className="text-2xl font-bold text-amber-900">{fmtNumber(data.kpis.vehicleEnquiries)}</div>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="secondary" className="text-amber-700">
                 {enquiryStatusData.length} statuses
@@ -256,8 +394,9 @@ export default function Page() {
                     }}
                   />
                   <Bar dataKey="vehicles" fill={chartColors.vehicles} name="Vehicles" />
-                  <Bar dataKey="enquiries" fill={chartColors.enquiries} name="Enquiries" />
-                  <Bar dataKey="submissions" fill={chartColors.submissions} name="Submissions" />
+                  <Bar dataKey="vehicleEnquiries" fill={chartColors.enquiries} name="Vehicle Enquiries" />
+                  <Bar dataKey="carSubmissions" fill={chartColors.submissions} name="Car Submissions" />
+                  <Bar dataKey="contactEnquiries" fill="#ec4899" name="Contact Enquiries" />
                   <Bar dataKey="sales" fill={chartColors.sales} name="Sales" />
                 </BarChart>
               </ResponsiveContainer>
@@ -304,7 +443,7 @@ export default function Page() {
       </div>
 
       {/* Status Breakdowns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Vehicle Enquiries Status */}
         <Card>
           <CardHeader>
@@ -362,6 +501,39 @@ export default function Page() {
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">No submissions yet</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Contact Enquiries Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-pink-700">
+              <IconUsers className="w-5 h-5" />
+              Contact Enquiries
+            </CardTitle>
+            <CardDescription>Status distribution of contact enquiries</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {Object.entries(data.breakdown.contactEnquiriesByStatus || {}).length > 0 ? (
+                Object.entries(data.breakdown.contactEnquiriesByStatus || {}).map(([status, count], index) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-pink-500"></div>
+                      <span className="text-sm font-medium capitalize">{status.replace(/_/g, ' ')}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        {((count / data.kpis.contactEnquiries) * 100).toFixed(1)}%
+                      </span>
+                      <Badge variant="secondary">{count}</Badge>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No contact enquiries yet</p>
               )}
             </div>
           </CardContent>
@@ -453,7 +625,7 @@ export default function Page() {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium">Total Leads</span>
-                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.enquiries + data.kpis.carSubmissions)}</span>
+                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.vehicleEnquiries + data.kpis.carSubmissions + data.kpis.contactEnquiries)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div className="bg-amber-500 h-3 rounded-full" style={{ width: '100%' }}></div>
@@ -463,12 +635,12 @@ export default function Page() {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-medium">Vehicle Enquiries</span>
-                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.enquiries)}</span>
+                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.vehicleEnquiries)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
                     className="bg-amber-400 h-3 rounded-full" 
-                    style={{ width: `${((data.kpis.enquiries / (data.kpis.enquiries + data.kpis.carSubmissions)) * 100).toFixed(0)}%` }}
+                    style={{ width: `${((data.kpis.vehicleEnquiries / (data.kpis.vehicleEnquiries + data.kpis.carSubmissions + data.kpis.contactEnquiries)) * 100).toFixed(0)}%` }}
                   ></div>
                 </div>
               </div>
@@ -481,7 +653,20 @@ export default function Page() {
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
                     className="bg-purple-500 h-3 rounded-full" 
-                    style={{ width: `${((data.kpis.carSubmissions / (data.kpis.enquiries + data.kpis.carSubmissions)) * 100).toFixed(0)}%` }}
+                    style={{ width: `${((data.kpis.carSubmissions / (data.kpis.vehicleEnquiries + data.kpis.carSubmissions + data.kpis.contactEnquiries)) * 100).toFixed(0)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm font-medium">Contact Enquiries</span>
+                  <span className="text-sm font-semibold">{fmtNumber(data.kpis.contactEnquiries)}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-pink-500 h-3 rounded-full" 
+                    style={{ width: `${((data.kpis.contactEnquiries / (data.kpis.vehicleEnquiries + data.kpis.carSubmissions + data.kpis.contactEnquiries)) * 100).toFixed(0)}%` }}
                   ></div>
                 </div>
               </div>

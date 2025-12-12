@@ -5,8 +5,8 @@ module.exports = {
       script: 'npx',
       args: 'react-router-serve ./build/server/index.js',
       cwd: '/var/www/royal-drive-admin',
-      instances: 'max',
-      exec_mode: 'cluster',
+      instances: 1,
+      exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
         PORT: 3002,

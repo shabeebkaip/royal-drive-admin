@@ -2,7 +2,9 @@ module.exports = {
   apps: [
     {
       name: 'royal-drive-admin',
-      script: './build/server/index.js',
+      script: 'npx',
+      args: 'react-router-serve ./build/server/index.js',
+      cwd: '/var/www/royal-drive-admin',
       instances: 'max',
       exec_mode: 'cluster',
       env: {

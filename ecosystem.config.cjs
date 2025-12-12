@@ -7,7 +7,7 @@ module.exports = {
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 3002,
       },
       error_file: './logs/pm2-error.log',
       out_file: './logs/pm2-out.log',
@@ -18,7 +18,7 @@ module.exports = {
       max_memory_restart: '1G',
       env_production: {
         NODE_ENV: 'production',
-        PORT: 3001,
+        PORT: 3002,
       },
     },
   ],

@@ -80,18 +80,26 @@ export class ApiService<TEntity extends BaseEntity, TFormData> {
       
       const result = await response.json()
       
-      // Handle both paginated and non-paginated responses
-      if (result.data && result.data.makes && Array.isArray(result.data.makes)) {
-        // Handle the API response format: { data: { makes: [], pagination: {} } }
-        return {
-          data: transformMongoDocs<TEntity>(result.data.makes),
-          pagination: result.data.pagination
-        } as ApiResponse<TEntity>
-      } else if (result.data && Array.isArray(result.data)) {
+      // Handle all API response formats:
+      // 1. { data: [...] }  — flat array in data
+      // 2. { data: { vehicles: [], pagination: {} } }  — nested under entity key
+      // 3. [...]  — bare array
+      if (result.data && Array.isArray(result.data)) {
         return {
           data: transformMongoDocs<TEntity>(result.data),
           pagination: result.pagination
         } as ApiResponse<TEntity>
+      } else if (result.data && typeof result.data === 'object' && !Array.isArray(result.data)) {
+        // Find the first array property (vehicles, makes, vehicleTypes, fuelTypes, statuses, etc.)
+        const { pagination, ...rest } = result.data
+        const arrayEntry = Object.entries(rest).find(([, v]) => Array.isArray(v))
+        if (arrayEntry) {
+          return {
+            data: transformMongoDocs<TEntity>(arrayEntry[1] as any[]),
+            pagination: pagination || result.data.pagination
+          } as ApiResponse<TEntity>
+        }
+        throw new Error('Invalid response format')
       } else if (Array.isArray(result)) {
         return { data: transformMongoDocs<TEntity>(result) } as ApiResponse<TEntity>
       } else {

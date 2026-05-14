@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Plus, Grid, List, AlertCircle, ArrowUpDown, Trash2, RefreshCw } from "lucide-react";
-import { edealerService } from "~/services/edealerService";
+import { SyncProgressDialog } from "~/components/vehicles/SyncProgressDialog";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
@@ -77,8 +77,11 @@ export function VehicleInventory({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState<{ created: number; updated: number; total: number } | null>(null);
+
+  const apiBase = import.meta.env.VITE_API_BASE_URL as string;
+  const token = document.cookie.split("; ").find(r => r.startsWith("auth_token="))?.split("=")[1] ?? "";
 
   const {
     vehicles: allVehicles,
@@ -114,25 +117,9 @@ export function VehicleInventory({
     console.log("Export vehicles with filters:", filters);
   };
 
-  const handleSyncEDealer = async () => {
-    setIsSyncing(true);
+  const handleSyncEDealer = () => {
     setLastSyncResult(null);
-    try {
-      const res = await edealerService.syncInventory();
-      if (res.success) {
-        setLastSyncResult(res.data);
-        toast.success(
-          `Sync complete — ${res.data.created} added, ${res.data.updated} updated out of ${res.data.total} vehicles`
-        );
-        refetch();
-      } else {
-        toast.error("Sync failed. Please try again.");
-      }
-    } catch (err) {
-      toast.error("Failed to connect to EDealer. Check your backend.");
-    } finally {
-      setIsSyncing(false);
-    }
+    setSyncDialogOpen(true);
   };
 
   const handleDeleteClick = (vehicle: any) => {
@@ -503,11 +490,10 @@ export function VehicleInventory({
                 size="sm"
                 variant="outline"
                 onClick={handleSyncEDealer}
-                disabled={isSyncing}
                 className="flex items-center gap-2"
               >
-                <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
-                {isSyncing ? "Syncing…" : "Sync EDealer"}
+                <RefreshCw className="h-4 w-4" />
+                Sync EDealer
               </Button>
 
               {!hideAddButton && (
@@ -705,6 +691,17 @@ export function VehicleInventory({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SyncProgressDialog
+        open={syncDialogOpen}
+        token={token}
+        apiBase={apiBase}
+        onClose={() => { setSyncDialogOpen(false); refetch(); }}
+        onComplete={(result) => {
+          setLastSyncResult(result);
+          toast.success(`Sync complete — ${result.created} added, ${result.updated} updated out of ${result.total} vehicles`);
+        }}
+      />
     </div>
   );
 }

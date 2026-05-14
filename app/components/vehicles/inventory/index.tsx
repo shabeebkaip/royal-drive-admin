@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Plus, Grid, List, AlertCircle, ArrowUpDown, Trash2 } from "lucide-react";
+import { Plus, Grid, List, AlertCircle, ArrowUpDown, Trash2, RefreshCw } from "lucide-react";
+import { edealerService } from "~/services/edealerService";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
@@ -76,6 +77,8 @@ export function VehicleInventory({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncResult, setLastSyncResult] = useState<{ created: number; updated: number; total: number } | null>(null);
 
   const {
     vehicles: allVehicles,
@@ -108,8 +111,28 @@ export function VehicleInventory({
   };
 
   const handleExport = () => {
-    // TODO: Implement export functionality
     console.log("Export vehicles with filters:", filters);
+  };
+
+  const handleSyncEDealer = async () => {
+    setIsSyncing(true);
+    setLastSyncResult(null);
+    try {
+      const res = await edealerService.syncInventory();
+      if (res.success) {
+        setLastSyncResult(res.data);
+        toast.success(
+          `Sync complete — ${res.data.created} added, ${res.data.updated} updated out of ${res.data.total} vehicles`
+        );
+        refetch();
+      } else {
+        toast.error("Sync failed. Please try again.");
+      }
+    } catch (err) {
+      toast.error("Failed to connect to EDealer. Check your backend.");
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleDeleteClick = (vehicle: any) => {
@@ -456,6 +479,11 @@ export function VehicleInventory({
               <p className="text-sm text-gray-600 mt-1">
                 {loading ? "Loading..." : `${pagination?.total || 0} vehicles`}
               </p>
+              {lastSyncResult && (
+                <p className="text-xs text-emerald-600 mt-0.5 font-medium">
+                  Last sync — {lastSyncResult.created} added, {lastSyncResult.updated} updated ({lastSyncResult.total} total)
+                </p>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
@@ -470,6 +498,17 @@ export function VehicleInventory({
                   onOpenChange={setMobileFiltersOpen}
                 />
               )}
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleSyncEDealer}
+                disabled={isSyncing}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+                {isSyncing ? "Syncing…" : "Sync EDealer"}
+              </Button>
 
               {!hideAddButton && (
                 <Button size="sm" asChild>

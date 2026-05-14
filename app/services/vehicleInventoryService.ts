@@ -330,7 +330,13 @@ class VehicleInventoryService {
     if (filters.maxSeating) queryParams.append('maxSeating', filters.maxSeating.toString())
     
     // Add status & availability filters
-    if (filters.status) queryParams.append('status', filters.status)
+    if (filters.status) {
+      // Specific status requested (e.g. sold page) — use it directly, no exclusion
+      queryParams.append('status', filters.status)
+    } else {
+      // Default: exclude sold and draft from the main inventory list
+      queryParams.append('excludeStatus', 'sold,draft')
+    }
     if (filters.inStock !== undefined) queryParams.append('inStock', filters.inStock.toString())
     if (filters.featured !== undefined) queryParams.append('featured', filters.featured.toString())
     

@@ -51,7 +51,6 @@ interface VehicleInventoryProps {
   hideAddButton?: boolean;
   customTitle?: string;
   hideActionButtons?: boolean;
-  excludeSoldStatus?: string; // ID of sold status to exclude from inventory
 }
 
 export function VehicleInventory({
@@ -60,14 +59,7 @@ export function VehicleInventory({
   hideAddButton = false,
   customTitle,
   hideActionButtons = false,
-  excludeSoldStatus,
 }: VehicleInventoryProps) {
-  console.log(
-    "🚗 VehicleInventory component rendered with defaultFilters:",
-    defaultFilters,
-    "excludeSoldStatus:",
-    excludeSoldStatus
-  );
 
   const [viewMode, setViewMode] = useLocalStorage<"table" | "grid">(
     "vehicle-inventory-view",
@@ -84,7 +76,7 @@ export function VehicleInventory({
   const token = document.cookie.split("; ").find(r => r.startsWith("auth_token="))?.split("=")[1] ?? "";
 
   const {
-    vehicles: allVehicles,
+    vehicles,
     pagination,
     loading,
     isFetching,
@@ -97,11 +89,6 @@ export function VehicleInventory({
     searchQuery,
     setSearchQuery,
   } = useVehicleInventory(defaultFilters);
-
-  // Filter out sold vehicles if excludeSoldStatus is provided
-  const vehicles = excludeSoldStatus
-    ? allVehicles.filter(vehicle => vehicle.status?._id !== excludeSoldStatus)
-    : allVehicles;
 
   const handlePageChange = (page: number) => {
     console.log("📄 Page change requested:", page);

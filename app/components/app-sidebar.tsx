@@ -53,6 +53,14 @@ const data = {
           title: "Sold Vehicles",
           url: "/vehicles/sold",
         },
+        {
+          title: "Draft Vehicles",
+          url: "/vehicles/draft",
+        },
+        {
+          title: "Sync History",
+          url: "/sync-history",
+        },
       ],
     },
     {

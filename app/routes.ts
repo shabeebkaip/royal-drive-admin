@@ -6,6 +6,7 @@ export default [
 		index("routes/dashboard.tsx"),
 		route("vehicles", "routes/vehicles.tsx"),
 		route("vehicles/sold", "routes/vehicles.sold.tsx"),
+		route("vehicles/draft", "routes/vehicles.draft.tsx"),
 		route("vehicles/add", "routes/vehicles.add.tsx"),
 		route("vehicles/:id", "routes/vehicles.$id.tsx"),
 		route("vehicles/:id/edit", "routes/vehicles.$id.edit.tsx"),
@@ -27,6 +28,8 @@ export default [
 		route("legal/privacy", "routes/legal.privacy.tsx"),
 		// Settings
 		route("settings", "routes/settings.tsx"),
+		// Sync History
+		route("sync-history", "routes/sync-history.tsx"),
 	]),
 ] satisfies RouteConfig;
 

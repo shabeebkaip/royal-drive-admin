@@ -6,21 +6,28 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Badge } from "~/components/ui/badge";
-import { Progress } from "~/components/ui/progress";
-import { CheckCircle, PlusCircle, AlertCircle, Loader2, Zap } from "lucide-react";
+import {
+  CheckCircle2,
+  PlusCircle,
+  AlertCircle,
+  Loader2,
+  Zap,
+  LogIn,
+  Download,
+  Database,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 type SyncEvent =
-  | { type: "fetch"; message: string }
-  | { type: "start"; total: number; message: string }
+  | { type: "step";    step: number; message: string; status: "running" | "done" | "error" }
+  | { type: "page";    page: number; fetched: number; total: number | null }
+  | { type: "start";   total: number; message: string }
   | { type: "vehicle"; current: number; total: number; action: "created" | "updated" | "skipped"; name: string; year: number; price: number | null; status: string }
-  | { type: "error"; current: number; total: number; name: string; error: string }
-  | { type: "done"; created: number; updated: number; skipped: number; total: number; errors: number };
+  | { type: "error";   current: number; total: number; name: string; error: string }
+  | { type: "done";    created: number; updated: number; skipped: number; total: number; errors: number };
 
-interface LogLine {
-  id: number;
-  event: SyncEvent;
-}
+interface LogLine { id: number; event: SyncEvent }
 
 interface Props {
   open: boolean;
@@ -30,11 +37,14 @@ interface Props {
   onComplete: (result: { created: number; updated: number; total: number }) => void;
 }
 
-const formatPrice = (p: number | null) =>
+const fmt = (p: number | null) =>
   p != null ? `$${p.toLocaleString("en-CA")}` : "";
+
+const STEP_ICONS = [LogIn, Download, Database];
 
 export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }: Props) {
   const [lines, setLines] = useState<LogLine[]>([]);
+  const [steps, setSteps] = useState<Map<number, { message: string; status: string }>>(new Map());
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(0);
   const [done, setDone] = useState(false);
@@ -47,34 +57,26 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
     setLines(prev => [...prev, { id: counterRef.current, event }]);
   };
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
-  }, [lines]);
+  }, [lines, steps]);
 
   useEffect(() => {
     if (!open) {
-      setLines([]);
-      setTotal(0);
-      setCurrent(0);
-      setDone(false);
-      setSummary(null);
-      counterRef.current = 0;
+      setLines([]); setSteps(new Map()); setTotal(0); setCurrent(0);
+      setDone(false); setSummary(null); counterRef.current = 0;
       return;
     }
 
-    // Connect to SSE stream
     const controller = new AbortController();
-
     (async () => {
       try {
         const res = await fetch(`${apiBase}/edealer/sync/stream`, {
           headers: { Authorization: `Bearer ${token}` },
           signal: controller.signal,
         });
-
         if (!res.ok || !res.body) return;
 
         const reader = res.body.getReader();
@@ -84,7 +86,6 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
         while (true) {
           const { done: streamDone, value } = await reader.read();
           if (streamDone) break;
-
           buffer += decoder.decode(value, { stream: true });
           const parts = buffer.split("\n\n");
           buffer = parts.pop() ?? "";
@@ -94,49 +95,97 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
             if (!line) continue;
             try {
               const event: SyncEvent = JSON.parse(line);
-              addLine(event);
 
-              if (event.type === "start") setTotal(event.total);
-              if (event.type === "vehicle" || event.type === "error") setCurrent(event.current);
-              if (event.type === "done") {
+              if (event.type === "step") {
+                setSteps(prev => new Map(prev).set(event.step, { message: event.message, status: event.status }));
+              } else if (event.type === "page") {
+                addLine(event);
+              } else if (event.type === "start") {
+                setTotal(event.total);
+                addLine(event);
+              } else if (event.type === "vehicle" || event.type === "error") {
+                setCurrent(event.current);
+                addLine(event);
+              } else if (event.type === "done") {
                 setDone(true);
                 setSummary({ created: event.created, updated: event.updated, skipped: event.skipped, errors: event.errors });
                 onComplete({ created: event.created, updated: event.updated, total: event.total });
               }
-            } catch { /* ignore parse errors */ }
+            } catch { /* ignore */ }
           }
         }
       } catch (err: any) {
         if (err.name !== "AbortError") {
-          addLine({ type: "error", current: 0, total: 0, name: "Connection", error: "Stream disconnected" });
           setDone(true);
         }
       }
     })();
-
     return () => controller.abort();
   }, [open]);
 
   const progress = total > 0 ? Math.round((current / total) * 100) : 0;
+  const stepEntries = Array.from(steps.entries()).sort(([a], [b]) => a - b);
 
   return (
     <Dialog open={open} onOpenChange={done ? onClose : undefined}>
-      <DialogContent className="max-w-2xl w-full p-0 overflow-hidden" onInteractOutside={e => { if (!done) e.preventDefault(); }}>
-        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+      <DialogContent
+        className="max-w-3xl w-[90vw] p-0 overflow-hidden flex flex-col"
+        style={{ maxHeight: "85vh" }}
+        onInteractOutside={e => { if (!done) e.preventDefault(); }}
+      >
+        {/* Header */}
+        <DialogHeader className="px-6 pt-5 pb-4 border-b flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-base font-semibold">
             <Zap className="w-4 h-4 text-blue-600" />
             EDealer Sync
-            {!done && <Loader2 className="w-4 h-4 animate-spin text-gray-400 ml-1" />}
-            {done && <Badge variant="outline" className="text-emerald-600 border-emerald-300 ml-1">Complete</Badge>}
+            {!done
+              ? <Loader2 className="w-4 h-4 animate-spin text-gray-400 ml-1" />
+              : <Badge variant="outline" className="text-emerald-600 border-emerald-300 ml-1">Complete</Badge>
+            }
           </DialogTitle>
 
+          {/* Step tracker */}
+          {stepEntries.length > 0 && (
+            <div className="mt-3 flex flex-col gap-1.5">
+              {stepEntries.map(([step, { message, status }]) => {
+                const Icon = STEP_ICONS[step - 1] ?? ChevronRight;
+                return (
+                  <div key={step} className="flex items-center gap-2.5 text-xs">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      status === 'done' ? 'bg-emerald-100 text-emerald-600' :
+                      status === 'running' ? 'bg-blue-100 text-blue-600' :
+                      'bg-red-100 text-red-600'
+                    }`}>
+                      {status === 'running'
+                        ? <Loader2 className="w-3 h-3 animate-spin" />
+                        : status === 'done'
+                          ? <CheckCircle2 className="w-3 h-3" />
+                          : <AlertCircle className="w-3 h-3" />
+                      }
+                    </div>
+                    <span className={
+                      status === 'done' ? 'text-emerald-700 font-medium' :
+                      status === 'running' ? 'text-blue-700 font-medium' :
+                      'text-red-600'
+                    }>
+                      Step {step}: {message}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Progress bar */}
           {total > 0 && (
-            <div className="mt-3 space-y-1.5">
+            <div className="mt-3 space-y-1">
               <div className="flex justify-between text-xs text-gray-500">
-                <span>{done ? "Finished" : `Processing ${current} of ${total} vehicles`}</span>
+                <span>{done ? "Complete" : `${current} of ${total} vehicles`}</span>
                 <span>{progress}%</span>
               </div>
-              <Progress value={progress} className="h-1.5" />
+              <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+                <div className="h-full bg-blue-600 transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+              </div>
             </div>
           )}
         </DialogHeader>
@@ -144,20 +193,24 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
         {/* Live log */}
         <div
           ref={logRef}
-          className="h-[380px] overflow-y-auto px-4 py-3 space-y-0.5 bg-gray-950 font-mono text-xs"
+          className="flex-1 overflow-y-auto px-4 py-3 space-y-0.5 bg-gray-950 font-mono text-xs min-h-0"
         >
           {lines.map(({ id, event }) => {
-            if (event.type === "fetch") {
+            if (event.type === "page") {
               return (
-                <div key={id} className="text-gray-400 flex items-center gap-2 py-0.5">
-                  <Loader2 className="w-3 h-3 animate-spin flex-shrink-0" />
-                  {event.message}
+                <div key={id} className="text-gray-500 flex items-center gap-2 py-0.5">
+                  <Download className="w-3 h-3 flex-shrink-0 text-blue-500" />
+                  <span>
+                    Page {event.page} — fetched{" "}
+                    <span className="text-blue-400">{event.fetched}</span> vehicles
+                    {event.total ? ` (${event.total} total)` : ""}
+                  </span>
                 </div>
               );
             }
             if (event.type === "start") {
               return (
-                <div key={id} className="text-blue-400 py-1 border-b border-gray-800 mb-1">
+                <div key={id} className="text-blue-400 py-1 border-b border-gray-800 mb-1 font-medium">
                   ✦ {event.message}
                 </div>
               );
@@ -165,17 +218,18 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
             if (event.type === "vehicle") {
               const isNew = event.action === "created";
               return (
-                <div key={id} className="flex items-center gap-2 py-0.5 group">
+                <div key={id} className="flex items-center gap-2 py-0.5">
                   {isNew
                     ? <PlusCircle className="w-3 h-3 text-emerald-400 flex-shrink-0" />
-                    : <CheckCircle className="w-3 h-3 text-gray-500 flex-shrink-0" />}
-                  <span className={isNew ? "text-emerald-300" : "text-gray-400"}>
+                    : <CheckCircle2 className="w-3 h-3 text-gray-600 flex-shrink-0" />
+                  }
+                  <span>
                     <span className="text-gray-600 mr-1.5">{String(event.current).padStart(3, "0")}.</span>
                     <span className={isNew ? "text-emerald-300 font-medium" : "text-gray-300"}>
                       {event.year} {event.name}
                     </span>
-                    {event.price && (
-                      <span className="text-gray-500 ml-1.5">{formatPrice(event.price)}</span>
+                    {event.price != null && (
+                      <span className="text-gray-500 ml-1.5">{fmt(event.price)}</span>
                     )}
                     <span className={`ml-2 text-[10px] uppercase tracking-wider ${isNew ? "text-emerald-500" : "text-gray-600"}`}>
                       {event.action}
@@ -199,7 +253,11 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
               return (
                 <div key={id} className="mt-2 pt-2 border-t border-gray-800 text-gray-300 space-y-0.5">
                   <div className="text-emerald-400 font-medium">✓ Sync complete</div>
-                  <div><span className="text-emerald-400">{event.created}</span> created · <span className="text-blue-400">{event.updated}</span> updated · <span className="text-gray-500">{event.skipped}</span> skipped</div>
+                  <div>
+                    <span className="text-emerald-400">{event.created}</span> created ·{" "}
+                    <span className="text-blue-400">{event.updated}</span> updated ·{" "}
+                    <span className="text-gray-500">{event.skipped}</span> skipped
+                  </div>
                   {event.errors > 0 && <div className="text-red-400">{event.errors} errors</div>}
                 </div>
               );
@@ -207,7 +265,7 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
             return null;
           })}
 
-          {!done && lines.length === 0 && (
+          {!done && lines.length === 0 && stepEntries.length === 0 && (
             <div className="text-gray-600 flex items-center gap-2">
               <Loader2 className="w-3 h-3 animate-spin" />
               Connecting to EDealer…
@@ -215,16 +273,16 @@ export function SyncProgressDialog({ open, token, apiBase, onClose, onComplete }
           )}
         </div>
 
-        {/* Summary footer */}
+        {/* Footer */}
         {done && summary && (
-          <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
+          <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between flex-shrink-0">
             <div className="flex gap-4 text-sm">
               <span className="text-emerald-600 font-semibold">+{summary.created} added</span>
               <span className="text-blue-600 font-semibold">↻ {summary.updated} updated</span>
               {summary.skipped > 0 && <span className="text-gray-500">{summary.skipped} skipped</span>}
               {summary.errors > 0 && <span className="text-red-500">{summary.errors} errors</span>}
             </div>
-            <Button size="sm" onClick={onClose}>Close</Button>
+            <Button size="sm" onClick={onClose} className="rounded-full px-6">Close</Button>
           </div>
         )}
       </DialogContent>

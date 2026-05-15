@@ -148,18 +148,7 @@ export default function VehicleDetail(_props: Route.ComponentProps) {
                 Back
               </Button>
             </Link>
-            {vehicle.status?.slug !== 'sold' && (
-              <div className="flex gap-2">
-                <Link to={`/vehicles/${vehicle._id}/edit`}>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                    <Edit className="h-4 w-4 mr-2" />Edit
-                  </Button>
-                </Link>
-                <Button variant="destructive" size="sm" onClick={handleDelete}>
-                  <Trash2 className="h-4 w-4 mr-2" />Delete
-                </Button>
-              </div>
-            )}
+            {/* Edit/Delete removed — all changes happen in EDealer */}
           </div>
         </div>
       </div>

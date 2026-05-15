@@ -255,19 +255,6 @@ export function VehicleInventory({
                     <Button size="sm" className="flex-1" asChild>
                       <Link to={`/vehicles/${vehicle._id}`}>View Details</Link>
                     </Button>
-                    {vehicle.status?.slug !== "sold" && (
-                      <Button size="sm" variant="outline" asChild>
-                        <Link to={`/vehicles/${vehicle._id}/edit`}>Edit</Link>
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDeleteClick(vehicle)}
-                      className="px-3"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               </CardContent>

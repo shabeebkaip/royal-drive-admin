@@ -46,12 +46,8 @@ const data = {
       icon: IconCar,
       items: [
         {
-          title: "All Vehicles",
+          title: "For Sale",
           url: "/vehicles",
-        },
-        {
-          title: "Sold Vehicles",
-          url: "/vehicles/sold",
         },
         {
           title: "Draft Vehicles",

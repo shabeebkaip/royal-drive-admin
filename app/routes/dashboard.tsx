@@ -293,28 +293,28 @@ export default function Page() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 xl:grid-cols-5 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription className="text-blue-700">Revenue</CardDescription>
-            <IconCurrencyDollar className="w-4 h-4 text-blue-600" />
+            <CardDescription className="text-blue-700">Contact Enquiries</CardDescription>
+            <IconClipboardList className="w-4 h-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">{fmtCurrency(data.kpis.revenue)}</div>
+            <div className="text-2xl font-bold text-blue-900">{fmtNumber(data.kpis.contactEnquiries)}</div>
             <div className="flex items-center gap-2 mt-1">
-              <GrowthBadge value={data.kpis.revenueGrowth} />
-              <span className="text-xs text-blue-700">vs last period</span>
+              <span className="text-xs text-blue-700">from website contact form</span>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardDescription className="text-emerald-700">Sales</CardDescription>
-            <IconChartBar className="w-4 h-4 text-emerald-600" />
+            <CardDescription className="text-emerald-700">For Sale</CardDescription>
+            <IconCar className="w-4 h-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-900">{fmtNumber(data.kpis.salesCount)}</div>
+            <div className="text-2xl font-bold text-emerald-900">
+              {fmtNumber(data.kpis.availableVehicles ?? data.kpis.totalVehicles)}
+            </div>
             <div className="flex items-center gap-2 mt-1">
-              <GrowthBadge value={data.kpis.salesGrowth} />
-              <span className="text-xs text-emerald-700">{conversionRate}% conv.</span>
+              <span className="text-xs text-emerald-700">active EDealer listings</span>
             </div>
           </CardContent>
         </Card>
@@ -397,21 +397,20 @@ export default function Page() {
                   <Bar dataKey="vehicleEnquiries" fill={chartColors.enquiries} name="Vehicle Enquiries" />
                   <Bar dataKey="carSubmissions" fill={chartColors.submissions} name="Car Submissions" />
                   <Bar dataKey="contactEnquiries" fill="#ec4899" name="Contact Enquiries" />
-                  <Bar dataKey="sales" fill={chartColors.sales} name="Sales" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        {/* Revenue Trend */}
+        {/* Enquiry Trend */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <IconCurrencyDollar className="w-5 h-5" />
-              Sales Revenue Trend
+              <IconClipboardList className="w-5 h-5" />
+              Enquiries Trend
             </CardTitle>
-            <CardDescription>Daily sales revenue over time</CardDescription>
+            <CardDescription>Daily enquiry activity over time</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-96">
@@ -419,22 +418,17 @@ export default function Page() {
                 <LineChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
-                  <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--card))', 
+                  <YAxis />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px'
                     }}
-                    formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke={chartColors.revenue} 
-                    strokeWidth={3}
-                    dot={{ fill: chartColors.revenue, strokeWidth: 2, r: 6 }}
-                  />
+                  <Line type="monotone" dataKey="vehicleEnquiries" stroke={chartColors.enquiries} strokeWidth={2} name="Vehicle Enquiries" dot={false} />
+                  <Line type="monotone" dataKey="contactEnquiries" stroke="#ec4899" strokeWidth={2} name="Contact Enquiries" dot={false} />
+                  <Line type="monotone" dataKey="carSubmissions" stroke={chartColors.submissions} strokeWidth={2} name="Car Submissions" dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

@@ -63,11 +63,6 @@ const data = {
         },
       ],
     },
-    {
-      title: "Sales",
-      url: "/sales",
-      icon: IconChartBar,
-    },
   ],
   navProcurement: [
     {

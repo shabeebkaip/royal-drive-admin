@@ -152,113 +152,74 @@ export function VehicleInventory({
 
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {vehicles.map((vehicle) => (
-            <Card
+            <Link
               key={vehicle._id}
-              className="overflow-hidden hover:shadow-lg transition-shadow"
+              to={`/vehicles/${vehicle._id}`}
+              className="group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-md transition-all duration-200"
             >
-              <div className="relative w-full bg-gray-100 overflow-hidden" style={{ aspectRatio: "16/9" }}>
+              {/* Image — 4:3 aspect ratio matches EDealer CDN dimensions */}
+              <div className="relative overflow-hidden bg-gray-50" style={{ aspectRatio: "4/3" }}>
                 {vehicle.media?.images?.[0] ? (
                   <img
                     src={vehicle.media.images[0]}
-                    alt={`${vehicle.make?.name || "Unknown"} ${vehicle.model?.name || "Model"}`}
-                    className="w-full h-full object-contain bg-gray-50"
+                    alt={`${vehicle.year} ${vehicle.make?.name} ${vehicle.model?.name}`}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <div className="text-center text-gray-400">
-                      <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-lg font-bold">
-                          {(vehicle.make?.name || "U").charAt(0)}
-                          {(vehicle.model?.name || "M").charAt(0)}
-                        </span>
-                      </div>
-                      <p className="text-sm">No Image</p>
-                    </div>
+                  <div className="w-full h-full flex items-center justify-center text-gray-300">
+                    <span className="text-4xl font-bold">
+                      {(vehicle.make?.name || "?").charAt(0)}
+                    </span>
                   </div>
                 )}
 
-                {/* Overlay badges */}
-                <div className="absolute top-2 left-2">
-                  {vehicle.marketing?.featured && (
-                    <Badge className="bg-yellow-500 text-yellow-900">
+                {/* Status badge */}
+                <div className="absolute top-2.5 right-2.5">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm uppercase tracking-wide">
+                    {vehicle.status?.name || "Available"}
+                  </span>
+                </div>
+
+                {vehicle.marketing?.featured && (
+                  <div className="absolute top-2.5 left-2.5">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400 text-white shadow-sm uppercase tracking-wide">
                       Featured
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="absolute top-2 right-2">
-                  <Badge
-                    variant="outline"
-                    className="bg-white/90 backdrop-blur-sm"
-                    style={{
-                      borderColor: vehicle.status?.color || "#6b7280",
-                      color: vehicle.status?.color || "#6b7280",
-                    }}
-                  >
-                    {vehicle.status?.name || "Unknown"}
-                  </Badge>
-                </div>
-
-                {!vehicle.availability?.inStock && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <Badge variant="destructive" className="text-lg">
-                      Out of Stock
-                    </Badge>
+                    </span>
                   </div>
                 )}
               </div>
 
-              <CardContent className="p-4">
-                <div className="space-y-2">
-                  <div>
-                    <h3 className="font-semibold text-lg leading-tight">
-                      {vehicle.year} {vehicle.make?.name || "Unknown"}{" "}
-                      {vehicle.model?.name || "Model"}
-                    </h3>
-                    {vehicle.trim && (
-                      <p className="text-sm text-gray-600">{vehicle.trim}</p>
-                    )}
-                  </div>
+              {/* Info */}
+              <div className="p-4">
+                <h3 className="font-bold text-gray-900 text-sm leading-snug truncate">
+                  {vehicle.year} {vehicle.make?.name} {vehicle.model?.name}
+                </h3>
+                {vehicle.trim && (
+                  <p className="text-xs text-gray-500 mt-0.5 truncate">{vehicle.trim}</p>
+                )}
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">
-                      {new Intl.NumberFormat().format(
-                        vehicle.odometer?.value || 0
-                      )}{" "}
-                      {vehicle.odometer?.unit || "km"}
-                    </span>
-                    <Badge variant="outline" className="text-xs">
-                      {vehicle.type?.name || "Unknown"}
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="text-xl font-bold text-gray-900">
-                      {new Intl.NumberFormat("en-CA", {
-                        style: "currency",
-                        currency: vehicle.pricing?.currency || "CAD",
-                      }).format(vehicle.pricing?.listPrice || 0)}
-                    </div>
-
-                    {vehicle.pricing?.financing?.available &&
-                      vehicle.pricing?.financing?.monthlyPayment && (
-                        <div className="text-sm text-blue-600">
-                          ${vehicle.pricing.financing.monthlyPayment}/mo
-                        </div>
-                      )}
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-2">
-                    <Button size="sm" className="flex-1" asChild>
-                      <Link to={`/vehicles/${vehicle._id}`}>View Details</Link>
-                    </Button>
-                  </div>
+                <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                  <span>{new Intl.NumberFormat("en-CA").format(vehicle.odometer?.value || 0)} km</span>
+                  <span className="bg-gray-100 px-2 py-0.5 rounded font-medium text-gray-600">
+                    {vehicle.type?.name || "—"}
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-lg font-extrabold text-gray-900">
+                    {new Intl.NumberFormat("en-CA", {
+                      style: "currency",
+                      currency: "CAD",
+                      minimumFractionDigits: 0,
+                    }).format(vehicle.pricing?.listPrice || 0)}
+                  </div>
+                  <span className="text-[10px] text-gray-400">+ HST</span>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
 

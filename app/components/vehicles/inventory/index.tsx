@@ -158,12 +158,12 @@ export function VehicleInventory({
               key={vehicle._id}
               className="overflow-hidden hover:shadow-lg transition-shadow"
             >
-              <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
+              <div className="relative w-full bg-gray-100 overflow-hidden" style={{ aspectRatio: "16/9" }}>
                 {vehicle.media?.images?.[0] ? (
                   <img
                     src={vehicle.media.images[0]}
                     alt={`${vehicle.make?.name || "Unknown"} ${vehicle.model?.name || "Model"}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain bg-gray-50"
                     loading="lazy"
                   />
                 ) : (
